@@ -101,7 +101,7 @@
 <meta property="og:site_name" content="蓝新闻">
 <meta property="og:description" content="C#中的泛型泛型的来历&amp;emsp;&amp;emsp;在写程序中常常遇到两个模块的功能非常相似，只是一个是处理int数据，另一个是处理string数据，或者其他自定义的数据类型，但我们没有办法，只能分别写多个方法处理每个数据类型，因为方法的参数类型不同。有没有一种办法，在方法中传入通用的数据类型，这样不就可以合并代码了吗？具体在C#中，基本集合是没有类型化的，需要把object项转化为集合中实际存储的对象">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-09-02T14:09:28.342Z">
+<meta property="og:updated_time" content="2017-09-02T14:14:33.045Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CSharp中的泛型">
 <meta name="twitter:description" content="C#中的泛型泛型的来历&amp;emsp;&amp;emsp;在写程序中常常遇到两个模块的功能非常相似，只是一个是处理int数据，另一个是处理string数据，或者其他自定义的数据类型，但我们没有办法，只能分别写多个方法处理每个数据类型，因为方法的参数类型不同。有没有一种办法，在方法中传入通用的数据类型，这样不就可以合并代码了吗？具体在C#中，基本集合是没有类型化的，需要把object项转化为集合中实际存储的对象">
@@ -543,8 +543,12 @@ object x = node.add(2, &quot;11&quot;);
 <p>由以上示例可知，C#的泛型是在实例的方法被调用时检查重载是否产生混淆，而不是在泛型类本身编译时检查。同时还得出一个重要原则：</p>
 <p><strong>当一般方法与泛型方法具有相同的签名时，会覆盖泛型方法。</strong></p>
 <p><strong>如果类是泛型的，就必须为泛型方法类型使用不同的标识符</strong></p>
-<p>这段代码就不能编译<br>    public class StringGetter<t><br>    {<br>      public string GetString<t>(T item)=&gt;item.ToString();<br>    } </t></t></p>
-<p>同一个泛型类型的参数T不能既用于泛型类又用于泛型方法，需要重命名其中的一个或两个，应改为</p>
+<p>这段代码就不能编译</p>
+<pre><code>public class StringGetter&lt;T&gt;
+{
+  public string GetString&lt;T&gt;(T item)=&gt;item.ToString();
+} 
+</code></pre><p>同一个泛型类型的参数T不能既用于泛型类又用于泛型方法，需要重命名其中的一个或两个，应改为</p>
 <pre><code>public class StringGetter&lt;U&gt;
 {
   public string GetString&lt;T&gt;(T item)=&gt;item.ToString();
