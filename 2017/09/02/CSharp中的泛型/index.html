@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="C#中的泛型泛型的来历&amp;emsp;&amp;emsp;在写程序中常常遇到两个模块的功能非常相似，只是一个是处理int数据，另一个是处理string数据，或者其他自定义的数据类型，但我们没有办法，只能分别写多个方法处理每个数据类型，因为方法的参数类型不同。有没有一种办法，在方法中传入通用的数据类型，这样不就可以合并代码了吗？具体在C#中，基本集合是没有类型化的，需要把object项转化为集合中实际存储的对象">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CSharp中的泛型">
+<meta property="og:url" content="http://yoursite.com/2017/09/02/CSharp中的泛型/index.html">
+<meta property="og:site_name" content="蓝新闻">
+<meta property="og:description" content="C#中的泛型泛型的来历&amp;emsp;&amp;emsp;在写程序中常常遇到两个模块的功能非常相似，只是一个是处理int数据，另一个是处理string数据，或者其他自定义的数据类型，但我们没有办法，只能分别写多个方法处理每个数据类型，因为方法的参数类型不同。有没有一种办法，在方法中传入通用的数据类型，这样不就可以合并代码了吗？具体在C#中，基本集合是没有类型化的，需要把object项转化为集合中实际存储的对象">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-09-02T07:08:30.514Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CSharp中的泛型">
+<meta name="twitter:description" content="C#中的泛型泛型的来历&amp;emsp;&amp;emsp;在写程序中常常遇到两个模块的功能非常相似，只是一个是处理int数据，另一个是处理string数据，或者其他自定义的数据类型，但我们没有办法，只能分别写多个方法处理每个数据类型，因为方法的参数类型不同。有没有一种办法，在方法中传入通用的数据类型，这样不就可以合并代码了吗？具体在C#中，基本集合是没有类型化的，需要把object项转化为集合中实际存储的对象">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/09/02/CSharp中的泛型/"/>
+
+
+
+
+
+  <title>CSharp中的泛型 | 蓝新闻</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">蓝新闻</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/02/CSharp中的泛型/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Lan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蓝新闻">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">CSharp中的泛型</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-02T12:02:50+08:00">
+                2017-09-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/09/02/CSharp中的泛型/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2017/09/02/CSharp中的泛型/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="C-中的泛型"><a href="#C-中的泛型" class="headerlink" title="C#中的泛型"></a>C#中的泛型</h1><h2 id="泛型的来历"><a href="#泛型的来历" class="headerlink" title="泛型的来历"></a>泛型的来历</h2><p>&emsp;&emsp;在写程序中常常遇到两个模块的功能非常相似，只是一个是处理int数据，另一个是处理string数据，或者其他自定义的数据类型，但我们没有办法，只能分别写多个方法处理每个数据类型，因为方法的参数类型不同。有没有一种办法，在方法中传入通用的数据类型，这样不就可以合并代码了吗？具体在C#中，基本集合是没有类型化的，需要把object项转化为集合中实际存储的对象类型，而且继承自System.object的任何对象都可以存储在ArrayList中，这就在处理问题时需要特别仔细。如果在一开始就使用强化类型的集合，就可以解决问题。</p>
+<p>&emsp;&emsp;泛型就是为此而生的，泛型类是在实例化的过程中提供的类型或类为基础建立的。这里与C++模板所不同的是，C++是在编译时便检测在哪里使用了模板的某个特定类型，而C#中所有的操作都是在运行期间进行。</p>
+<a id="more"></a>
+<h2 id="一个简单的栗子"><a href="#一个简单的栗子" class="headerlink" title="一个简单的栗子"></a>一个简单的栗子</h2><p>这个例子功能简单，就是实现一个栈，且只能处理int数据类型：</p>
+<pre><code>public class Stack
+
+    {
+
+        private int[] m_item;
+
+        public int Pop(){...}
+
+        public void Push(int item){...}
+
+        public Stack(int i)
+
+        {
+            this.m_item = new int[i];
+        }
+    }
+</code></pre><p>但是，当我们需要一个栈来保存string类型时，该怎么办呢？很多人都会想到把上面的代码复制一份，把int改成string不就行了。当然，这样做本身是没有任何问题的，但一个优秀的程序是不会这样做的，因为他想到若以后再需要long、Node类型的栈该怎样做呢？还要再复制吗？优秀的程序员会想到用一个通用的数据类型object来实现这个栈：</p>
+<pre><code>public class Stack
+
+    {
+        private object[] m_item;
+
+        public object Pop(){...}
+
+        public void Push(object item){...}
+
+        public Stack(int i)
+
+        {
+            this.m_item = new[i];
+        }    
+
+    }
+</code></pre><p>这个栈写的不错，他非常灵活，可以接收任何数据类型，可以说是一劳永逸。但全面地讲，也不是没有缺陷的，主要表现在：</p>
+<p>当Stack处理值类型时，会出现装箱、折箱操作，这将在托管堆上分配和回收大量的变量，若数据量大，则性能损失非常严重。<br>在处理引用类型时，虽然没有装箱和折箱操作，但将用到数据类型的强制转换操作，增加处理器的负担。<br>在数据类型的强制转换上还有更严重的问题（假设stack是Stack的一个实例）：</p>
+<pre><code>Node1 x = new Node1();
+
+stack.Push(x);
+
+Node2 y = (Node2)stack.Pop();
+</code></pre><p>这里push的时一个Node1类型的数据，但是在pop时却要求强制转换为Node2类型的数据，由于存的时object类型的，所有这个类型转换异常就逃离了编译器的检查。</p>
+<h2 id="使用泛型"><a href="#使用泛型" class="headerlink" title="使用泛型"></a>使用泛型</h2><p>可以用泛型来重写上述的代码，用一个通用的数据类型T来作为一个占位符，等待在实例化时用一个实际的类型来代替。</p>
+<pre><code>public class Stack&lt;T&gt;
+
+    {
+
+        private T[] m_item;
+
+        public T Pop(){...}
+
+        public void Push(T item){...}
+
+        public Stack(int i)
+
+        {
+
+            this.m_item = new T[i];
+
+        }
+
+     }
+</code></pre><p>这个通用数据类型T是可以适用于任何数据类型，且是类型安全的，这个类的调用方法是：</p>
+<pre><code>//实例化只能保存int类型的类
+
+Stack&lt;int&gt; a = new Stack&lt;int&gt;(100);
+
+a.Push(10);
+
+a.Push(&quot;8888&quot;); //这一行编译不通过，因为类a只接收int类型的数据
+
+ int x = a.Pop();
+
+//实例化只能保存string类型的类
+
+Stack&lt;string&gt; b = new Stack&lt;string&gt;(100);
+
+b.Push(10); //这一行编译不通过，因为类b只接收string类型的数据
+
+b.Push(&quot;8888&quot;);
+
+string y = b.Pop();
+</code></pre><p>这个类和object实现的类有截然不同的区别：</p>
+<ol>
+<li><p>他是类型安全的。实例化了int类型的栈，就不能处理string类型的数据，其他数据类型也一样。</p>
+</li>
+<li><p>无需装箱和折箱。这个类在实例化时，按照所传入的数据类型生成本地代码，本地代码数据类型已确定，所以无需装箱和折箱。</p>
+</li>
+<li><p>无需类型转换。</p>
+</li>
+</ol>
+<p>&emsp;&emsp;C#泛型类在编译时，先生成中间代码IL，通用类型T只是一个占位符。在实例化类时，根据用户指定的数据类型代替T并由即时编译器（JIT）生成本地代码，这个本地代码中已经使用了实际的数据类型，等同于用实际类型写的类，所以不同的封闭类的本地代码是不一样的。按照这个原理，我们可以这样认为：</p>
+<p><strong>泛型类的不同的封闭类是分别不同的数据类型</strong></p>
+<p><strong>Stack<int>和Stack<string>是两个完全没有任何关系的类，你可以把他看成类A和类B，这个解释对泛型类的静态成员的理解有很大帮助。</string></int></strong></p>
+<h2 id="定义泛型类型"><a href="#定义泛型类型" class="headerlink" title="定义泛型类型"></a>定义泛型类型</h2><p>泛型的定义过程</p>
+<h3 id="定义泛型类型-1"><a href="#定义泛型类型-1" class="headerlink" title="定义泛型类型"></a>定义泛型类型</h3><p>要创建泛型类，在类定义中包含尖括号就是了</p>
+<pre><code>class MyGenericClass&lt;T1,T2,T3&gt;
+</code></pre><p>定义了这些类型后，就可以把他们作为，成员变量的类型，属性或方法等成员的返回类型，或者方法的参数类型。</p>
+<p>这里有一点是需要注意的，处理对象集合是可以的，因为这不需要对对象类型做出任何假设，如果要求对对象类型进行实际假设，如==号，就需要了解类中使用的类型，这就一般是不能通过编译的。</p>
+<p>对于没有任何约束的泛型（无绑定）类型可以使用default关键词</p>
+<pre><code>private T1 innerT1Object;
+
+innerT1Object=default(T1);
+</code></pre><p>如果T1是引用类型就给他赋null值，如果是值类型就给他赋默认值，对于数字类型，默认值是0。</p>
+<h3 id="约束类型"><a href="#约束类型" class="headerlink" title="约束类型"></a>约束类型</h3><p>程序员在编写泛型类时，总是会对通用数据类型T进行有意或无意地有假想，也就是说这个T一般来说是不能适应所有类型，但怎样限制调用者传入的数据类型呢？这就需要对传入的数据类型进行约束，约束的方式是指定T的祖先，即继承的接口或类。因为C#的单根继承性，所以约束可以有多个接口，但最多只能有一个类，并且类必须在接口之前。</p>
+<pre><code>class MyGenericClass&lt;T1,T2&gt;: MyBaseClass,IMyInterface
+    where T1: constraint1 where T2:constraint
+{...}
+</code></pre><p>这里的constraint可以取：<br>struct 类型必须是值类型，</p>
+<p>class 类型必须是引用类型，</p>
+<p>baseClass 必须是基类或者继承自基类，使用类名作为约束，</p>
+<p>interface 必须是接口或者实现了接口，</p>
+<p>new() 类型必须有一个公共的无参数构造函数，用于类中能实例话T类型的变量，例如在构造函数中实例化。</p>
+<p>可以通过baseClass约束把一个类型的参数用作另一个参数类型的约束：</p>
+<pre><code>class MyGenericClass&lt;T1,T2&gt; where T2:T1{...}
+</code></pre><p>这里T2必须与T1类型相同或者继承于T1,这叫裸类型约束</p>
+<p>但类型约束不能循环</p>
+<pre><code>class MyGenericClass&lt;T1,T2&gt; where T2:T1 where T1：T2 {...}
+</code></pre><h3 id="从泛型类型中继承"><a href="#从泛型类型中继承" class="headerlink" title="从泛型类型中继承"></a>从泛型类型中继承</h3><p>类可以从泛型类型继承例如：</p>
+<pre><code>class Farm&lt;T&gt;:where T:Animal{...}
+
+class SuperFarm&lt;T&gt;: Farm&lt;T&gt; where T:SuperCow {...}//SuperCow继承于Cow继承于Animal
+</code></pre><p>但是如果某个类型所继承的基类型中受到了约束，该类型就不能解除约束，该类型所受到的类型约束至少应该与基类型的约束相同，把T约束为Animal的一个子集是可以的，但是约束为超集就会编译失败,例如：</p>
+<pre><code>class SuperFarm&lt;T&gt;:Farm&lt;T&gt; where T:class {...}
+</code></pre><p>另外，如果继承于一个泛型类型，就必须提供所必须的类型信息，一是可以使用上面的使用其他泛型类型的参数形式提供，也可以显式提供</p>
+<pre><code>public class Cards:List&lt;Card&gt;,ICloneable{...}//这是可行的
+public class Cards:List&lt;T&gt;,ICloneable{...}//没有提供T的信息，所以无法编译
+</code></pre><p>如果给泛型类型提供了参数，例如List<card\>就称该类型是关闭的，没有提供，如List<t\> 就是继承一个打开的泛型类型</t\></card\></p>
+<h3 id="泛型运算符"><a href="#泛型运算符" class="headerlink" title="泛型运算符"></a>泛型运算符</h3><p>在C#中也是可以进行运算符重写的</p>
+<p>例如，隐式转换运算符,可以在Farm<t>中定义：</t></p>
+<pre><code>public static implicit operator List&lt;Animal&gt;(Farm&lt;T&gt; farm){...}
+</code></pre><h2 id="泛型方法"><a href="#泛型方法" class="headerlink" title="泛型方法"></a>泛型方法</h2><p>泛型不仅能作用在类上，也可单独用在类的方法上，他可根据方法参数的类型自动适应各种参数，这样的方法叫泛型方法。</p>
+<pre><code>public class Stack2
+    {
+        public void Push&lt;T&gt;(Stack&lt;T&gt; s, params T[] p)
+        {
+            foreach (T t in p)
+            {
+                s.Push(t);
+            }
+        }
+     }
+</code></pre><p>原来的类Stack一次只能Push一个数据，这个类Stack2扩展了Stack的功能（当然也可以直接写在Stack中），他可以一次把多个数据压入Stack中。其中Push是一个泛型方法，这个方法的调用示例如下：</p>
+<pre><code>Stack&lt;int&gt; x = new Stack&lt;int&gt;(100);
+
+    Stack2 x2 = new Stack2();
+
+    x2.Push(x, 1, 2, 3, 4, 6);
+
+    string s = &quot;&quot;;
+
+    for (int i = 0; i &lt; 5; i++)
+
+    {
+
+        s += x.Pop().ToString();
+
+    }    //至此，s的值为64321
+</code></pre><h2 id="泛型方法的重载"><a href="#泛型方法的重载" class="headerlink" title="泛型方法的重载"></a>泛型方法的重载</h2><p>方法的重载要求重载具有不同的签名。在泛型类中，由于通用类型T在类编写时并不确定，所以在重载时有些注意事项。</p>
+<pre><code>public class Node&lt;T, V&gt;
+
+    {
+
+        public T add(T a, V b)          //第一个add
+
+        {
+
+            return a;
+
+        }
+
+        public T add(V a, T b)          //第二个add
+
+        {
+
+            return b;
+
+        }
+
+        public int add(int a, int b)    //第三个add
+
+        {
+
+            return a + b;
+
+        }
+
+     }
+</code></pre><p>上面的类很明显，如果T和V都传入int的话，三个add方法将具有同样的签名，但这个类仍然能通过编译，是否会引起调用混淆将在这个类实例化和调用add方法时判断。请看下面调用代码：</p>
+<pre><code>Node&lt;int, int&gt; node = new Node&lt;int, int&gt;();
+
+object x = node.add(2, 11);
+</code></pre><p>这个Node的实例化引起了三个add具有同样的签名，但却能调用成功，因为他优先匹配了第三个add。但如果删除了第三个add，上面的调用代码则无法编译通过，提示方法产生的混淆，因为运行时无法在第一个add和第二个add之间选择。</p>
+<pre><code>Node&lt;string, int&gt; node = new Node&lt;string, int&gt;();
+
+object x = node.add(2, &quot;11&quot;);
+</code></pre><p>   这两行调用代码可正确编译，因为传入的string和int，使三个add具有不同的签名，当然能找到唯一匹配的add方法。</p>
+<p>由以上示例可知，C#的泛型是在实例的方法被调用时检查重载是否产生混淆，而不是在泛型类本身编译时检查。同时还得出一个重要原则：</p>
+<p><strong>当一般方法与泛型方法具有相同的签名时，会覆盖泛型方法。</strong></p>
+<h2 id="变体"><a href="#变体" class="headerlink" title="变体"></a>变体</h2><p>对于变体，先总结一句话：<strong>参数协变，返回值抗变</strong></p>
+<p>在多态性中，允许把派生类型的变量放到基类的变量中</p>
+<pre><code>Cow myCow=new Cow(&quot;sss&quot;);
+Animal myAnimal=myCow;
+</code></pre><p>这是允许的，因为Cow派生自Animal但是这不适用于接口</p>
+<pre><code>IMyInterface&lt;Cow&gt; cowInterface=myCow;
+IMyInterface&lt;Animal&gt; animalInterface=cowInterface;
+</code></pre><p>这就不行了。假定Cow支持IMyInterface<cow>接口第一行是没问题的，但是第二行预先假定了两个接口类型有某种关系，为了使上述代码工作，就要让IMyInterface<t\>的类型参数是协变的，在IMyInterface<cow\>和IMyInterface<animal\>建立继承关系。协变是把泛型接口值放到使用基类的变量中，而抗变则是把泛型接口值放到使用派生类型的变量中，例如：</animal\></cow\></t\></cow></p>
+<pre><code>IMyInterface&lt;Cow&gt; cowInterface=myCow;
+IMyInterface&lt;SuperCow&gt; superCowInterface=cowInterface;
+</code></pre><p>协变是在类型定义中使用out关键词：</p>
+<pre><code>public interface IMyInterface&lt;out T&gt;{...}
+</code></pre><p>抗变则是在类型定义中使用in关键词</p>
+<pre><code>public interface IMyInterface&lt; in T&gt;{...}
+</code></pre>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/10/当我们在科研的时候我们在科研什么/" rel="next" title="当我们在科研的时候我们在科研什么">
+                <i class="fa fa-chevron-left"></i> 当我们在科研的时候我们在科研什么
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Lan" />
+          <p class="site-author-name" itemprop="name">Lan</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#C-中的泛型"><span class="nav-number">1.</span> <span class="nav-text">C#中的泛型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#泛型的来历"><span class="nav-number">1.1.</span> <span class="nav-text">泛型的来历</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一个简单的栗子"><span class="nav-number">1.2.</span> <span class="nav-text">一个简单的栗子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用泛型"><span class="nav-number">1.3.</span> <span class="nav-text">使用泛型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#定义泛型类型"><span class="nav-number">1.4.</span> <span class="nav-text">定义泛型类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义泛型类型-1"><span class="nav-number">1.4.1.</span> <span class="nav-text">定义泛型类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#约束类型"><span class="nav-number">1.4.2.</span> <span class="nav-text">约束类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#从泛型类型中继承"><span class="nav-number">1.4.3.</span> <span class="nav-text">从泛型类型中继承</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#泛型运算符"><span class="nav-number">1.4.4.</span> <span class="nav-text">泛型运算符</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#泛型方法"><span class="nav-number">1.5.</span> <span class="nav-text">泛型方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#泛型方法的重载"><span class="nav-number">1.6.</span> <span class="nav-text">泛型方法的重载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#变体"><span class="nav-number">1.7.</span> <span class="nav-text">变体</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://lanxiuwen.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://yoursite.com/2017/09/02/CSharp中的泛型/';
+          this.page.identifier = '2017/09/02/CSharp中的泛型/';
+          this.page.title = 'CSharp中的泛型';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://lanxiuwen.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
