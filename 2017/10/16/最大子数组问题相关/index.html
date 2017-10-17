@@ -101,7 +101,7 @@
 <meta property="og:site_name" content="蓝新闻">
 <meta property="og:description" content="最大子数组问题相关问题提出简单说来，就是在一个数组里找到子数组，使得子数组各个元素之和为最大。 问题分析暴力解法最为暴力的解法当然是直接遍历每一个可能的子数组，对于每一个(i,j)的子数组求和，其复杂度为O(n^2) 暴力解法代码如下： #include&amp;lt;iostream&amp;gt; using namespace std; int FindMax(int * array, int n); in">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-10-17T09:32:35.864Z">
+<meta property="og:updated_time" content="2017-10-17T11:43:07.514Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="最大子数组问题相关">
 <meta name="twitter:description" content="最大子数组问题相关问题提出简单说来，就是在一个数组里找到子数组，使得子数组各个元素之和为最大。 问题分析暴力解法最为暴力的解法当然是直接遍历每一个可能的子数组，对于每一个(i,j)的子数组求和，其复杂度为O(n^2) 暴力解法代码如下： #include&amp;lt;iostream&amp;gt; using namespace std; int FindMax(int * array, int n); in">
@@ -370,7 +370,8 @@ int FindMax(int * array, int n)
 
     return sum_max;
 }
-</code></pre><h3 id="基于分治策略的解法"><a href="#基于分治策略的解法" class="headerlink" title="基于分治策略的解法"></a>基于分治策略的解法</h3><p>最大的子数组一定位于一下集中情况之一</p>
+</code></pre><a id="more"></a>
+<h3 id="基于分治策略的解法"><a href="#基于分治策略的解法" class="headerlink" title="基于分治策略的解法"></a>基于分治策略的解法</h3><p>最大的子数组一定位于一下集中情况之一</p>
 <p>1.完全位于子数组A[low..mid]中</p>
 <p>2.完全位于子数组A[mid..high]中</p>
 <p>3.位于跨过中点的[i..mid..j]中</p>
