@@ -94,17 +94,17 @@
 
 
 
-<meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.">
+<meta name="description" content="最大子数组问题相关问题提出简单说来，就是在一个数组里找到子数组，使得子数组各个元素之和为最大。 问题分析暴力解法最为暴力的解法当然是直接遍历每一个可能的子数组，对于每一个(i,j)的子数组求和，其复杂度为O(n^2) 暴力解法代码如下： #include&amp;lt;iostream&amp;gt; using namespace std; int FindMax(int * array, int n); in">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="http://yoursite.com/2017/08/04/hello-world/index.html">
+<meta property="og:title" content="最大子数组问题相关">
+<meta property="og:url" content="http://yoursite.com/2017/10/16/最大子数组问题相关/index.html">
 <meta property="og:site_name" content="蓝新闻">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.">
+<meta property="og:description" content="最大子数组问题相关问题提出简单说来，就是在一个数组里找到子数组，使得子数组各个元素之和为最大。 问题分析暴力解法最为暴力的解法当然是直接遍历每一个可能的子数组，对于每一个(i,j)的子数组求和，其复杂度为O(n^2) 暴力解法代码如下： #include&amp;lt;iostream&amp;gt; using namespace std; int FindMax(int * array, int n); in">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-08-06T11:46:49.932Z">
+<meta property="og:updated_time" content="2017-10-17T09:32:35.864Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello World">
-<meta name="twitter:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.">
+<meta name="twitter:title" content="最大子数组问题相关">
+<meta name="twitter:description" content="最大子数组问题相关问题提出简单说来，就是在一个数组里找到子数组，使得子数组各个元素之和为最大。 问题分析暴力解法最为暴力的解法当然是直接遍历每一个可能的子数组，对于每一个(i,j)的子数组求和，其复杂度为O(n^2) 暴力解法代码如下： #include&amp;lt;iostream&amp;gt; using namespace std; int FindMax(int * array, int n); in">
 
 
 
@@ -133,13 +133,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/08/04/hello-world/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/10/16/最大子数组问题相关/"/>
 
 
 
 
 
-  <title>Hello World | 蓝新闻</title>
+  <title>最大子数组问题相关 | 蓝新闻</title>
   
 
 
@@ -262,7 +262,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/04/hello-world/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/16/最大子数组问题相关/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Lan">
@@ -279,7 +279,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Hello World</h1>
+          <h1 class="post-title" itemprop="name headline">最大子数组问题相关</h1>
         
 
         <div class="post-meta">
@@ -291,8 +291,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-04T12:18:42+08:00">
-                2017-08-04
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-16T22:05:58+08:00">
+                2017-10-16
               </time>
             
 
@@ -310,9 +310,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2017/08/04/hello-world/#comments" itemprop="discussionUrl">
+                <a href="/2017/10/16/最大子数组问题相关/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2017/08/04/hello-world/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2017/10/16/最大子数组问题相关/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -340,16 +340,197 @@
       
 
       
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.<br><a id="more"></a></p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+        <h1 id="最大子数组问题相关"><a href="#最大子数组问题相关" class="headerlink" title="最大子数组问题相关"></a>最大子数组问题相关</h1><h2 id="问题提出"><a href="#问题提出" class="headerlink" title="问题提出"></a>问题提出</h2><p>简单说来，就是在一个数组里找到子数组，使得子数组各个元素之和为最大。</p>
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><h3 id="暴力解法"><a href="#暴力解法" class="headerlink" title="暴力解法"></a>暴力解法</h3><p>最为暴力的解法当然是直接遍历每一个可能的子数组，对于每一个(i,j)的子数组求和，其复杂度为O(n^2)</p>
+<p>暴力解法代码如下：</p>
+<pre><code>#include&lt;iostream&gt;
+using namespace std;
+int FindMax(int * array, int n);
+int main(void)
+{
+    int a[16] = { 13,-3,-25,20,-3,-16,-23,18,20,-7,12,-5,-22,15,-4,7 };
+    int ans = FindMax(a, 16);
+    return 0;
+}
+int FindMax(int * array, int n)
+{
+    int sum_max = -INT32_MAX;
+    for(int i=0;i&lt;n;i++)
+        for (int j = i; j &lt; n; j++)
+        {
+            int sum = array[i];
 
+            for (int m = i+1; m &lt;= j; m++)
+            {
+                sum += array[m];
+            }
+            if (sum &gt; sum_max)
+                sum_max = sum;
+        }
+
+    return sum_max;
+}
+</code></pre><h3 id="基于分治策略的解法"><a href="#基于分治策略的解法" class="headerlink" title="基于分治策略的解法"></a>基于分治策略的解法</h3><p>最大的子数组一定位于一下集中情况之一</p>
+<p>1.完全位于子数组A[low..mid]中</p>
+<p>2.完全位于子数组A[mid..high]中</p>
+<p>3.位于跨过中点的[i..mid..j]中</p>
+<p>其中1、2种情况完全是规模较小的问题，所以可以使用分治策略来进行计算</p>
+<p>对于3这种情况则可以在线性时间内求出结果，因为确定了mid这个点，就只需要求出以mid为右端点的左边最大的子数组和以mid为左端点的右边最大子数组，再将这两个子数组加在一起，就求出了跨过mid点的最大子数组</p>
+<p>而对于其他两种情况，在分治到极限的情况，即low=high的情况，就只有一个点，直接返回就OK。</p>
+<pre><code>#include&lt;iostream&gt;
+using namespace std;
+
+int FindMax(int * array, int low, int high);
+int FindCross(int * array, int low, int mid, int high);
+
+int main(void)
+{
+    int a[16] = { 13,-3,-25,20,-3,-16,-23,18,20,-7,12,-5,-22,15,-4,7 };
+    int ans = FindMax(a, 0，15);
+
+    return 0;
+}
+
+int FindMax(int * array, int low, int high)
+{
+    if (high == low)
+        return array[low];
+    else if ((high + low) % 2 == 0)
+    {
+        int mid = (high + low) / 2;
+        int left_sum = FindMax(array, low, mid);//求左半边最大
+        int right_sum = FindMax(array, mid + 1, high);//求右半边最大
+        int cross_sum = FindCross(array, low, mid, high);//求跨过中点最大
+
+        int max_sum = left_sum;
+        if (max_sum &lt; cross_sum)
+            max_sum = cross_sum;
+        if (max_sum &lt; right_sum)
+            max_sum = right_sum;
+        return max_sum;
+    }
+    else if ((high + low) % 2 == 1)
+    {
+        int mid = (high + low-1) / 2;
+        int left_sum = FindMax(array, low, mid);
+        int right_sum = FindMax(array, mid + 1, high);
+        int cross_sum = FindCross(array, low, mid, high);
+
+        int max_sum = left_sum;
+        if (max_sum &lt; cross_sum)
+            max_sum = cross_sum;
+        if (max_sum &lt; right_sum)
+            max_sum = right_sum;
+        return max_sum;
+    }
+}
+
+int FindCross(int * array, int low, int mid, int high)
+{
+    int left_sum =-INT32_MAX;
+    int sum = 0;
+    for (int i = mid;i &gt;= low; i--)//遍历一遍mid左边
+    {
+        sum += array[i];
+        if (sum &gt; left_sum)
+        {
+            left_sum = sum;
+        }
+    }
+
+    int right_sum = -INT32_MAX;
+    sum = 0;
+    for (int j = mid + 1; j &lt;= high; j++)//遍历一边mid右边
+    {
+        sum += array[j];
+        if (sum &gt; right_sum)
+            right_sum = sum;
+    }
+
+    return left_sum + right_sum;
+
+}
+</code></pre><p>容易注意到，在求Mid时使用了(low+high)%2是否为1的分类讨论，实事上可以用右移一位以达到除以2的效果，而且不需要讨论</p>
+<p>这样杨FindMax函数则写为</p>
+<pre><code>int FindMax(int * array, int low, int high)
+{
+    if (high == low)
+        return array[low];
+        int mid = (high + low)&gt;&gt;1;
+        int left_sum = FindMax(array, low, mid);
+        int right_sum = FindMax(array, mid + 1, high);
+        int cross_sum = FindCross(array, low, mid, high);
+
+        int max_sum = left_sum;
+        if (max_sum &lt; cross_sum)
+            max_sum = cross_sum;
+        if (max_sum &lt; right_sum)
+            max_sum = right_sum;
+        return max_sum;
+}
+</code></pre><h3 id="线性时间算法"><a href="#线性时间算法" class="headerlink" title="线性时间算法"></a>线性时间算法</h3><p>最大子数组问题有一个线性时间的算法</p>
+<p>这里先给出算法</p>
+<pre><code>#include&lt;iostream&gt;
+using namespace std;
+int FindMax(int * array, int n);
+int main(void)
+{
+    int a[16] = { 13,-3,-25,20,-3,-16,-23,18,20,-7,12,-5,-22,15,-4,7 };
+    int ans = FindMax(a, 16);
+
+    return 0;
+}
+
+int FindMax(int * array, int n)
+{
+    int max = array[0];//最大值
+    int sum = array[0];//当前最大值
+    for (int i = 1; i &lt; n; i++)
+    {
+        if ((sum + array[i]) &gt; sum)
+        {
+
+            if (sum &lt; 0)
+                sum = array[i];
+            else
+            {
+                sum = sum + array[i];
+            }
+        }
+
+        else
+        {
+            if (sum + array[i] &gt; array[i])
+                sum = sum + array[i];
+            else
+            {
+                sum = array[i];
+            }
+        }
+        if (sum &gt; max)
+            max = sum;
+    }
+    return max;
+}
+</code></pre><p>这是自己根据思想写的，但是优化空间还比较大</p>
+<p>将重复项合并可以得到</p>
+<pre><code>int FindMax(int * array, int n)
+{
+    int max = array[0];//最大值
+    int sum = array[0];//当前最大值
+    for (int i = 1; i &lt; n; i++)
+    {
+        if (sum &gt; 0)//如果当前和大于0则可以加入下一个元素
+            sum = sum + array[i];
+        else //如果当前和小于0则扔掉。重新计sum
+            sum = array[i];
+
+        if (sum &gt; max)
+            max = sum;
+    }
+    return max;
+}
+</code></pre>
       
     </div>
     
@@ -373,15 +554,15 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2017/09/02/CSharp中的泛型/" rel="next" title="CSharp中的泛型">
+                <i class="fa fa-chevron-left"></i> CSharp中的泛型
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/08/06/C-中迭代器实现的一点问题/" rel="prev" title="C#中迭代器实现的一点问题">
-                C#中迭代器实现的一点问题 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -504,7 +685,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quick-Start"><span class="nav-number">1.</span> <span class="nav-text">Quick Start</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-a-new-post"><span class="nav-number">1.1.</span> <span class="nav-text">Create a new post</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run-server"><span class="nav-number">1.2.</span> <span class="nav-text">Run server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generate-static-files"><span class="nav-number">1.3.</span> <span class="nav-text">Generate static files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deploy-to-remote-sites"><span class="nav-number">1.4.</span> <span class="nav-text">Deploy to remote sites</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#最大子数组问题相关"><span class="nav-number">1.</span> <span class="nav-text">最大子数组问题相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题提出"><span class="nav-number">1.1.</span> <span class="nav-text">问题提出</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题分析"><span class="nav-number">1.2.</span> <span class="nav-text">问题分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#暴力解法"><span class="nav-number">1.2.1.</span> <span class="nav-text">暴力解法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基于分治策略的解法"><span class="nav-number">1.2.2.</span> <span class="nav-text">基于分治策略的解法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线性时间算法"><span class="nav-number">1.2.3.</span> <span class="nav-text">线性时间算法</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
@@ -652,9 +833,9 @@
     
       <script type="text/javascript">
         var disqus_config = function () {
-          this.page.url = 'http://yoursite.com/2017/08/04/hello-world/';
-          this.page.identifier = '2017/08/04/hello-world/';
-          this.page.title = 'Hello World';
+          this.page.url = 'http://yoursite.com/2017/10/16/最大子数组问题相关/';
+          this.page.identifier = '2017/10/16/最大子数组问题相关/';
+          this.page.title = '最大子数组问题相关';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://lanxiuwen.disqus.com/embed.js';
