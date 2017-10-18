@@ -103,7 +103,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/images/CurrentProgram.png">
 <meta property="og:image" content="http://yoursite.com/images/3.png">
-<meta property="og:updated_time" content="2017-10-18T06:52:22.030Z">
+<meta property="og:updated_time" content="2017-10-18T06:56:50.518Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="输出当前程序的代码">
 <meta name="twitter:description" content="输出当前程序的代码问题和白博聊天，白博提了一个问题，一个程序输出其代码本身。 在和白博的交流中，想到一个比较取巧的办法，就是直接读取源代码，然后输出。 先给出代码 #include&amp;lt;iostream&amp;gt; #include&amp;lt;fstream&amp;gt; #include&amp;lt;vector&amp;gt; #include&amp;lt;string.h&amp;gt; #include&amp;lt;sstream&amp;g">
@@ -367,7 +367,8 @@ int main(void)
     cout &lt;&lt; strAll;
     return 0;
 }
-</code></pre><p>运行结果为</p>
+</code></pre><a id="more"></a>
+<p>运行结果为</p>
 <p><img src="/images/CurrentProgram.png" alt="运行结果"></p>
 <h2 id="理论"><a href="#理论" class="headerlink" title="理论"></a>理论</h2><p>这样做的理论基础是，由于程序在由源代码到可执行文件的转变过程后与最初的.cpp文件已经没有关系了</p>
 <p>一般来说这个过程分为编译和链接两个部分，如下图</p>
