@@ -260,6 +260,297 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/02/用程序分析C语言声明/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Lan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蓝新闻">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/02/用程序分析C语言声明/" itemprop="url">post</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-02T16:59:20+08:00">
+                2018-01-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/01/02/用程序分析C语言声明/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/01/02/用程序分析C语言声明/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="用程序来分析C语言声明"><a href="#用程序来分析C语言声明" class="headerlink" title="用程序来分析C语言声明"></a>用程序来分析C语言声明</h1><p>直接给出代码</p>
+<pre><code>#pragma warning(disable:4996)//解决VS安全性警告
+
+#include&lt;stdio.h&gt;
+#include&lt;string.h&gt;
+#include&lt;ctype.h&gt;
+#include&lt;stdlib.h&gt;
+
+#define MAXTOKENS 100
+#define MAXTOKENLEN 64
+
+enum type_tag { IDENTIFIER,QUALIFIER,TYPE };
+
+struct token
+{
+    char type;
+    char string[MAXTOKENLEN];
+};
+
+int top = -1;
+
+struct token stack[MAXTOKENS];
+struct token current;
+
+#define pop stack[top--]
+#define push(s) stack[++top]=s
+
+enum type_tag classify_string(void)
+//推断标识符类型
+{
+    char *s = current.string;
+    if (!strcmp(s, &quot;const&quot;))
+    {
+        strcpy(s, &quot;read-only&quot;);
+        return QUALIFIER;
+    }
+
+    if (!(strcmp(s, &quot;volatile&quot;))) return QUALIFIER;
+    if (!(strcmp(s, &quot;void&quot;))) return TYPE;
+    if (!(strcmp(s, &quot;char&quot;))) return TYPE;
+    if (!(strcmp(s, &quot;signed&quot;))) return TYPE;
+    if (!(strcmp(s, &quot;unsigned&quot;))) return TYPE;
+    if (!(strcmp(s, &quot;short&quot;))) return TYPE;
+    if (!(strcmp(s, &quot;int&quot;))) return TYPE;
+    if (!(strcmp(s, &quot;long&quot;))) return TYPE;
+    if (!(strcmp(s, &quot;float&quot;))) return TYPE;
+    if (!(strcmp(s, &quot;double&quot;))) return TYPE;
+    if (!(strcmp(s, &quot;struct&quot;))) return TYPE;
+    if (!(strcmp(s, &quot;union&quot;))) return TYPE;
+    if (!(strcmp(s, &quot;enum&quot;))) return TYPE;
+    return IDENTIFIER;
+}
+
+void gettoken(void)
+{
+    char *p = current.string;
+    /*略过空白符*/
+    while ((*p = getchar()) == &apos; &apos;);
+
+    if (isalnum(*p))
+    {
+        while (isalnum(*++p = getchar()));
+        ungetc(*p, stdin);
+        *p = &apos;\0&apos;;
+        current.type = classify_string();
+        return;
+    }
+
+    if (*p == &apos;*&apos;)
+    {
+        strcpy(current.string, &quot;Pointer to &quot;);
+        current.type = &apos;*&apos;;
+        return;
+    }
+
+    current.string[1] = &apos;\0&apos;;
+    current.type = *p;
+    return;
+}
+
+read_to_first_identifer()
+{
+    gettoken();
+    while (current.type!=IDENTIFIER)
+    {
+        push(current);
+        gettoken();
+    }
+    printf(&quot;%s is &quot;, current.string);
+    gettoken();
+}
+
+deal_with_arrays()
+{
+    while (current.type == &apos;[&apos;)
+    {
+        printf(&quot;array &quot;);
+        gettoken();
+        if (isdigit(current.string[0]))
+        {
+            printf(&quot;0 to %d &quot;, atoi(current.string) - 1);
+            gettoken();
+        }
+        gettoken();
+        printf(&quot;of &quot;);
+    }
+}
+
+deal_with_function_args()
+{
+    while (current.type != &apos;)&apos;)
+    {
+        gettoken();
+    }
+    gettoken();
+    printf(&quot;function returning &quot;);
+}
+
+deal_with_pointers()
+{
+    while (stack[top].type == &apos;*&apos;)
+    {
+        printf(&quot;%s&quot;, pop.string);
+    }
+}
+
+deal_with_declarator()
+{
+    switch (current.type)
+    {
+    case &apos;[&apos;: deal_with_arrays(); break;
+    case &apos;(&apos;: deal_with_function_args();
+    }
+    deal_with_pointers();
+
+    /*处理都入到标识符之前压入到堆栈中的符号*/
+    while (top &gt;= 0)
+    {
+        if (stack[top].type == &apos;(&apos;)
+        {
+            pop;
+            gettoken();
+            deal_with_declarator();
+        }
+        else
+        {
+            printf(&quot;%s &quot;, pop.string);
+        }
+    }
+}
+
+int main()
+{
+    /*将标记压入到堆栈中，直到遇见标识符*/
+    read_to_first_identifer();
+    deal_with_declarator();
+    printf(&quot;\n&quot;);
+    return 0;
+}
+</code></pre><p>测试输入：int(*func())[]</p>
+<p>结果：func is function returning Pointer to array of int</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/18/输出当前运行的程序/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1169,7 +1460,7 @@ int FindMax(int * array, int n)
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-count">7</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1215,7 +1506,7 @@ int FindMax(int * array, int n)
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2017</span>
+  <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
