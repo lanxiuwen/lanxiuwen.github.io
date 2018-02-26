@@ -260,6 +260,222 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/26/C-C++ 函数调用栈过程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Lan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蓝新闻">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/26/C-C++ 函数调用栈过程/" itemprop="url">未命名</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-26T17:25:29+08:00">
+                2018-02-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/02/26/C-C++ 函数调用栈过程/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/02/26/C-C++ 函数调用栈过程/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="C-C-函数调用栈过程"><a href="#C-C-函数调用栈过程" class="headerlink" title="C/C++ 函数调用栈过程"></a>C/C++ 函数调用栈过程</h1><p>标签（空格分隔）： C/C++</p>
+<hr>
+<h3 id="1-预备知识-程序内存的分配"><a href="#1-预备知识-程序内存的分配" class="headerlink" title="1. 预备知识 程序内存的分配"></a>1. 预备知识 程序内存的分配</h3><p>一个C/C++程序占用的内存大约可以分为以下几个部分</p>
+<ul>
+<li><strong>栈区(stack)</strong> 由编译器自动分配释放，存放函数的参数值，局部变量的值等。其操作方式类似于数据结构中的栈。</li>
+<li><strong>堆区(heap)</strong> 一般由程序员分配释放，若程序员不释放，程序结束时可能由OS回收。注意它与数据结构中的堆是两回事，分配方式倒是类似于链表。 </li>
+<li><strong>全局/静态区(static)</strong> 全局变量和静态变量的存储是放在一块的，初始化的全局变量和静态变量在一块区域，未初始化的全局变量、未初始化的静态变量在相邻的另一块区域。程序结束后由系统释放。</li>
+<li><strong>文字常量区</strong> 常量字符串就是放在这里的。程序结束后由系统释放。</li>
+</ul>
+<p>在函数体中定义的变量通常是在栈上，用malloc, calloc, realloc等分配内存的函数分配得到的就是在堆上。在所有函数体外定义的是全局量，加了static修饰符后不管在哪里都存放在全局区（静态区），在所有函数体外定义的static变量表示在该文件中有效，不能extern到别的文件用；在函数体内定义的static表示只在该函数体内有效。另外，函数中的”adgfdf”这样的字符串存放在常量区。</p>
+<h3 id="2-从一个经典的示例程序开始"><a href="#2-从一个经典的示例程序开始" class="headerlink" title="2.从一个经典的示例程序开始"></a>2.从一个经典的示例程序开始</h3><p>直接给出这个程序</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">int func(int a, int b,int c)</div><div class="line">&#123;</div><div class="line">	int d;</div><div class="line">	d = 5;</div><div class="line">	return a + b + c + d;</div><div class="line">&#125;</div><div class="line">int main(void)</div><div class="line">&#123;</div><div class="line">	int res = func(2, 3, 4);</div><div class="line">	return 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>对于这个程序的主函数，其反汇编如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">int main(void)</div><div class="line">&#123;</div><div class="line">013416D0 55                   push        ebp  </div><div class="line">013416D1 8B EC                mov         ebp,esp  </div><div class="line">013416D3 81 EC CC 00 00 00    sub         esp,0CCh  </div><div class="line">013416D9 53                   push        ebx  </div><div class="line">013416DA 56                   push        esi  </div><div class="line">013416DB 57                   push        edi  </div><div class="line">013416DC 8D BD 34 FF FF FF    lea         edi,[ebp+FFFFFF34h]  </div><div class="line">013416E2 B9 33 00 00 00       mov         ecx,33h  </div><div class="line">013416E7 B8 CC CC CC CC       mov         eax,0CCCCCCCCh  </div><div class="line">013416EC F3 AB                rep stos    dword ptr es:[edi]  </div><div class="line">	int res = func(2, 3, 4);</div><div class="line">013416EE 6A 04                push        4  </div><div class="line">	int res = func(2, 3, 4);</div><div class="line">013416F0 6A 03                push        3  </div><div class="line">013416F2 6A 02                push        2  </div><div class="line">013416F4 E8 4A FC FF FF       call        01341343  </div><div class="line">013416F9 83 C4 0C             add         esp,0Ch  </div><div class="line">013416FC 89 45 F8             mov         dword ptr [ebp-8],eax  </div><div class="line">	return 0;</div><div class="line">013416FF 33 C0                xor         eax,eax  </div><div class="line">&#125;</div><div class="line">01341701 5F                   pop         edi  </div><div class="line">01341702 5E                   pop         esi  </div><div class="line">01341703 5B                   pop         ebx  </div><div class="line">01341704 81 C4 CC 00 00 00    add         esp,0CCh  </div><div class="line">0134170A 3B EC                cmp         ebp,esp  </div><div class="line">0134170C E8 F8 F9 FF FF       call        01341109  </div><div class="line">01341711 8B E5                mov         esp,ebp  </div><div class="line">01341713 5D                   pop         ebp  </div><div class="line">01341714 C3                   ret</div></pre></td></tr></table></figure>
+<p>从汇编代码可以看到这个程序的执行过程，18行的<code>013416F4 E8 4A FC FF FF       call        01341343</code>便是调用func这个函数。<br>在上面代码中可以看到类似eax ebx ecx这种东西，不熟悉汇编的朋友可能会比较迷糊，其实这都是X86体系上CPU的通用寄存器的名称</p>
+<ul>
+<li><strong>EAX</strong>是”累加器”(accumulator), 它是很多加法乘法指令的缺省寄存器。</li>
+<li><strong>EBX</strong> 是”基地址”(base)寄存器, 在内存寻址时存放基地址。</li>
+<li><strong>ECX</strong> 是计数器(counter), 是重复(REP)前缀指令和LOOP指令的内定计数器。</li>
+<li><strong>EDX</strong> 则总是被用来放整数除法产生的余数。</li>
+<li><strong>ESI/EDI</strong>分别叫做”源/目标索引寄存器”(source/destination index),因为在很多字符串操作指令中, DS:ESI指向源串,而ES:EDI指向目标串。</li>
+<li><strong>EBP</strong>是”基址指针”(BASE POINTER), 它最经常被用作高级语言函数调用的”框架指针”(frame pointer). </li>
+</ul>
+<h3 id="3-函数调用过程分析"><a href="#3-函数调用过程分析" class="headerlink" title="3. 函数调用过程分析"></a>3. 函数调用过程分析</h3><h4 id="3-1-函数参数的入栈"><a href="#3-1-函数参数的入栈" class="headerlink" title="3.1 函数参数的入栈"></a>3.1 函数参数的入栈</h4><p>对于应用于intel系列处理器的程序，<strong>其函数调用栈地址是往低地址生长，所以越先压入栈的数据其地址越高</strong>。<br>在函数调用的过程中有两个寄存器尤为重要 <strong>EBP和ESP</strong>。<br>在刚开始调用函数的时候，先将其参数按照从右至左的顺序入栈，所以对于本程序而言，入栈顺序是4，3，2。</p>
+<pre><code>|            |
+|------------|       ^高地址
+|     4      |
+|------------|
+|     3      |
+|------------|
+|     2      |
+|------------|&lt;---ESP
+|            |       ^低地址
+</code></pre><h4 id="3-2-函数的调用过程"><a href="#3-2-函数的调用过程" class="headerlink" title="3.2 函数的调用过程"></a>3.2 函数的调用过程</h4><p>接下来调用函数func,在调用函数的过程中，我们再次反汇编可以得到func的汇编代码如下<br>在call指令的时候相当于进行了如下两步</p>
+<ul>
+<li>push 返回地址</li>
+<li>jmp 函数入口地址</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">int func(int a, int b,int c)</div><div class="line">&#123;</div><div class="line">01341690 55                   push        ebp  </div><div class="line">01341691 8B EC                mov         ebp,esp  </div><div class="line">01341693 81 EC CC 00 00 00    sub         esp,0CCh  </div><div class="line">01341699 53                   push        ebx  </div><div class="line">0134169A 56                   push        esi  </div><div class="line">0134169B 57                   push        edi  </div><div class="line">0134169C 8D BD 34 FF FF FF    lea         edi,[ebp+FFFFFF34h]  </div><div class="line">013416A2 B9 33 00 00 00       mov         ecx,33h  </div><div class="line">013416A7 B8 CC CC CC CC       mov         eax,0CCCCCCCCh  </div><div class="line">013416AC F3 AB                rep stos    dword ptr es:[edi]  </div><div class="line">	int d;</div><div class="line">	d = 5;</div><div class="line">013416AE C7 45 F8 05 00 00 00 mov         dword ptr [ebp-8],5  </div><div class="line">	return a + b + c + d;</div><div class="line">013416B5 8B 45 08             mov         eax,dword ptr [ebp+8]  </div><div class="line">013416B8 03 45 0C             add         eax,dword ptr [ebp+0Ch]  </div><div class="line">013416BB 03 45 10             add         eax,dword ptr [ebp+10h]  </div><div class="line">013416BE 03 45 F8             add         eax,dword ptr [ebp-8]  </div><div class="line">&#125;</div><div class="line">013416C1 5F                   pop         edi  </div><div class="line">013416C2 5E                   pop         esi  </div><div class="line">013416C3 5B                   pop         ebx  </div><div class="line">013416C4 8B E5                mov         esp,ebp  </div><div class="line">013416C6 5D                   pop         ebp  </div><div class="line">013416C7 C3                   ret</div></pre></td></tr></table></figure>
+<p>在调用过程中压入返回地址与EBP，将ESP的值赋给EBP，然后ESP值减少，栈增大。</p>
+<pre><code>|            |
+|------------|       ^高地址
+|     4      |
+|------------|
+|     3      |&lt;---EBP+12
+|------------|
+|     2      |&lt;---EBP+8
+|------------|
+|  返回地址   |      
+|------------|
+|    EBP     |
+|------------|&lt;----EBP
+|    EBX     |
+|------------|       ^低地址
+| 局部变量... |
+               &lt;----ESP
+</code></pre><p>在进行运算的时候，由EBP作为基地址加偏移量可以得到变量，例如EBP+8可以得到2，EBP+12可以得到3，EBP-8可以得到局部变量。</p>
+<p>在函数调用结束之后，便将使用的寄存器弹出<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">013416C1 5F                   pop         edi  </div><div class="line">013416C2 5E                   pop         esi  </div><div class="line">013416C3 5B                   pop         ebx  </div><div class="line">013416C4 8B E5                mov         esp,ebp  </div><div class="line">013416C6 5D                   pop         ebp  </div><div class="line">013416C7 C3                   ret</div></pre></td></tr></table></figure></p>
+<pre><code>|            |                        |            |        ^高地址
+|------------|                        |------------|
+|     4      |                        |     4      |
+|------------|                        |------------|
+|     3      |               ====&gt;    |     3      |  
+|------------|                        |------------|
+|     2      |                        |     2      |
+|------------|                        |------------|
+|  返回地址   |                        |  返回地址   |   
+|------------|                        |------------|&lt;----ESP
+|    EBP     |                        |            |
+|------------|&lt;----EBP/ESP
+|            |                                              ^低地址
+</code></pre><p>最后使用ret指令将栈顶保存的地址弹入EIP，从而让程序返回到返回地址。</p>
+<p>####3.3 值的返回<br>函数计算的返回值是存在EAX中，在主函数的汇编代码中，call调用之后，将EAX的值给了EBP-8的内存，这里便是将返回值付给了一个主函数的局部变量。</p>
+<pre><code>013416F4 E8 4A FC FF FF       call        01341343  
+013416F9 83 C4 0C             add         esp,0Ch  
+013416FC 89 45 F8             mov         dword ptr [ebp-8],eax  
+</code></pre><p>至此一个完整的函数调用过程便结束勒。</p>
+<h3 id="4-总结"><a href="#4-总结" class="headerlink" title="4.总结"></a>4.总结</h3><p>函数栈的调用，关键有如下几点：</p>
+<ul>
+<li>栈的增长由高地址往低地址的方向</li>
+<li>ESP为栈帧的栈顶，用以增长栈</li>
+<li>EBP为调用时栈帧的栈底地址，以偏移量得到变量值</li>
+<li>函数参数入栈从右至左</li>
+<li>返回值一般存在EAX中</li>
+<li>call和ret两条指令实际上是调用和返回的过程</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/02/用程序分析C语言声明/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1460,7 +1676,7 @@ int FindMax(int * array, int n)
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-count">8</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
