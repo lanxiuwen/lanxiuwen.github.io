@@ -94,17 +94,17 @@
 
 
 
-<meta name="description" content="用程序来分析C语言声明直接给出代码 #pragma warning(disable:4996)//解决VS安全性警告  #include&amp;lt;stdio.h&amp;gt; #include&amp;lt;string.h&amp;gt; #include&amp;lt;ctype.h&amp;gt; #include&amp;lt;stdlib.h&amp;gt;  #define MAXTOKENS 100 #define MAXTOKENLEN">
+<meta name="description" content="用程序来分析C语言声明用程序来分析C语言声明 直接给出代码">
 <meta property="og:type" content="article">
 <meta property="og:title" content="用程序来分析C语言声明">
 <meta property="og:url" content="http://yoursite.com/2018/01/02/用程序分析C语言声明/index.html">
 <meta property="og:site_name" content="蓝新闻">
-<meta property="og:description" content="用程序来分析C语言声明直接给出代码 #pragma warning(disable:4996)//解决VS安全性警告  #include&amp;lt;stdio.h&amp;gt; #include&amp;lt;string.h&amp;gt; #include&amp;lt;ctype.h&amp;gt; #include&amp;lt;stdlib.h&amp;gt;  #define MAXTOKENS 100 #define MAXTOKENLEN">
+<meta property="og:description" content="用程序来分析C语言声明用程序来分析C语言声明 直接给出代码">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-02T09:07:09.494Z">
+<meta property="og:updated_time" content="2018-03-01T08:49:22.341Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="用程序来分析C语言声明">
-<meta name="twitter:description" content="用程序来分析C语言声明直接给出代码 #pragma warning(disable:4996)//解决VS安全性警告  #include&amp;lt;stdio.h&amp;gt; #include&amp;lt;string.h&amp;gt; #include&amp;lt;ctype.h&amp;gt; #include&amp;lt;stdlib.h&amp;gt;  #define MAXTOKENS 100 #define MAXTOKENLEN">
+<meta name="twitter:description" content="用程序来分析C语言声明用程序来分析C语言声明 直接给出代码">
 
 
 
@@ -340,166 +340,11 @@
       
 
       
-        <h1 id="用程序来分析C语言声明"><a href="#用程序来分析C语言声明" class="headerlink" title="用程序来分析C语言声明"></a>用程序来分析C语言声明</h1><p>直接给出代码</p>
-<pre><code>#pragma warning(disable:4996)//解决VS安全性警告
-
-#include&lt;stdio.h&gt;
-#include&lt;string.h&gt;
-#include&lt;ctype.h&gt;
-#include&lt;stdlib.h&gt;
-
-#define MAXTOKENS 100
-#define MAXTOKENLEN 64
-
-enum type_tag { IDENTIFIER,QUALIFIER,TYPE };
-
-struct token
-{
-    char type;
-    char string[MAXTOKENLEN];
-};
-
-int top = -1;
-
-struct token stack[MAXTOKENS];
-struct token current;
-
-#define pop stack[top--]
-#define push(s) stack[++top]=s
-
-enum type_tag classify_string(void)
-//推断标识符类型
-{
-    char *s = current.string;
-    if (!strcmp(s, &quot;const&quot;))
-    {
-        strcpy(s, &quot;read-only&quot;);
-        return QUALIFIER;
-    }
-
-    if (!(strcmp(s, &quot;volatile&quot;))) return QUALIFIER;
-    if (!(strcmp(s, &quot;void&quot;))) return TYPE;
-    if (!(strcmp(s, &quot;char&quot;))) return TYPE;
-    if (!(strcmp(s, &quot;signed&quot;))) return TYPE;
-    if (!(strcmp(s, &quot;unsigned&quot;))) return TYPE;
-    if (!(strcmp(s, &quot;short&quot;))) return TYPE;
-    if (!(strcmp(s, &quot;int&quot;))) return TYPE;
-    if (!(strcmp(s, &quot;long&quot;))) return TYPE;
-    if (!(strcmp(s, &quot;float&quot;))) return TYPE;
-    if (!(strcmp(s, &quot;double&quot;))) return TYPE;
-    if (!(strcmp(s, &quot;struct&quot;))) return TYPE;
-    if (!(strcmp(s, &quot;union&quot;))) return TYPE;
-    if (!(strcmp(s, &quot;enum&quot;))) return TYPE;
-    return IDENTIFIER;
-}
-
-void gettoken(void)
-{
-    char *p = current.string;
-    /*略过空白符*/
-    while ((*p = getchar()) == &apos; &apos;);
-
-    if (isalnum(*p))
-    {
-        while (isalnum(*++p = getchar()));
-        ungetc(*p, stdin);
-        *p = &apos;\0&apos;;
-        current.type = classify_string();
-        return;
-    }
-
-    if (*p == &apos;*&apos;)
-    {
-        strcpy(current.string, &quot;Pointer to &quot;);
-        current.type = &apos;*&apos;;
-        return;
-    }
-
-    current.string[1] = &apos;\0&apos;;
-    current.type = *p;
-    return;
-}
-
-read_to_first_identifer()
-{
-    gettoken();
-    while (current.type!=IDENTIFIER)
-    {
-        push(current);
-        gettoken();
-    }
-    printf(&quot;%s is &quot;, current.string);
-    gettoken();
-}
-
-deal_with_arrays()
-{
-    while (current.type == &apos;[&apos;)
-    {
-        printf(&quot;array &quot;);
-        gettoken();
-        if (isdigit(current.string[0]))
-        {
-            printf(&quot;0 to %d &quot;, atoi(current.string) - 1);
-            gettoken();
-        }
-        gettoken();
-        printf(&quot;of &quot;);
-    }
-}
-
-deal_with_function_args()
-{
-    while (current.type != &apos;)&apos;)
-    {
-        gettoken();
-    }
-    gettoken();
-    printf(&quot;function returning &quot;);
-}
-
-deal_with_pointers()
-{
-    while (stack[top].type == &apos;*&apos;)
-    {
-        printf(&quot;%s&quot;, pop.string);
-    }
-}
-
-deal_with_declarator()
-{
-    switch (current.type)
-    {
-    case &apos;[&apos;: deal_with_arrays(); break;
-    case &apos;(&apos;: deal_with_function_args();
-    }
-    deal_with_pointers();
-
-    /*处理都入到标识符之前压入到堆栈中的符号*/
-    while (top &gt;= 0)
-    {
-        if (stack[top].type == &apos;(&apos;)
-        {
-            pop;
-            gettoken();
-            deal_with_declarator();
-        }
-        else
-        {
-            printf(&quot;%s &quot;, pop.string);
-        }
-    }
-}
-
-int main()
-{
-    /*将标记压入到堆栈中，直到遇见标识符*/
-    read_to_first_identifer();
-    deal_with_declarator();
-    printf(&quot;\n&quot;);
-    return 0;
-}
-</code></pre><p>测试输入：int(*func())[]</p>
+        <h1 id="用程序来分析C语言声明"><a href="#用程序来分析C语言声明" class="headerlink" title="用程序来分析C语言声明"></a>用程序来分析C语言声明</h1><p>用程序来分析C语言声明</p>
+<p>直接给出代码</p>
+<a id="more"></a>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;ctype.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXTOKENS 100</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXTOKENLEN 64</span></div><div class="line"></div><div class="line"><span class="keyword">enum</span> type_tag &#123; IDENTIFIER,QUALIFIER,TYPE &#125;;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">token</span></span></div><div class="line"><span class="class">&#123;</span></div><div class="line">    <span class="keyword">char</span> type;</div><div class="line">    <span class="keyword">char</span> <span class="built_in">string</span>[MAXTOKENLEN];</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">int</span> top = <span class="number">-1</span>;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">token</span> <span class="title">stack</span>[<span class="title">MAXTOKENS</span>];</span></div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">token</span> <span class="title">current</span>;</span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> pop stack[top--]</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> push(s) stack[++top]=s</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">enum</span> type_tag <span class="title">classify_string</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line"><span class="function"><span class="comment">//推断标识符类型</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    <span class="keyword">char</span> *s = current.<span class="built_in">string</span>;</div><div class="line">    <span class="keyword">if</span> (!<span class="built_in">strcmp</span>(s, <span class="string">"const"</span>))</div><div class="line">    &#123;</div><div class="line">        <span class="built_in">strcpy</span>(s, <span class="string">"read-only"</span>);</div><div class="line">        <span class="keyword">return</span> QUALIFIER;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (!(<span class="built_in">strcmp</span>(s, <span class="string">"volatile"</span>))) <span class="keyword">return</span> QUALIFIER;</div><div class="line">    <span class="keyword">if</span> (!(<span class="built_in">strcmp</span>(s, <span class="string">"void"</span>))) <span class="keyword">return</span> TYPE;</div><div class="line">    <span class="keyword">if</span> (!(<span class="built_in">strcmp</span>(s, <span class="string">"char"</span>))) <span class="keyword">return</span> TYPE;</div><div class="line">    <span class="keyword">if</span> (!(<span class="built_in">strcmp</span>(s, <span class="string">"signed"</span>))) <span class="keyword">return</span> TYPE;</div><div class="line">    <span class="keyword">if</span> (!(<span class="built_in">strcmp</span>(s, <span class="string">"unsigned"</span>))) <span class="keyword">return</span> TYPE;</div><div class="line">    <span class="keyword">if</span> (!(<span class="built_in">strcmp</span>(s, <span class="string">"short"</span>))) <span class="keyword">return</span> TYPE;</div><div class="line">    <span class="keyword">if</span> (!(<span class="built_in">strcmp</span>(s, <span class="string">"int"</span>))) <span class="keyword">return</span> TYPE;</div><div class="line">    <span class="keyword">if</span> (!(<span class="built_in">strcmp</span>(s, <span class="string">"long"</span>))) <span class="keyword">return</span> TYPE;</div><div class="line">    <span class="keyword">if</span> (!(<span class="built_in">strcmp</span>(s, <span class="string">"float"</span>))) <span class="keyword">return</span> TYPE;</div><div class="line">    <span class="keyword">if</span> (!(<span class="built_in">strcmp</span>(s, <span class="string">"double"</span>))) <span class="keyword">return</span> TYPE;</div><div class="line">    <span class="keyword">if</span> (!(<span class="built_in">strcmp</span>(s, <span class="string">"struct"</span>))) <span class="keyword">return</span> TYPE;</div><div class="line">    <span class="keyword">if</span> (!(<span class="built_in">strcmp</span>(s, <span class="string">"union"</span>))) <span class="keyword">return</span> TYPE;</div><div class="line">    <span class="keyword">if</span> (!(<span class="built_in">strcmp</span>(s, <span class="string">"enum"</span>))) <span class="keyword">return</span> TYPE;</div><div class="line">    <span class="keyword">return</span> IDENTIFIER;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">gettoken</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    <span class="keyword">char</span> *p = current.<span class="built_in">string</span>;</div><div class="line">    <span class="comment">/*略过空白符*/</span></div><div class="line">    <span class="keyword">while</span> ((*p = getchar()) == <span class="string">' '</span>);</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (<span class="built_in">isalnum</span>(*p))</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">while</span> (<span class="built_in">isalnum</span>(*++p = getchar()));</div><div class="line">        ungetc(*p, <span class="built_in">stdin</span>);</div><div class="line">        *p = <span class="string">'\0'</span>;</div><div class="line">        current.type = classify_string();</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (*p == <span class="string">'*'</span>)</div><div class="line">    &#123;</div><div class="line">        <span class="built_in">strcpy</span>(current.<span class="built_in">string</span>, <span class="string">"Pointer to "</span>);</div><div class="line">        current.type = <span class="string">'*'</span>;</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    current.<span class="built_in">string</span>[<span class="number">1</span>] = <span class="string">'\0'</span>;</div><div class="line">    current.type = *p;</div><div class="line">    <span class="keyword">return</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line">read_to_first_identifer()</div><div class="line">&#123;</div><div class="line">    gettoken();</div><div class="line">    <span class="keyword">while</span> (current.type!=IDENTIFIER)</div><div class="line">    &#123;</div><div class="line">        push(current);</div><div class="line">        gettoken();</div><div class="line">    &#125;</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%s is "</span>, current.<span class="built_in">string</span>);</div><div class="line">    gettoken();</div><div class="line">&#125;</div><div class="line"></div><div class="line">deal_with_arrays()</div><div class="line">&#123;</div><div class="line">    <span class="keyword">while</span> (current.type == <span class="string">'['</span>)</div><div class="line">    &#123;</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"array "</span>);</div><div class="line">        gettoken();</div><div class="line">        <span class="keyword">if</span> (<span class="built_in">isdigit</span>(current.<span class="built_in">string</span>[<span class="number">0</span>]))</div><div class="line">        &#123;</div><div class="line">            <span class="built_in">printf</span>(<span class="string">"0 to %d "</span>, atoi(current.<span class="built_in">string</span>) - <span class="number">1</span>);</div><div class="line">            gettoken();</div><div class="line">        &#125;</div><div class="line">        gettoken();</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"of "</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">deal_with_function_args()</div><div class="line">&#123;</div><div class="line">    <span class="keyword">while</span> (current.type != <span class="string">')'</span>)</div><div class="line">    &#123;</div><div class="line">        gettoken();</div><div class="line">    &#125;</div><div class="line">    gettoken();</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"function returning "</span>);</div><div class="line">&#125;</div><div class="line"></div><div class="line">deal_with_pointers()</div><div class="line">&#123;</div><div class="line">    <span class="keyword">while</span> (<span class="built_in">stack</span>[top].type == <span class="string">'*'</span>)</div><div class="line">    &#123;</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"%s"</span>, pop.<span class="built_in">string</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">deal_with_declarator()</div><div class="line">&#123;</div><div class="line">    <span class="keyword">switch</span> (current.type)</div><div class="line">    &#123;</div><div class="line">    <span class="keyword">case</span> <span class="string">'['</span>: deal_with_arrays(); <span class="keyword">break</span>;</div><div class="line">    <span class="keyword">case</span> <span class="string">'('</span>: deal_with_function_args();</div><div class="line">    &#125;</div><div class="line">    deal_with_pointers();</div><div class="line"></div><div class="line">    <span class="comment">/*处理都入到标识符之前压入到堆栈中的符号*/</span></div><div class="line">    <span class="keyword">while</span> (top &gt;= <span class="number">0</span>)</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span> (<span class="built_in">stack</span>[top].type == <span class="string">'('</span>)</div><div class="line">        &#123;</div><div class="line">            pop;</div><div class="line">            gettoken();</div><div class="line">            deal_with_declarator();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">else</span></div><div class="line">        &#123;</div><div class="line">            <span class="built_in">printf</span>(<span class="string">"%s "</span>, pop.<span class="built_in">string</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    <span class="comment">/*将标记压入到堆栈中，直到遇见标识符*/</span></div><div class="line">    read_to_first_identifer();</div><div class="line">    deal_with_declarator();</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"\n"</span>);</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>测试输入：int(*func())[]</p>
 <p>结果：func is function returning Pointer to array of int</p>
 
       
@@ -621,7 +466,7 @@ int main()
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">9</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
