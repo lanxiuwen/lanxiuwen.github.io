@@ -101,7 +101,7 @@
 <meta property="og:site_name" content="蓝新闻">
 <meta property="og:description" content="STL的六大组件 容器 算法 迭代器 仿函数 配接器 空间配置器  STL六大组件的相互关系，容器通过空间配置器取得数据存储空间，算法通过迭代器存取容器的内容，仿函数可以协助算法完成不同的策略变化，配接器可以修饰或者套接仿函数">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-01T08:45:21.340Z">
+<meta property="og:updated_time" content="2018-03-01T09:29:53.549Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="STL源码刨析笔记&lt;一&gt;">
 <meta name="twitter:description" content="STL的六大组件 容器 算法 迭代器 仿函数 配接器 空间配置器  STL六大组件的相互关系，容器通过空间配置器取得数据存储空间，算法通过迭代器存取容器的内容，仿函数可以协助算法完成不同的策略变化，配接器可以修饰或者套接仿函数">
@@ -350,6 +350,7 @@
 </ul>
 <p>STL六大组件的相互关系，容器通过空间配置器取得数据存储空间，算法通过迭代器存取容器的内容，仿函数可以协助算法完成不同的策略变化，配接器可以修饰或者套接仿函数</p>
 <a id="more"></a>
+<p>！<a href="/images/1.1.png">我是图</a></p>
 <h2 id="GNU"><a href="#GNU" class="headerlink" title="GNU"></a>GNU</h2><p>GNU is Not Unix</p>
 <h2 id="前开后闭的区间表示"><a href="#前开后闭的区间表示" class="headerlink" title="前开后闭的区间表示[)"></a>前开后闭的区间表示[)</h2><p>first指向区间第一个元素，last指向区间的最后一个元素的下一位置<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span>(iter=first;iter!=last;++iter)</div></pre></td></tr></table></figure></p>
 <p>##仿函数<br>仿函数是使用起来像函数一样的东西，如果你针对某个class进行operator()重载，这就成为勒一个仿函数。<br>利用仿函数可以产生临时对象以便调用<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">print</span></span></div><div class="line"><span class="class">&#123;</span></div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">operator</span><span class="params">()</span><span class="params">(<span class="keyword">const</span> T&amp; elem)</span></span></div><div class="line"><span class="function">    </span>&#123; <span class="built_in">cout</span>&lt;&lt;elem&lt;&lt;<span class="string">' '</span>;&#125;</div><div class="line">&#125;;</div><div class="line"><span class="comment">//使用的时候</span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    <span class="keyword">int</span> ia[<span class="number">4</span>]=&#123;<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;;</div><div class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; iv(ia,ia+<span class="number">4</span>);</div><div class="line">    <span class="comment">//print&lt;int&gt;()是一个临时对象</span></div><div class="line">    for_each(iv.begin(),iv.end(),print&lt;<span class="keyword">int</span>&gt;());</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
@@ -387,6 +388,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/01/STL源码刨析笔记二/" rel="prev" title="STL源码刨析笔记<二> 空间配置器">
+                STL源码刨析笔记<二> 空间配置器 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -470,7 +475,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

@@ -260,6 +260,200 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/01/STL源码刨析笔记二/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Lan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蓝新闻">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/01/STL源码刨析笔记二/" itemprop="url">STL源码刨析笔记<二> 空间配置器</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-01T20:59:57+08:00">
+                2018-03-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/03/01/STL源码刨析笔记二/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/03/01/STL源码刨析笔记二/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h1 id="STL源码刨析笔记-lt-二-gt-空间配置器"><a href="#STL源码刨析笔记-lt-二-gt-空间配置器" class="headerlink" title="STL源码刨析笔记&lt;二&gt; 空间配置器"></a>STL源码刨析笔记&lt;二&gt; 空间配置器</h1><h2 id="1-allocator类"><a href="#1-allocator类" class="headerlink" title="1. allocator类"></a>1. allocator类</h2><p>有时候我们需要把内存分配和对象构造分离开来，使用allocator就可以达到这个目的。</p>
+<p>当一个allocator对象分配内存时候，就会根据给定的对象类型来确定恰当的内存大小和对齐位置。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">allocator&lt;<span class="built_in">string</span>&gt; alloc;<span class="comment">//用以分配string对象的allocator对象</span></div><div class="line"><span class="keyword">auto</span> <span class="keyword">const</span> p=alloc.allocate(n);<span class="comment">//分配n个未初始化的对象的内存</span></div></pre></td></tr></table></figure></p>
+<p><strong>STL中allocator类及算法</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">算法</th>
+<th style="text-align:left">功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>allocator&lt;T&gt; a</code></td>
+<td style="text-align:left">定义一个allocator对象</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>a.allocate(n)</code></td>
+<td style="text-align:left">分配n个未初始化的对象的内存</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>a.deallocate(p,n)</code></td>
+<td style="text-align:left">释放从T*指针p开始的内存，这个指针需要是allocate返回的</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>a.construct(p,args)</code></td>
+<td style="text-align:left">p为类型为T*的指针，args是传递给构造函数的参数</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>a.destroy(p)</code></td>
+<td style="text-align:left">对p指向的对象执行析构函数</td>
+</tr>
+</tbody>
+</table>
+<p>allocator类还有几个伴随算法，可以在未初始化的内存中创建对象</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">算法</th>
+<th style="text-align:left">功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>uninitialized_copy(b,e,b2)</code></td>
+<td style="text-align:left">迭代器b到e范围的元素拷贝到b2指向的未构造的原始内存中</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>uninitialized_copy_n(b,n,b2)</code></td>
+<td style="text-align:left">从迭代器B开始的内存中拷贝n个元素到b2开始的地方</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>uninitialized_fill(b,e,t)</code></td>
+<td style="text-align:left">从迭代器b到e范围创建对象，对象为t的拷贝</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>uninitialized_fill_n(b,n,t)</code></td>
+<td style="text-align:left">从迭代器B开始的内存创建n个元素t的拷贝</td>
+</tr>
+</tbody>
+</table>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/03/01/STL源码刨析笔记二/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/01/STL源码刨析笔记一/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1590,7 +1784,7 @@ int FindMax(int * array, int n)
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
