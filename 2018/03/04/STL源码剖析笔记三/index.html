@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="智能指针与迭代器STL的中心思想是把数据容器和算法分开设计，C++使用泛型技术class template和function template技术都可以实现，但难点却在于将两者配合好。算法的设计过多的依赖容器，容器的改动会造成大量算法函数的随之改动，迭代器便是用来粘合算法与数据容器的技术。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="STL源码剖析笔记&lt;三&gt; 智能指针、traits技法">
+<meta property="og:url" content="http://yoursite.com/2018/03/04/STL源码剖析笔记三/index.html">
+<meta property="og:site_name" content="蓝新闻">
+<meta property="og:description" content="智能指针与迭代器STL的中心思想是把数据容器和算法分开设计，C++使用泛型技术class template和function template技术都可以实现，但难点却在于将两者配合好。算法的设计过多的依赖容器，容器的改动会造成大量算法函数的随之改动，迭代器便是用来粘合算法与数据容器的技术。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-03-04T08:08:21.657Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="STL源码剖析笔记&lt;三&gt; 智能指针、traits技法">
+<meta name="twitter:description" content="智能指针与迭代器STL的中心思想是把数据容器和算法分开设计，C++使用泛型技术class template和function template技术都可以实现，但难点却在于将两者配合好。算法的设计过多的依赖容器，容器的改动会造成大量算法函数的随之改动，迭代器便是用来粘合算法与数据容器的技术。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/04/STL源码剖析笔记三/"/>
+
+
+
+
+
+  <title>STL源码剖析笔记<三> 智能指针、traits技法 | 蓝新闻</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">蓝新闻</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/04/STL源码剖析笔记三/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Lan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蓝新闻">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">STL源码剖析笔记<三> 智能指针、traits技法</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-04T15:59:57+08:00">
+                2018-03-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/03/04/STL源码剖析笔记三/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/03/04/STL源码剖析笔记三/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="智能指针与迭代器"><a href="#智能指针与迭代器" class="headerlink" title="智能指针与迭代器"></a>智能指针与迭代器</h1><p>STL的中心思想是把数据容器和算法分开设计，C++使用泛型技术class template和function template技术都可以实现，但难点却在于将两者配合好。算法的设计过多的依赖容器，容器的改动会造成大量算法函数的随之改动，<strong>迭代器便是用来粘合算法与数据容器的技术</strong>。</p>
+<a id="more"></a>
+<h2 id="迭代器实际是一种智能指针"><a href="#迭代器实际是一种智能指针" class="headerlink" title="迭代器实际是一种智能指针"></a>迭代器实际是一种智能指针</h2><p>迭代器行为类似于指针，其最为常见的工作是取值operator*与成员访问operator-&gt;<br>但是由于C++没有C#那种内存管理回收机制，所以容易造成<a href="https://baike.baidu.com/item/%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/6181425?fr=aladdin" target="_blank" rel="external">内存泄露</a>。为了解决这个问题，C++中有auto_ptr,shared_ptr等类用来防止内存泄露。</p>
+<h2 id="auto-ptr"><a href="#auto-ptr" class="headerlink" title="auto_ptr"></a>auto_ptr</h2><p>auto_ptr的源代码在头文件<memory>中<br>auto_ptr管理从new申请的一个对象资源，auto_ptr的析构函数会delete指向的对象，所以在使用的时候不用delete<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">()</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    <span class="built_in">auto_ptr</span>&lt;<span class="built_in">string</span>&gt; ps(<span class="keyword">new</span> <span class="built_in">string</span>(<span class="string">"lalala"</span>));</div><div class="line">    <span class="built_in">cout</span>&lt;&lt;*ps&lt;&lt;<span class="built_in">endl</span>;</div><div class="line">    <span class="built_in">cout</span>&lt;&lt;ps-&gt;size()&lt;&lt;<span class="built_in">endl</span>;</div><div class="line">    <span class="comment">//离开前不用delete，auto_ptr会自动释放</span></div></pre></td></tr></table></figure></memory></p>
+<p><strong>auto_ptr只能用来管理一个对象的指针。</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">MyStruct</span>  </span></div><div class="line"><span class="class">&#123;</span>  </div><div class="line">    MyStruct()&#123;<span class="built_in">cout</span>&lt;&lt;<span class="string">"MyStruct()\n"</span>;&#125;  </div><div class="line">    ~MyStruct()&#123;<span class="built_in">cout</span>&lt;&lt;<span class="string">"~MyStruct()\n"</span>;&#125;  </div><div class="line">    <span class="keyword">int</span> i;  </div><div class="line">    <span class="keyword">int</span> j;  </div><div class="line">&#125;;  </div><div class="line">      </div><div class="line">&#123;  </div><div class="line">    <span class="comment">//compile OK, but we cannot use auto_ptr this way!  </span></div><div class="line">    <span class="built_in">auto_ptr</span>&lt;MyStruct&gt; pStructArr(<span class="keyword">new</span> MyStruct[<span class="number">5</span>]);  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>由于auto_ptr内部维护的指针资源只能管理一个对象，在释放资源时使用的是delete而不是 delete[], 因此这种使用方式会导致资源的泄露。</p>
+<p><strong>auto_ptr的赋值或复制要格外小心</strong><br>对于普通的指针，进行复制（或赋值）时，实际是复制（或赋值）指针的地址，通过复制（或赋值），使得两个指针指向同一个地址。但是auto_ptr 却不同，在复制（或赋值）auto_ptr 对象之后，原来的auto_ptr 对象（右侧的对象）放弃资源的使用权，而新的auto_ptr 对象（左侧的）则拥有该基础对象的使用权<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">auto_ptr</span>&lt;<span class="keyword">int</span>&gt; pInt(<span class="keyword">new</span> <span class="keyword">int</span>(<span class="number">3</span>));  </div><div class="line"><span class="built_in">auto_ptr</span>&lt;<span class="keyword">int</span>&gt; pInt2 = pInt;</div></pre></td></tr></table></figure></p>
+<p>首先pInt用于管理动态分配的整型指针，pInt2 = pInt进行复制后，pInt 被重置为未绑定的状态，而pInt2 此时拥有了对整型指针的管理权。需要注意的是，在复制或赋值时，如果pInt2 已经绑定了一个指针，那么会首先释放该指针的资源，然后再绑定新的资源。auto_ptr可以通过.get()得到原始指针看是否绑定对象</p>
+<p><strong>根据auto_ptr的特点，在使用auto_ptr 时遵循如下的原则：</strong></p>
+<ul>
+<li><p>不要使用auto_ptr 绑定指向静态分配对象的指针。</p>
+</li>
+<li><p>不要使用两个auto_ptr 对象指向同一个对象。</p>
+</li>
+<li><p>不要使用auto_ptr 对象保存指向动态分配数组的指针。</p>
+</li>
+<li><p>不要将auto_ptr 对象存储在容器中，因为它不满足容易对存储对象赋值和复制的条件要求。</p>
+</li>
+</ul>
+<h2 id="shared-ptr"><a href="#shared-ptr" class="headerlink" title="shared_ptr"></a>shared_ptr</h2><p>在C++11中，有了更好的智能指针shared_ptr,其特点最接近原始的指针。不仅能够自由的赋值和拷贝，而且可以安全的用在标准容器中。<br>shared_ptr 和 auto_ptr 一样，也是重载了 -&gt; 和 * 操作符，使用 get()函数可以得到原始的指针，auto_ptr 提供了隐式的bool类型转换，可以直接用于判断auto_ptr对象是否绑定了指针资源。use_cout()用于返回当前资源的引用计数。</p>
+<p>对auto_ptr进行复制或者拷贝，实质是增添了引用计数， 和 auto_ptr 不同的是，reset() 函数在 shared_ptr 中的作用是对引用计数减1，并不会立即释放资源。知道引用计数减为0时，资源才得到真正的释放。use_count()在实际的应用中很少使用，一般是用于调试，shared_ptr提供了一个高效的函数 unique(),同use_count==1等效，当维护的指针资源引用计数为1时，返回true。</p>
+<p><strong>make_shared</strong></p>
+<p>使用shared_ptr 避免了手动使用delete来释放由new申请的资源，标准库也引入了make_shared函数来创建一个shared_ptr对象，使用shared_ptr和make_shared，你的代码里就可以使new和delete消失，同时又不必担心内存的泄露。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">shared_ptr&lt;string&gt; ps=make_shared&lt;string&gt;(&quot;lalala&quot;);</div></pre></td></tr></table></figure></p>
+<p><strong>类型转换</strong></p>
+<p>shared_ptr 的类型转换不能使用一般的static_cast，这种方式进行的转换会导致转换后的指针无法再被shared_ptr对象正确的管理。应该使用专门用于shared_ptr类型转换的 static_pointer_cast<t>() , const_pointer_cast<t>() 和 dynamic_pointer_cast<t>().例如<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">"stdafx.h"</span>  </span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;  </span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;memory&gt;  </span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string&gt;  </span></span></div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;  </div><div class="line">  </div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">BaseClass</span>  </span></div><div class="line"><span class="class">&#123;</span>  </div><div class="line"><span class="keyword">public</span>:  </div><div class="line">    BaseClass()&#123;&#125;  </div><div class="line">    ~BaseClass()&#123;&#125;  </div><div class="line"><span class="keyword">public</span>:  </div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Func</span><span class="params">()</span> </span>&#123; <span class="built_in">cout</span>&lt;&lt;<span class="string">"BaseClass::Func()\n"</span>;&#125;  </div><div class="line">&#125;;  </div><div class="line">  </div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">DeriveClass</span> :</span> <span class="keyword">public</span> BaseClass  </div><div class="line">&#123;  </div><div class="line"><span class="keyword">public</span>:  </div><div class="line">    DeriveClass()&#123;&#125;  </div><div class="line">    ~DeriveClass()&#123;&#125;  </div><div class="line"><span class="keyword">public</span>:  </div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Func</span><span class="params">()</span> override </span>&#123; <span class="built_in">cout</span> &lt;&lt; <span class="string">"DeriveClass::Func()\n"</span>;&#125;  </div><div class="line">&#125;;  </div><div class="line">  </div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>  </span></div><div class="line"><span class="function"></span>&#123;  </div><div class="line">    <span class="built_in">shared_ptr</span>&lt;BaseClass&gt; spBase( <span class="keyword">new</span> BaseClass() );  </div><div class="line">    spBase-&gt;Func(); <span class="comment">// 输出 BaseClass::Func()  </span></div><div class="line">  </div><div class="line">    <span class="built_in">shared_ptr</span>&lt;DeriveClass&gt; spDerive( <span class="keyword">new</span> DeriveClass() );  </div><div class="line">    spDerive-&gt;Func();<span class="comment">// 输出 DeriveClass::Func()  </span></div><div class="line">  </div><div class="line">    <span class="built_in">shared_ptr</span>&lt;BaseClass&gt; spBase2 = dynamic_pointer_cast&lt;BaseClass&gt;(spDerive);  </div><div class="line">    spBase2-&gt;Func();<span class="comment">// 输出 DeriveClass::Func()  </span></div><div class="line">  </div><div class="line">    system(<span class="string">"pause"</span>);  </div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;  </div><div class="line">&#125;</div></pre></td></tr></table></figure></t></t></t></p>
+<h1 id="traits编程技法"><a href="#traits编程技法" class="headerlink" title="traits编程技法"></a>traits编程技法</h1><p>介绍完了智能指针，我们再来理解traits编程技法<br>先看一个例子<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//对于int类的求和函数</span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="keyword">int</span> *a , <span class="keyword">int</span> n)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    <span class="keyword">int</span> sum = <span class="number">0</span> ;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; n ; i++) &#123;</div><div class="line">        sum += *a++;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> sum;</div><div class="line">&#125;</div><div class="line"><span class="comment">//对于listNode类的求和函数</span></div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ListNode</span> &#123;</span></div><div class="line">    <span class="keyword">int</span> val;</div><div class="line">    ListNode * next;</div><div class="line">&#125;;</div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(ListNode * head)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</div><div class="line">    ListNode *p = head;</div><div class="line">    <span class="keyword">while</span> (p != <span class="literal">NULL</span>) &#123;</div><div class="line">        sum += p-&gt;val;</div><div class="line">        p=p-&gt;next;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> sum;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在sum函数中，我们必须知道容器的元素类型，这关系到函数返回值。既然迭代器设计中不能暴露容器的实现细节，那么我们在算法中是不可能知道容器元素的类型，因此，必须设计出一个机制，能够提取出容器中元素的类型。看看如下示例代码：<br><strong>template参数推导机制</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</div><div class="line"></div><div class="line"><span class="comment">//此函数中并不知道iter所指的元素型别，而是通过模板T来获取的</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">I</span>, <span class="title">class</span> <span class="title">T1</span> ,<span class="title">class</span> <span class="title">T</span>&gt;</span></div><div class="line"><span class="class"><span class="title">T</span> <span class="title">sum_impl</span>(<span class="title">I</span> <span class="title">iter</span> ,<span class="title">T1</span> <span class="title">n</span> , <span class="title">T</span> <span class="title">t</span>) &#123;</span></div><div class="line">    T sum = <span class="number">0</span>;<span class="comment">//通过模板的特性，可以获取I所指之物的型别,此处为int</span></div><div class="line"></div><div class="line">    <span class="comment">//这里做func应该做的工作</span></div><div class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; n ;i++)&#123;</div><div class="line">        sum+=*iter++;</div><div class="line">    &#125; </div><div class="line">    <span class="keyword">return</span> sum;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">I</span> , <span class="title">class</span> <span class="title">T1</span>&gt;</span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">T1</span> <span class="title">sum</span>(<span class="title">I</span> <span class="title">iter</span> , <span class="title">T1</span> <span class="title">n</span>) &#123;</span><span class="comment">//此处暴露了template参数推导机制的缺陷，在型别用于返回值时便束手无策</span></div><div class="line">    <span class="keyword">return</span> sum_impl(iter , n ,*iter);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> a[<span class="number">5</span>] = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>&#125;;</div><div class="line">    <span class="keyword">int</span> sum1 = sum(a , <span class="number">5</span>);</div><div class="line">    <span class="built_in">cout</span>&lt;&lt;sum1&lt;&lt;<span class="built_in">endl</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>上例中通过模板的参数推导机制推导出了iter所指之物的型别(int)，于是可以定义T sum变量。<br>然而，迭代器所指之物的型别并非只是”迭代器所指对象的型别“，最常用的迭代器型别有五种，并非任何情况下任何一种都可利用上述的template参数推导机制来获取，而且对于返回值类型，template参数推导机制也束手无策，因此，Traits技法应运而生，解决了这一难题！</p>
+<p><strong>内嵌型别机制</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</div><div class="line"><span class="comment">//定义一个简单的iterator</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> <span class="title">MyIter</span>&#123;</span></div><div class="line">    <span class="keyword">typedef</span> T value_type; <span class="comment">// 内嵌型别声明</span></div><div class="line">    T* ptr;</div><div class="line">    MyIter(T* p =<span class="number">0</span>):ptr(p)&#123;&#125;</div><div class="line">    T&amp; <span class="keyword">operator</span>*() <span class="keyword">const</span> &#123;<span class="keyword">return</span> *ptr;&#125;</div><div class="line">    <span class="comment">//...</span></div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">I</span>&gt;</span></div><div class="line"><span class="class"><span class="title">typename</span> <span class="title">I</span>:</span>:value_type <span class="comment">// func返回值型别</span></div><div class="line">func(I iter)&#123;</div><div class="line">    <span class="keyword">return</span> *iter;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</div><div class="line">    MyIter&lt;<span class="keyword">int</span>&gt; iter(<span class="keyword">new</span> <span class="keyword">int</span>(<span class="number">8</span>));</div><div class="line">    <span class="built_in">cout</span>&lt;&lt;func(iter)&lt;&lt;<span class="built_in">endl</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>注意，func()函数的返回值型别必须加上关键词typename，因为T是一个template参数，在它被编译器具现化之前，编译器对其一无所知，关键词typename的用意在于告诉编译器这是一个型别，如此才能通过编译。</strong></p>
+<p>内嵌型别看起来不错，可以很顺利的提取出迭代器所指型别并克服了template参数推导机制不能用于函数返回值的缺陷。可是，并不是所有的迭代器都是class type，原声指针就不是！如果不是class type，那么就无法声明内嵌型别。但是STL绝对必须接受原生指针作为一个迭代器。因此，必须另行它法！</p>
+<p>针对原生指针这类特殊情况，我们很容易想到利用模板偏特化的机制来实现特殊声明，在泛化设计中提供一个特化版本。偏特化的定义是：针对任何template参数更进一步的条件限制所设计出来的一个特化版本。这里，针对上面的MyIter设计出一个适合原生指针的特化版本，如下：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> <span class="title">MyIter</span> &lt;T*&gt;&#123;</span>   <span class="comment">//T*代表T为原生指针，这便是T为任意型别的一个更进一步的条件限制</span></div><div class="line">    <span class="keyword">typedef</span> T value_type; <span class="comment">// 内嵌型别声明</span></div><div class="line">    T* ptr;</div><div class="line">    MyIter(T* p =<span class="number">0</span>):ptr(p)&#123;&#125;</div><div class="line">    T&amp; <span class="keyword">operator</span>*() <span class="keyword">const</span> &#123;<span class="keyword">return</span> *ptr;&#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>STL专门设计了一个iterator_traits模板类来”萃取“迭代器的特性。其定义如下：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">I</span>&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> <span class="title">iterator_traits</span></span></div><div class="line"><span class="class">&#123;</span></div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> I::value_type        value_type;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>这个类如何完成迭代器的型别萃取呢？<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">I</span>&gt;</span></div><div class="line"><span class="class"><span class="title">typename</span> <span class="title">iterator_traits</span>&lt;I&gt;:</span>:value_type <span class="comment">// 通过iterator_traits类萃取I的型别</span></div><div class="line">func(I iter)&#123;</div><div class="line">    <span class="keyword">return</span> *iter;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>从表面上来看，这么做只是多了一层间接性，但是带来的好处是极大的！iterator_traits类可以拥有特化版本，如下：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//原生指针特化版本</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> <span class="title">iterator_traits</span> &lt;T*&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">  <span class="keyword">typedef</span> T  value_type;</div><div class="line">&#125;</div><div class="line"><span class="comment">//const指针特化版本</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> <span class="title">iterator_traits</span> &lt;const T*&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">  <span class="keyword">typedef</span> T  value_type;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>原生指针int*虽然不是一种class type，也可以通过traits取其value，到这里traits的思想就基本明了了！下面就来看看STL只能中”萃取机“的源码<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 用于traits出迭代其所指对象的型别</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Iterator</span>&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> <span class="title">iterator_traits</span></span></div><div class="line"><span class="class">&#123;</span></div><div class="line">  <span class="comment">// 迭代器类型, STL提供五种迭代器</span></div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> Iterator::iterator_category iterator_category;</div><div class="line"></div><div class="line">  <span class="comment">// 迭代器所指对象的型别</span></div><div class="line">  <span class="comment">// 如果想与STL算法兼容, 那么在类内需要提供value_type定义</span></div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> Iterator::value_type        value_type;</div><div class="line"></div><div class="line">  <span class="comment">// 这个是用于处理两个迭代器间距离的类型</span></div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> Iterator::difference_type   difference_type;</div><div class="line"></div><div class="line">  <span class="comment">// 直接指向对象的原生指针类型</span></div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> Iterator::pointer           pointer;</div><div class="line"></div><div class="line">  <span class="comment">// 这个是对象的引用类型</span></div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> Iterator::reference         reference;</div><div class="line">&#125;;</div><div class="line"><span class="comment">// 针对指针提供特化版本</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> <span class="title">iterator_traits</span>&lt;T*&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">  <span class="keyword">typedef</span> random_access_iterator_tag iterator_category;</div><div class="line">  <span class="keyword">typedef</span> T                          value_type;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">ptrdiff_t</span>                  difference_type;</div><div class="line">  <span class="keyword">typedef</span> T*                         pointer;</div><div class="line">  <span class="keyword">typedef</span> T&amp;                         reference;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="comment">// 针对指向常对象的指针提供特化</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> <span class="title">iterator_traits</span>&lt;const T*&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">  <span class="keyword">typedef</span> random_access_iterator_tag iterator_category;</div><div class="line">  <span class="keyword">typedef</span> T                          value_type;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">ptrdiff_t</span>                  difference_type;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">const</span> T*                   pointer;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">const</span> T&amp;                   reference;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<h1 id="迭代器设计"><a href="#迭代器设计" class="headerlink" title="迭代器设计"></a>迭代器设计</h1><h2 id="迭代器型别"><a href="#迭代器型别" class="headerlink" title="迭代器型别"></a>迭代器型别</h2><p><strong>value_type</strong><br>所谓value_type，是指迭代器所指对象的型别。</p>
+<p><strong>difference_type</strong><br>difference_type用来表示两个迭代器之间的距离，因此它也可以用来表示一个容器的最大容量。下面以STL里面的计数功能函数count()为例，来介绍一下difference_type的用法。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">I</span>,<span class="title">class</span> <span class="title">T</span>&gt;</span></div><div class="line"><span class="class"><span class="title">typename</span> <span class="title">iterator_traits</span>&lt;I&gt;:</span>:difference_type   <span class="comment">//返回值类型</span></div><div class="line">count(I first , I end , <span class="keyword">const</span> T&amp; value)&#123;</div><div class="line">    <span class="keyword">typename</span> iterator_traits&lt;I&gt;::difference_type n = <span class="number">0</span>;  </div><div class="line">    <span class="keyword">for</span>( ; first!=end ; ++first)&#123;</div><div class="line">        <span class="keyword">if</span>(*first == value) ++n;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> n;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>针对原生指针和原生的const指针，iterator_traits的difference_type为ptrdiff_t(long int)，特化版本依然可以采用iterator_traits::difference_type来获取型别。</p>
+<p><strong>reference_type</strong><br>从“迭代器所指之物的内容是否可以改变”的角度可以将迭代器分为两种：</p>
+<ul>
+<li>const迭代器：不允许改变“所指对象之内容”，例如const int* p</li>
+<li>mutable迭代器：允许改变“所指对象之内容”，例如int* p<br>当我们要对一个mutable迭代器进行提领(reference)操作时，获得的不应该是一个右值(右值不允许赋值操作)，而应该是一个左值，左值才允许赋值操作。</li>
+</ul>
+<p>故:</p>
+<ul>
+<li>当p是一个mutable迭代器时，如果其value type是T，那么*p的型别应该为T&amp;； </li>
+<li>当p是一个const迭代器时，*p的型别为const T&amp;</li>
+</ul>
+<p><strong>pointer type</strong><br>迭代器可以传回一个指针，指向迭代器所指之物。再迭代器源码中，可以找到如下关于指针和引用的实现：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Reference <span class="keyword">operator</span>*() <span class="keyword">const</span> &#123; <span class="keyword">return</span> *value; &#125;</div><div class="line">pointer <span class="keyword">operator</span>-&gt;() <span class="keyword">const</span> &#123; <span class="keyword">return</span> &amp;(<span class="keyword">operator</span>*()); &#125;</div></pre></td></tr></table></figure></p>
+<p>在iterator_traits结构体中需要加入其型别，如下：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Iterator</span>&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> <span class="title">iterator_traits</span></span></div><div class="line"><span class="class">&#123;</span></div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> Iterator::pointer           pointer;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> Iterator::reference         reference;</div><div class="line">&#125;</div><div class="line"><span class="comment">//针对原生指针的特化版本</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> <span class="title">iterator_traits</span>&lt;T*&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">  <span class="keyword">typedef</span> T*                         pointer;</div><div class="line">  <span class="keyword">typedef</span> T&amp;                         reference;</div><div class="line">&#125;;</div><div class="line"><span class="comment">//针对原生const指针的特化版本</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> <span class="title">iterator_traits</span>&lt;const T*&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">const</span> T*                   pointer;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">const</span> T&amp;                   reference;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p><strong>iterator_category</strong><br>这一型别代表迭代器的类别，一般分为五类：</p>
+<ul>
+<li>Input Iterator：只读(read only)</li>
+<li>Output Iterator：只写(write only)</li>
+<li>Forward Iterator：允许“写入型”算法在此迭代器所形成的区间上进行读写操作</li>
+<li>Bidirectional Iterator：可双向移动的迭代器</li>
+<li>Random Access Iterator：前四种迭代器都只供应一部分指针的算数能力(前三种支持operator++，第四种支- 持operator–)，第五种则涵盖所有指针的算数能力，包括p+n,p-n,p[n],p1-p2,p1</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 用于标记迭代器类型</span></div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">input_iterator_tag</span> &#123;</span>&#125;;</div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">output_iterator_tag</span> &#123;</span>&#125;;</div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">forward_iterator_tag</span> :</span> <span class="keyword">public</span> input_iterator_tag &#123;&#125;;</div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bidirectional_iterator_tag</span> :</span> <span class="keyword">public</span> forward_iterator_tag &#123;&#125;;</div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">random_access_iterator_tag</span> :</span> <span class="keyword">public</span> bidirectional_iterator_tag &#123;&#125;;</div></pre></td></tr></table></figure>
+<p>为了符合规范，任何迭代器都应该提供五个内嵌型别，以利于Traits萃取，否则就自别与整个STL架构，可能无法与其他STL组件顺利搭配。STL提供了一份iterator class如下：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//为避免挂一漏万，每个新设计的迭代器都必须继承自它</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Category</span>, <span class="title">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Distance</span> = <span class="title">ptrdiff_t</span>,</span></div><div class="line"><span class="class">          <span class="title">class</span> <span class="title">Pointer</span> = <span class="title">T</span>*, <span class="title">class</span> <span class="title">Reference</span> = <span class="title">T</span>&amp;&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> <span class="title">iterator</span> &#123;</span></div><div class="line">  <span class="keyword">typedef</span> Category  iterator_category;</div><div class="line">  <span class="keyword">typedef</span> T         value_type;</div><div class="line">  <span class="keyword">typedef</span> Distance  difference_type;</div><div class="line">  <span class="keyword">typedef</span> Pointer   pointer;</div><div class="line">  <span class="keyword">typedef</span> Reference reference;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p><strong>迭代器源代码</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 用于标记迭代器类型</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">input_iterator_tag</span> &#123;</span>&#125;;</div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">output_iterator_tag</span> &#123;</span>&#125;;</div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">forward_iterator_tag</span> :</span> <span class="keyword">public</span> input_iterator_tag &#123;&#125;;</div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bidirectional_iterator_tag</span> :</span> <span class="keyword">public</span> forward_iterator_tag &#123;&#125;;</div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">random_access_iterator_tag</span> :</span> <span class="keyword">public</span> bidirectional_iterator_tag &#123;&#125;;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 用于traits出迭代其所指对象的型别</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Iterator</span>&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> <span class="title">iterator_traits</span></span></div><div class="line"><span class="class">&#123;</span></div><div class="line">  <span class="comment">// 迭代器类型, STL提供五种迭代器</span></div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> Iterator::iterator_category iterator_category;</div><div class="line"></div><div class="line">  <span class="comment">// 迭代器所指对象的型别</span></div><div class="line">  <span class="comment">// 如果想与STL算法兼容, 那么在类内需要提供value_type定义</span></div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> Iterator::value_type        value_type;</div><div class="line"></div><div class="line">  <span class="comment">// 这个是用于处理两个迭代器间距离的类型</span></div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> Iterator::difference_type   difference_type;</div><div class="line"></div><div class="line">  <span class="comment">// 直接指向对象的原生指针类型</span></div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> Iterator::pointer           pointer;</div><div class="line"></div><div class="line">  <span class="comment">// 这个是对象的引用类型</span></div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> Iterator::reference         reference;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 针对指针提供特化版本</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> <span class="title">iterator_traits</span>&lt;T*&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">  <span class="keyword">typedef</span> random_access_iterator_tag iterator_category;</div><div class="line">  <span class="keyword">typedef</span> T                          value_type;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">ptrdiff_t</span>                  difference_type;</div><div class="line">  <span class="keyword">typedef</span> T*                         pointer;</div><div class="line">  <span class="keyword">typedef</span> T&amp;                         reference;</div><div class="line">&#125;;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 针对指向常对象的指针提供特化</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> <span class="title">iterator_traits</span>&lt;const T*&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">  <span class="keyword">typedef</span> random_access_iterator_tag iterator_category;</div><div class="line">  <span class="keyword">typedef</span> T                          value_type;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">ptrdiff_t</span>                  difference_type;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">const</span> T*                   pointer;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">const</span> T&amp;                   reference;</div><div class="line">&#125;;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> *  返回迭代器类别</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Iterator</span>&gt;</span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">typename</span> <span class="title">iterator_traits</span>&lt;Iterator&gt;:</span>:iterator_category</div><div class="line">iterator_category(<span class="keyword">const</span> Iterator&amp;)</div><div class="line">&#123;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> iterator_traits&lt;Iterator&gt;::iterator_category category;</div><div class="line">  <span class="keyword">return</span> category();</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 返回表示迭代器距离的类型</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Iterator</span>&gt;</span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">typename</span> <span class="title">iterator_traits</span>&lt;Iterator&gt;:</span>:difference_type*</div><div class="line">distance_type(<span class="keyword">const</span> Iterator&amp;)</div><div class="line">&#123;</div><div class="line">  <span class="keyword">return</span> <span class="keyword">static_cast</span>&lt;<span class="keyword">typename</span> iterator_traits&lt;Iterator&gt;::difference_type*&gt;(<span class="number">0</span>);</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 返回迭代器所指对象的类型</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Iterator</span>&gt;</span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">typename</span> <span class="title">iterator_traits</span>&lt;Iterator&gt;:</span>:value_type*</div><div class="line">value_type(<span class="keyword">const</span> Iterator&amp;)</div><div class="line">&#123;</div><div class="line">  <span class="keyword">return</span> <span class="keyword">static_cast</span>&lt;<span class="keyword">typename</span> iterator_traits&lt;Iterator&gt;::value_type*&gt;(<span class="number">0</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="迭代器的相关函数设计"><a href="#迭代器的相关函数设计" class="headerlink" title="迭代器的相关函数设计"></a>迭代器的相关函数设计</h2><p><strong>distance函数</strong><br>distance函数用来计算两个迭代器之前的距离。</p>
+<ul>
+<li>针对Input Iterator，Output Iterator，Forward Iterator，Bidirectional Iterator来说，必须逐一累加计算距离</li>
+<li>针对random_access_iterator来说，支持两个迭代器相减，所以直接相减就能得到距离<br>其具体实现如下:<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 针对Input Iterator，Output Iterator，Forward Iterator，Bidirectional Iterator</span></div><div class="line"><span class="comment"> * 这四种函数，需要逐一累加来计算距离</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">InputIterator</span>&gt;</span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">iterator_traits</span>&lt;InputIterator&gt;:</span>:difference_type</div><div class="line">__distance(InputIterator first, InputIterator last, input_iterator_tag)</div><div class="line">&#123;</div><div class="line">  iterator_traits&lt;InputIterator&gt;::difference_type n = <span class="number">0</span>;</div><div class="line">  <span class="keyword">while</span> (first != last) &#123;</div><div class="line">    ++first; ++n;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> n;</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 针对random_access_iterator，可直接相减来计算差距</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">RandomAccessIterator</span>&gt;</span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">iterator_traits</span>&lt;RandomAccessIterator&gt;:</span>:difference_type</div><div class="line">__distance(RandomAccessIterator first, RandomAccessIterator last,</div><div class="line">           random_access_iterator_tag)</div><div class="line">&#123;</div><div class="line">  <span class="keyword">return</span> last - first;</div><div class="line">&#125;</div><div class="line"><span class="comment">// 入口函数，先判断迭代器类型iterator_category，然后调用特定函数</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">InputIterator</span>&gt;</span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">iterator_traits</span>&lt;InputIterator&gt;:</span>:difference_type</div><div class="line">distance(InputIterator first, InputIterator last)</div><div class="line">&#123;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> iterator_traits&lt;InputIterator&gt;::iterator_category category;&lt;*******</div><div class="line">  <span class="keyword">return</span> __distance(first, last, category());<span class="comment">//这里的category()是构造勒一个*************^</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>STL 所需之规范为<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> _<span class="title">Category</span>,</span></div><div class="line"><span class="class">	<span class="title">class</span> _<span class="title">Ty</span>,</span></div><div class="line"><span class="class">	<span class="title">class</span> _<span class="title">Diff</span> = <span class="title">ptrdiff_t</span>,</span></div><div class="line"><span class="class">	<span class="title">class</span> _<span class="title">Pointer</span> = _<span class="title">Ty</span> *,</span></div><div class="line"><span class="class">	<span class="title">class</span> _<span class="title">Reference</span> = _<span class="title">Ty</span>&amp;&gt;</span></div><div class="line"><span class="class">	<span class="title">struct</span> <span class="title">iterator</span></span></div><div class="line"><span class="class">	&#123;</span>	<span class="comment">// base type for iterator classes</span></div><div class="line">	<span class="keyword">typedef</span> _Category iterator_category;</div><div class="line">	<span class="keyword">typedef</span> _Ty value_type;</div><div class="line">	<span class="keyword">typedef</span> _Diff difference_type;</div><div class="line"></div><div class="line">	<span class="keyword">typedef</span> _Pointer pointer;</div><div class="line">	<span class="keyword">typedef</span> _Reference reference;</div><div class="line">	&#125;;</div></pre></td></tr></table></figure></p>
+<p>所以实现一个迭代器<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">Item</span>&gt;</span></div><div class="line"><span class="class"><span class="title">class</span> <span class="title">ItemIter</span>:</span></div><div class="line">    <span class="keyword">public</span> <span class="built_in">std</span>::iterator&lt;<span class="built_in">std</span>::forward_iterator_tag,Item&gt;</div><div class="line">&#123;...&#125;;</div></pre></td></tr></table></figure></p>
+<p><strong>Advance函数</strong><br>Advance函数有两个参数，迭代器p和n，函数内部将p前进n次。针对不同类型的迭代器有如下实现：</p>
+<ul>
+<li>针对input_iterator和forward_iterator,单向，逐一前进</li>
+<li>针对bidirectional_iterator，双向，可以前进和后退，n&gt;0和n&lt;0</li>
+<li>针对random_access_iterator，支持p+n，可直接计算<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 针对input_iterator和forward_iterator版本</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">InputIterator</span>, <span class="title">class</span> <span class="title">Distance</span>&gt;</span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> __<span class="title">advance</span>(<span class="title">InputIterator</span>&amp; <span class="title">i</span>, <span class="title">Distance</span> <span class="title">n</span>, <span class="title">input_iterator_tag</span>)</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">  <span class="keyword">while</span> (n--) ++i;</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 针对bidirectional_iterator版本</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">BidirectionalIterator</span>, <span class="title">class</span> <span class="title">Distance</span>&gt;</span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> __<span class="title">advance</span>(<span class="title">BidirectionalIterator</span>&amp; <span class="title">i</span>, <span class="title">Distance</span> <span class="title">n</span>,</span></div><div class="line"><span class="class">                      <span class="title">bidirectional_iterator_tag</span>)</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">  <span class="keyword">if</span> (n &gt;= <span class="number">0</span>)</div><div class="line">    <span class="keyword">while</span> (n--) ++i;</div><div class="line">  <span class="keyword">else</span></div><div class="line">    <span class="keyword">while</span> (n++) --i;</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 针对random_access_iterator版本</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">RandomAccessIterator</span>, <span class="title">class</span> <span class="title">Distance</span>&gt;</span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> __<span class="title">advance</span>(<span class="title">RandomAccessIterator</span>&amp; <span class="title">i</span>, <span class="title">Distance</span> <span class="title">n</span>,</span></div><div class="line"><span class="class">                      <span class="title">random_access_iterator_tag</span>)</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">  i += n;</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 入口函数，先判断迭代器的类型</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">InputIterator</span>, <span class="title">class</span> <span class="title">Distance</span>&gt;</span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> <span class="title">advance</span>(<span class="title">InputIterator</span>&amp; <span class="title">i</span>, <span class="title">Distance</span> <span class="title">n</span>)</span></div><div class="line"><span class="class">&#123;</span></div><div class="line"><span class="comment">//第三个参数迭代器类型由traits机制得到</span></div><div class="line">  __advance(i, n, iterator_traits&lt;InputIterator&gt;::iterator_category());</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="Type-traits机制"><a href="#Type-traits机制" class="headerlink" title="Type_traits机制"></a>Type_traits机制</h2><p>iterator_traits负责萃取迭代器的特性；type_traits负责萃取型别的特性。</p>
+<p>需要根据对象构造函数和析构函数的trivial和non-trivial特性来采用最有效的措施，例如：如果构造函数是trivial的，那么可以直接采用如malloc()和memcpy()等函数，来提高效率。</p>
+<p>例如：如果拷贝一个未知类型的数组，如果其具有trivial拷贝构造函数，那么可以直接利用memcpy()来拷贝，反之则要调用该类型的拷贝构造函数。<br>type_traits的源代码实现如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 用来标识真/假对象,利用type_traits响应结果来进行参数推导，</span></div><div class="line"><span class="comment"> * 而编译器只有面对class object形式的参数才会做参数推导，</span></div><div class="line"><span class="comment"> * 这两个空白class不会带来额外负担</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">true_type</span>&#123;</span>&#125;;</div><div class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">false_type</span>&#123;</span>&#125;;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * type_traits结构体设计</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">type</span>&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> __<span class="title">type_traits</span></span></div><div class="line"><span class="class">&#123;</span></div><div class="line">    <span class="comment">// 不要移除这个成员</span></div><div class="line">    <span class="comment">// 它通知能自动特化__type_traits的编译器, 现在这个__type_traits template是特化的</span></div><div class="line">    <span class="comment">// 这是为了确保万一编译器使用了__type_traits而与此处无任何关联的模板时</span></div><div class="line">    <span class="comment">// 一切也能顺利运作</span></div><div class="line">   <span class="keyword">typedef</span> __true_type     this_dummy_member_must_be_first;</div><div class="line"></div><div class="line">   <span class="comment">// 以下条款应当被遵守, 因为编译器有可能自动生成类型的特化版本</span></div><div class="line">   <span class="comment">//   - 你可以重新安排的成员次序</span></div><div class="line">   <span class="comment">//   - 你可以移除你想移除的成员</span></div><div class="line">   <span class="comment">//   - 一定不可以修改下列成员名称, 却没有修改编译器中的相应名称</span></div><div class="line">   <span class="comment">//   - 新加入的成员被当作一般成员, 除非编译器提供特殊支持</span></div><div class="line"></div><div class="line">   <span class="keyword">typedef</span> __false_type    has_trivial_default_constructor;</div><div class="line">   <span class="keyword">typedef</span> __false_type    has_trivial_copy_constructor;</div><div class="line">   <span class="keyword">typedef</span> __false_type    has_trivial_assignment_operator;</div><div class="line">   <span class="keyword">typedef</span> __false_type    has_trivial_destructor;</div><div class="line">   <span class="keyword">typedef</span> __false_type    is_POD_type;</div><div class="line">&#125;;</div><div class="line"><span class="comment">// 特化类型:</span></div><div class="line"><span class="comment">//         char, signed char, unsigned char,</span></div><div class="line"><span class="comment">//         short, unsigned short</span></div><div class="line"><span class="comment">//         int, unsigned int</span></div><div class="line"><span class="comment">//         long, unsigned long</span></div><div class="line"><span class="comment">//         float, double, long double</span></div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 以下针对C++内置的基本数据类型提供特化版本, </span></div><div class="line"><span class="comment"> * 使其具有trivial default constructor,</span></div><div class="line"><span class="comment"> * copy constructor, assignment operator, destructor并标记其为POD类型</span></div><div class="line"><span class="comment"> */</span></div><div class="line">__STL_TEMPLATE_NULL <span class="class"><span class="keyword">struct</span> __<span class="title">type_traits</span>&lt;char&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_default_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_copy_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_assignment_operator;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_destructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    is_POD_type;</div><div class="line">&#125;;</div><div class="line"><span class="comment">//针对char的特化版本</span></div><div class="line">__STL_TEMPLATE_NULL <span class="class"><span class="keyword">struct</span> __<span class="title">type_traits</span>&lt;signed char&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_default_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_copy_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_assignment_operator;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_destructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    is_POD_type;</div><div class="line">&#125;;</div><div class="line"><span class="comment">//针对unsigned char的特化版本</span></div><div class="line">__STL_TEMPLATE_NULL <span class="class"><span class="keyword">struct</span> __<span class="title">type_traits</span>&lt;unsigned char&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_default_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_copy_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_assignment_operator;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_destructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    is_POD_type;</div><div class="line">&#125;;</div><div class="line"><span class="comment">//针对short的特化版本</span></div><div class="line">__STL_TEMPLATE_NULL <span class="class"><span class="keyword">struct</span> __<span class="title">type_traits</span>&lt;short&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_default_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_copy_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_assignment_operator;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_destructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    is_POD_type;</div><div class="line">&#125;;</div><div class="line"><span class="comment">//针对unsigned short的特化版本</span></div><div class="line">__STL_TEMPLATE_NULL <span class="class"><span class="keyword">struct</span> __<span class="title">type_traits</span>&lt;unsigned short&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_default_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_copy_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_assignment_operator;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_destructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    is_POD_type;</div><div class="line">&#125;;</div><div class="line"><span class="comment">//针对int的特化版本</span></div><div class="line">__STL_TEMPLATE_NULL <span class="class"><span class="keyword">struct</span> __<span class="title">type_traits</span>&lt;int&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_default_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_copy_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_assignment_operator;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_destructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    is_POD_type;</div><div class="line">&#125;;</div><div class="line"><span class="comment">//针对unsigned int的特化版本</span></div><div class="line">__STL_TEMPLATE_NULL <span class="class"><span class="keyword">struct</span> __<span class="title">type_traits</span>&lt;unsigned int&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_default_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_copy_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_assignment_operator;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_destructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    is_POD_type;</div><div class="line">&#125;;</div><div class="line"><span class="comment">//针对long的特化版本</span></div><div class="line">__STL_TEMPLATE_NULL <span class="class"><span class="keyword">struct</span> __<span class="title">type_traits</span>&lt;long&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_default_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_copy_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_assignment_operator;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_destructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    is_POD_type;</div><div class="line">&#125;;</div><div class="line"><span class="comment">//针对unsigned long的特化版本</span></div><div class="line">__STL_TEMPLATE_NULL <span class="class"><span class="keyword">struct</span> __<span class="title">type_traits</span>&lt;unsigned long&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_default_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_copy_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_assignment_operator;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_destructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    is_POD_type;</div><div class="line">&#125;;</div><div class="line"><span class="comment">//针对float的特化版本</span></div><div class="line">__STL_TEMPLATE_NULL <span class="class"><span class="keyword">struct</span> __<span class="title">type_traits</span>&lt;float&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_default_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_copy_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_assignment_operator;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_destructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    is_POD_type;</div><div class="line">&#125;;</div><div class="line"><span class="comment">//针对double的特化版本</span></div><div class="line">__STL_TEMPLATE_NULL <span class="class"><span class="keyword">struct</span> __<span class="title">type_traits</span>&lt;double&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_default_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_copy_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_assignment_operator;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_destructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    is_POD_type;</div><div class="line">&#125;;</div><div class="line"><span class="comment">//针对long double的特化版本</span></div><div class="line">__STL_TEMPLATE_NULL <span class="class"><span class="keyword">struct</span> __<span class="title">type_traits</span>&lt;long double&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_default_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_copy_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_assignment_operator;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_destructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    is_POD_type;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="comment">// 针对指针提供特化</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> __<span class="title">type_traits</span>&lt;T*&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_default_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_copy_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_assignment_operator;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_destructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    is_POD_type;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="comment">// 针对char *, signed char *, unsigned char *提供特化</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">type_traits</span>&lt;char*&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_default_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_copy_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_assignment_operator;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_destructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    is_POD_type;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">type_traits</span>&lt;signed char*&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_default_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_copy_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_assignment_operator;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_destructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    is_POD_type;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">type_traits</span>&lt;unsigned char*&gt;</span></div><div class="line"><span class="class">&#123;</span></div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_default_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_copy_constructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_assignment_operator;</div><div class="line">   <span class="keyword">typedef</span> __true_type    has_trivial_destructor;</div><div class="line">   <span class="keyword">typedef</span> __true_type    is_POD_type;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>STL 把所有的内嵌型别都设置为__false_type,都给出最保守的值，再针对每个标量给出适当的特化版本</p>
+<p><strong>什么时候该有自己的non_trivial default constructor 等等。。。<br>如果class 内含有指针成员，并且对其进行了内存动态配置，那么这个class 就要实现自己的non-trivial-xxx</strong></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/03/数据结构学习二后缀表达式求值/" rel="next" title="数据结构学习<二> 栈实现中缀表达式计算">
+                <i class="fa fa-chevron-left"></i> 数据结构学习<二> 栈实现中缀表达式计算
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Lan" />
+          <p class="site-author-name" itemprop="name">Lan</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#智能指针与迭代器"><span class="nav-number">1.</span> <span class="nav-text">智能指针与迭代器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#迭代器实际是一种智能指针"><span class="nav-number">1.1.</span> <span class="nav-text">迭代器实际是一种智能指针</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#auto-ptr"><span class="nav-number">1.2.</span> <span class="nav-text">auto_ptr</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#shared-ptr"><span class="nav-number">1.3.</span> <span class="nav-text">shared_ptr</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#traits编程技法"><span class="nav-number">2.</span> <span class="nav-text">traits编程技法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#迭代器设计"><span class="nav-number">3.</span> <span class="nav-text">迭代器设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#迭代器型别"><span class="nav-number">3.1.</span> <span class="nav-text">迭代器型别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#迭代器的相关函数设计"><span class="nav-number">3.2.</span> <span class="nav-text">迭代器的相关函数设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Type-traits机制"><span class="nav-number">3.3.</span> <span class="nav-text">Type_traits机制</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://lanxiuwen.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://yoursite.com/2018/03/04/STL源码剖析笔记三/';
+          this.page.identifier = '2018/03/04/STL源码剖析笔记三/';
+          this.page.title = 'STL源码剖析笔记<三> 智能指针、traits技法';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://lanxiuwen.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
