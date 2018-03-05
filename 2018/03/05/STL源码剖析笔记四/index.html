@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="STL学习," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="在之前我们研究了STL中的空间配置器，提到STL将内存分配和对象构造分开来，当时只讲了空间分配，现在来分析STL空间配置器的对象构造 在SGISTL的  文件便是用来构造和析构对象12345678910111213141516171819#include &amp;lt;new.h&amp;gt;   //欲使用 placement new，需先包含此文件    //construct()  template &amp;">
+<meta name="keywords" content="STL学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="STL源码剖析&lt;四&gt; 回到空间配置器及traits技术的应用">
+<meta property="og:url" content="http://yoursite.com/2018/03/05/STL源码剖析笔记四/index.html">
+<meta property="og:site_name" content="蓝新闻">
+<meta property="og:description" content="在之前我们研究了STL中的空间配置器，提到STL将内存分配和对象构造分开来，当时只讲了空间分配，现在来分析STL空间配置器的对象构造 在SGISTL的  文件便是用来构造和析构对象12345678910111213141516171819#include &amp;lt;new.h&amp;gt;   //欲使用 placement new，需先包含此文件    //construct()  template &amp;">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/images/STL构造函数1.png">
+<meta property="og:updated_time" content="2018-03-05T12:14:15.318Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="STL源码剖析&lt;四&gt; 回到空间配置器及traits技术的应用">
+<meta name="twitter:description" content="在之前我们研究了STL中的空间配置器，提到STL将内存分配和对象构造分开来，当时只讲了空间分配，现在来分析STL空间配置器的对象构造 在SGISTL的  文件便是用来构造和析构对象12345678910111213141516171819#include &amp;lt;new.h&amp;gt;   //欲使用 placement new，需先包含此文件    //construct()  template &amp;">
+<meta name="twitter:image" content="http://yoursite.com/images/STL构造函数1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/05/STL源码剖析笔记四/"/>
+
+
+
+
+
+  <title>STL源码剖析<四> 回到空间配置器及traits技术的应用 | 蓝新闻</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">蓝新闻</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/05/STL源码剖析笔记四/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Lan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蓝新闻">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">STL源码剖析<四> 回到空间配置器及traits技术的应用</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-05T20:09:30+08:00">
+                2018-03-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/STL学习/" itemprop="url" rel="index">
+                    <span itemprop="name">STL学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/03/05/STL源码剖析笔记四/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/03/05/STL源码剖析笔记四/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在<a href="http://lanxiuwen.github.io/2018/03/01/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%E7%AC%94%E8%AE%B0%E4%BA%8C/" target="_blank" rel="external">之前</a>我们研究了STL中的空间配置器，提到STL将内存分配和对象构造分开来，当时只讲了空间分配，现在来分析STL空间配置器的对象构造</p>
+<p>在SGISTL的 <stl_construct.h> 文件便是用来构造和析构对象<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;new.h&gt;   //欲使用 placement new，需先包含此文件  </span></span></div><div class="line">  </div><div class="line"><span class="comment">//construct()  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> _<span class="title">T1</span>, <span class="title">class</span> _<span class="title">T2</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> <span class="title">construct</span>(_<span class="title">T1</span>* __<span class="title">p</span>, <span class="title">const</span> _<span class="title">T2</span>&amp; __<span class="title">value</span>) </span></div><div class="line"><span class="class">&#123;</span>  </div><div class="line">    <span class="keyword">new</span> ((<span class="keyword">void</span>*)__p) _T1(__value);   <span class="comment">//placementnew;调用_T1::_T1(__value),构造新对象到预分配的内存上</span></div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> _<span class="title">T1</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> <span class="title">construct</span>(_<span class="title">T1</span>* __<span class="title">p</span>) &#123;</span>  </div><div class="line">    <span class="keyword">new</span> ((<span class="keyword">void</span>*)__p) _T1();  </div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="comment">//destroy()  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> _<span class="title">Tp</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> <span class="title">destroy</span>(_<span class="title">Tp</span>* __<span class="title">pointer</span>) &#123;</span>  </div><div class="line">    __pointer-&gt;~_Tp();    <span class="comment">//调用~_Tp()  </span></div><div class="line">&#125;</div></pre></td></tr></table></figure></stl_construct.h></p>
+<a id="more"></a>
+<p>placement new 允许你在一个已经分配好的内存中(栈或堆)构造一个新的对象。</p>
+<p>原型中(void*)__p实际上就是指向一个已经分配好的内存缓冲区的首地址。STL借助C++中的placement new来提高效率，因为使用new操作符分配内存需要在堆中查找足够大的剩余空间，这个操作速度是很慢的，而且有可能出现无法分配内存的异常。借助 placement new就可以解决这个问题，我们构造对象都是在一个预先准备好了的内存缓冲区中进行，不需要查找内存，内存分配的时间是常数，而且不会出现在程序运行中途出现内存不足的异常。</p>
+<p>上面的析构函数是接受一个指针，STL 另外提供一个版本用来析构两个迭代器所指范围内的所有对象。<br>此函数设法萃取(traits)出元素的数值型别，利用__type_traits&lt;&gt;求最适当的措施<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/*这里对比源码调整了顺序*/</span>  </div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> _<span class="title">ForwardIterator</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> <span class="title">destroy</span>(_<span class="title">ForwardIterator</span> __<span class="title">first</span>, _<span class="title">ForwardIterator</span> __<span class="title">last</span>) &#123;</span>  </div><div class="line">    _Destroy(__first, __last);                        <span class="comment">//调用_Destroy()  </span></div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="comment">//函数内部调用的函数__destroy()多了个参数，__VALUE_TYPE(__first)，用于找出元素的数值型别  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> _<span class="title">ForwardIterator</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> _<span class="title">Destroy</span>(_<span class="title">ForwardIterator</span> __<span class="title">first</span>, _<span class="title">ForwardIterator</span> __<span class="title">last</span>) &#123;</span>  </div><div class="line">    __destroy(__first, __last, __VALUE_TYPE(__first));    <span class="comment">//调用__destroy()  </span></div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="comment">//判断元素的数值型别是否有无用的析构函数(trivial_destructor)  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> _<span class="title">ForwardIterator</span>, <span class="title">class</span> _<span class="title">Tp</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span>  </span></div><div class="line"><span class="class">__<span class="title">destroy</span>(_<span class="title">ForwardIterator</span> __<span class="title">first</span>, _<span class="title">ForwardIterator</span> __<span class="title">last</span>, _<span class="title">Tp</span>*)  </span></div><div class="line"><span class="class">&#123;</span>  </div><div class="line">    <span class="keyword">typedef</span> <span class="keyword">typename</span> __type_traits&lt;_Tp&gt;::has_trivial_destructor  </div><div class="line">        _Trivial_destructor;  </div><div class="line">    __destroy_aux(__first, __last, _Trivial_destructor());  <span class="comment">//调用__destroy_aux()  </span></div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="comment">//如果元素的数值型别具备的是有用的析构函数，那么函数内部调用destroy()  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> _<span class="title">ForwardIterator</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">void</span>  </span></div><div class="line"><span class="class">__<span class="title">destroy_aux</span>(_<span class="title">ForwardIterator</span> __<span class="title">first</span>, _<span class="title">ForwardIterator</span> __<span class="title">last</span>, __<span class="title">false_type</span>)  </span></div><div class="line"><span class="class">&#123;</span>  </div><div class="line">    <span class="keyword">for</span> (; __first != __last; ++__first)  </div><div class="line">        destroy(&amp;*__first);    <span class="comment">//调用destroy()  </span></div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="comment">//如果元素的数值型别有无用的析构函数，函数体无操作  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> _<span class="title">ForwardIterator</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> __<span class="title">destroy_aux</span>(_<span class="title">ForwardIterator</span>, _<span class="title">ForwardIterator</span>, __<span class="title">true_type</span>) &#123;</span>&#125;  </div><div class="line">  </div><div class="line"><span class="comment">//迭代器版本destroy() -&gt; _Destroy() -&gt; __destroy() -&gt; __destroy_aux() -&gt; destroy() 指针版本  </span></div><div class="line"><span class="comment">//所以实际上是逐个析构，只是中间为了效率，引入了判断元素的数值型别，来确定对象是否具备有用的析构函数</span></div></pre></td></tr></table></figure></p>
+<p>对于迭代器版本的destroy() 实际最后都落脚到了单一对象指针版本的 destroy()。那么为什么要绕一大圈呢？因为这里接受的参数是两个迭代器，目的就是将这两个迭代器范围内的所有对象都析构掉，如果范围很大，并且对象的析构函数都是无关紧要的，那么一次次的调用这些个无用的析构函数，势必会对效率产生大的影响，所以先利用<strong>VALUE(</strong>first) 获得迭代器所指对象的型别，再利用 __type_traits<_tp> 判断该型别的析构函数是否无关痛痒，如果是则什么也不做，如果不是则循环逐个析构范围内的对象。</_tp></p>
+<p>所以对象的构造实际是通过 placement new 完成的(缓存提前分配然后进行对象的分配)；对象的析构则通过调用外在的析构函数(~_Tp())。注意的是，这里的析构只是析构对象，分配好的缓存并没有释放，所以可以反复利用缓存并给它分配对象。不打算再次使用这个缓存时，你可以delete 将其释放掉。</p>
+<p>另外destroy() 第二版本还针对迭代器类型为 char<em> 和 wchar_t</em> 定义了特化版本<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">(<span class="keyword">char</span>*, <span class="keyword">char</span>*)</span> </span>&#123;&#125;  </div><div class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">(<span class="keyword">wchar_t</span>*, <span class="keyword">wchar_t</span>*)</span> </span>&#123;&#125;</div></pre></td></tr></table></figure></p>
+<p>大致流程可以见下图<br><img src="/images/STL构造函数1.png" alt="构造"></p>
+<p>tarits技法在空间配置器中的uninitialized_fill_n()全局函数中也有用到<br>大体思路也是一致的，见下面代码<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div><div class="line">212</div><div class="line">213</div><div class="line">214</div><div class="line">215</div><div class="line">216</div><div class="line">217</div><div class="line">218</div><div class="line">219</div><div class="line">220</div><div class="line">221</div><div class="line">222</div><div class="line">223</div><div class="line">224</div><div class="line">225</div><div class="line">226</div><div class="line">227</div><div class="line">228</div><div class="line">229</div><div class="line">230</div><div class="line">231</div><div class="line">232</div><div class="line">233</div><div class="line">234</div><div class="line">235</div><div class="line">236</div><div class="line">237</div><div class="line">238</div><div class="line">239</div><div class="line">240</div><div class="line">241</div><div class="line">242</div><div class="line">243</div><div class="line">244</div><div class="line">245</div><div class="line">246</div><div class="line">247</div><div class="line">248</div><div class="line">249</div><div class="line">250</div><div class="line">251</div><div class="line">252</div><div class="line">253</div><div class="line">254</div><div class="line">255</div><div class="line">256</div><div class="line">257</div><div class="line">258</div><div class="line">259</div><div class="line">260</div><div class="line">261</div><div class="line">262</div><div class="line">263</div><div class="line">264</div><div class="line">265</div><div class="line">266</div><div class="line">267</div><div class="line">268</div><div class="line">269</div><div class="line">270</div><div class="line">271</div><div class="line">272</div><div class="line">273</div><div class="line">274</div><div class="line">275</div><div class="line">276</div><div class="line">277</div><div class="line">278</div><div class="line">279</div><div class="line">280</div><div class="line">281</div><div class="line">282</div><div class="line">283</div><div class="line">284</div><div class="line">285</div><div class="line">286</div><div class="line">287</div><div class="line">288</div><div class="line">289</div><div class="line">290</div><div class="line">291</div></pre></td><td class="code"><pre><div class="line">G++ <span class="number">2.91</span><span class="number">.57</span>，cygnus\cygwin-b20\include\g++\stl_uninitialized.h 完整列表  </div><div class="line">  </div><div class="line"><span class="comment">/* </span></div><div class="line"><span class="comment"> * </span></div><div class="line"><span class="comment"> * Copyright (c) 1994 </span></div><div class="line"><span class="comment"> * Hewlett-Packard Company </span></div><div class="line"><span class="comment"> * </span></div><div class="line"><span class="comment"> * Permission to use, copy, modify, distribute and sell this software </span></div><div class="line"><span class="comment"> * and its documentation for any purpose is hereby granted without fee, </span></div><div class="line"><span class="comment"> * provided that the above copyright notice appear in all copies and </span></div><div class="line"><span class="comment"> * that both that copyright notice and this permission notice appear </span></div><div class="line"><span class="comment"> * in supporting documentation.  Hewlett-Packard Company makes no </span></div><div class="line"><span class="comment"> * representations about the suitability of this software for any </span></div><div class="line"><span class="comment"> * purpose.  It is provided "as is" without express or implied warranty. </span></div><div class="line"><span class="comment"> * </span></div><div class="line"><span class="comment"> * </span></div><div class="line"><span class="comment"> * Copyright (c) 1996,1997 </span></div><div class="line"><span class="comment"> * Silicon Graphics Computer Systems, Inc. </span></div><div class="line"><span class="comment"> * </span></div><div class="line"><span class="comment"> * Permission to use, copy, modify, distribute and sell this software </span></div><div class="line"><span class="comment"> * and its documentation for any purpose is hereby granted without fee, </span></div><div class="line"><span class="comment"> * provided that the above copyright notice appear in all copies and </span></div><div class="line"><span class="comment"> * that both that copyright notice and this permission notice appear </span></div><div class="line"><span class="comment"> * in supporting documentation.  Silicon Graphics makes no </span></div><div class="line"><span class="comment"> * representations about the suitability of this software for any </span></div><div class="line"><span class="comment"> * purpose.  It is provided "as is" without express or implied warranty. </span></div><div class="line"><span class="comment"> */</span>  </div><div class="line">  </div><div class="line"><span class="comment">/* <span class="doctag">NOTE:</span> This is an internal header file, included by other STL headers. </span></div><div class="line"><span class="comment"> *   You should not attempt to use it directly. </span></div><div class="line"><span class="comment"> */</span>  </div><div class="line">  </div><div class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> __SGI_STL_INTERNAL_UNINITIALIZED_H  </span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> __SGI_STL_INTERNAL_UNINITIALIZED_H  </span></div><div class="line">  </div><div class="line">__STL_BEGIN_NAMESPACE  </div><div class="line">  </div><div class="line"><span class="comment">// Valid if copy construction is equivalent to assignment, and if the  </span></div><div class="line"><span class="comment">//  destructor is trivial.  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">InputIterator</span>, <span class="title">class</span> <span class="title">ForwardIterator</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">ForwardIterator</span>   </span></div><div class="line"><span class="class">__<span class="title">uninitialized_copy_aux</span>(<span class="title">InputIterator</span> <span class="title">first</span>, <span class="title">InputIterator</span> <span class="title">last</span>,  </span></div><div class="line"><span class="class">                         <span class="title">ForwardIterator</span> <span class="title">result</span>,  </span></div><div class="line"><span class="class">                         __<span class="title">true_type</span>) &#123;</span><span class="comment">//_true_type说明是POD类型  </span></div><div class="line">  <span class="keyword">return</span> copy(first, last, result);<span class="comment">//调用STL算法copy()  </span></div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">InputIterator</span>, <span class="title">class</span> <span class="title">ForwardIterator</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">ForwardIterator</span>   </span></div><div class="line"><span class="class">__<span class="title">uninitialized_copy_aux</span>(<span class="title">InputIterator</span> <span class="title">first</span>, <span class="title">InputIterator</span> <span class="title">last</span>,  </span></div><div class="line"><span class="class">                         <span class="title">ForwardIterator</span> <span class="title">result</span>,  </span></div><div class="line"><span class="class">                         __<span class="title">false_type</span>) &#123;</span><span class="comment">//_false_type说明是non-POD类型，要一个一个的构建，无法批量进行  </span></div><div class="line">  ForwardIterator cur = result;  </div><div class="line">  __STL_TRY &#123;  </div><div class="line">    <span class="keyword">for</span> ( ; first != last; ++first, ++cur)<span class="comment">//一个一个的构建  </span></div><div class="line">      construct(&amp;*cur, *first);  </div><div class="line">    <span class="keyword">return</span> cur;  </div><div class="line">  &#125;  </div><div class="line">  __STL_UNWIND(destroy(result, cur));  </div><div class="line">&#125;  </div><div class="line">  </div><div class="line">  </div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">InputIterator</span>, <span class="title">class</span> <span class="title">ForwardIterator</span>, <span class="title">class</span> <span class="title">T</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">ForwardIterator</span>  </span></div><div class="line"><span class="class">__<span class="title">uninitialized_copy</span>(<span class="title">InputIterator</span> <span class="title">first</span>, <span class="title">InputIterator</span> <span class="title">last</span>,  </span></div><div class="line"><span class="class">                     <span class="title">ForwardIterator</span> <span class="title">result</span>, <span class="title">T</span>*) &#123;</span>  </div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> __type_traits&lt;T&gt;::is_POD_type is_POD;<span class="comment">//用来判断是不是POD类型  </span></div><div class="line">  <span class="keyword">return</span> __uninitialized_copy_aux(first, last, result, is_POD());  </div><div class="line">&#125;  </div><div class="line"><span class="comment">/* </span></div><div class="line"><span class="comment">调用copy constructor,复制[first, last)范围内每一个对象，放到目的地[result, result+(last-first) )。 </span></div><div class="line"><span class="comment">对于char*和wchar_t*提供特殊版本，获得更好效率 </span></div><div class="line"><span class="comment">具有像数据库事物特性的commit和rollback特性，要么构造出所有必要元素，要么不够造任何东西。 </span></div><div class="line"><span class="comment"> </span></div><div class="line"><span class="comment"> </span></div><div class="line"><span class="comment">        copy()               for(; first!=last) construct() </span></div><div class="line"><span class="comment">        |                         | </span></div><div class="line"><span class="comment">        | _true_type              | _false_type </span></div><div class="line"><span class="comment">        &lt;__特化____________特化__&gt; </span></div><div class="line"><span class="comment">                   | </span></div><div class="line"><span class="comment">            _uninitialized_copy() </span></div><div class="line"><span class="comment"> &lt;InputIterator, Inputterator, ForwardIterator&gt; </span></div><div class="line"><span class="comment">                   | </span></div><div class="line"><span class="comment">                   |泛化 </span></div><div class="line"><span class="comment">                   | </span></div><div class="line"><span class="comment">uninitialized _____|_____特化___&gt;(const char*, const char*,char*) memmove() </span></div><div class="line"><span class="comment">_copy()            | </span></div><div class="line"><span class="comment">                   | </span></div><div class="line"><span class="comment">                   |____特化___&gt;(const wchar_t*, const wchar_t*, wchar_t*) memmove() </span></div><div class="line"><span class="comment"> </span></div><div class="line"><span class="comment">*/</span>  </div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">InputIterator</span>, <span class="title">class</span> <span class="title">ForwardIterator</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">ForwardIterator</span>  </span></div><div class="line"><span class="class">  <span class="title">uninitialized_copy</span>(<span class="title">InputIterator</span> <span class="title">first</span>, <span class="title">InputIterator</span> <span class="title">last</span>,  </span></div><div class="line"><span class="class">                     <span class="title">ForwardIterator</span> <span class="title">result</span>) &#123;</span>  </div><div class="line">  <span class="keyword">return</span> __uninitialized_copy(first, last, result, value_type(result));  </div><div class="line">&#125;  </div><div class="line"><span class="comment">//char*版本  </span></div><div class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">char</span>* <span class="title">uninitialized_copy</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* first, <span class="keyword">const</span> <span class="keyword">char</span>* last,  </span></span></div><div class="line"><span class="function"><span class="params">                                <span class="keyword">char</span>* result)</span> </span>&#123;  </div><div class="line">  memmove(result, first, last - first);  </div><div class="line">  <span class="keyword">return</span> result + (last - first);  </div><div class="line">&#125;  </div><div class="line"><span class="comment">//wchar_t*版本  </span></div><div class="line"><span class="function"><span class="keyword">inline</span> wchar_t* <span class="title">uninitialized_copy</span><span class="params">(<span class="keyword">const</span> <span class="keyword">wchar_t</span>* first, <span class="keyword">const</span> <span class="keyword">wchar_t</span>* last,  </span></span></div><div class="line"><span class="function"><span class="params">                                   <span class="keyword">wchar_t</span>* result)</span> </span>&#123;  </div><div class="line">  memmove(result, first, <span class="keyword">sizeof</span>(<span class="keyword">wchar_t</span>) * (last - first));  </div><div class="line">  <span class="keyword">return</span> result + (last - first);  </div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="comment">//input_iterator_tag只读迭代器类型  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">InputIterator</span>, <span class="title">class</span> <span class="title">Size</span>, <span class="title">class</span> <span class="title">ForwardIterator</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">pair</span>&lt;InputIterator, ForwardIterator&gt;  </span></div><div class="line"><span class="class">__<span class="title">uninitialized_copy_n</span>(<span class="title">InputIterator</span> <span class="title">first</span>, <span class="title">Size</span> <span class="title">count</span>,  </span></div><div class="line"><span class="class">                       <span class="title">ForwardIterator</span> <span class="title">result</span>,  </span></div><div class="line"><span class="class">                       <span class="title">input_iterator_tag</span>) &#123;</span>  </div><div class="line">  ForwardIterator cur = result;  </div><div class="line">  __STL_TRY &#123;  </div><div class="line">    <span class="keyword">for</span> ( ; count &gt; <span class="number">0</span> ; --count, ++first, ++cur)   </div><div class="line">      construct(&amp;*cur, *first);  </div><div class="line">    <span class="keyword">return</span> pair&lt;InputIterator, ForwardIterator&gt;(first, cur);  </div><div class="line">  &#125;  </div><div class="line">  __STL_UNWIND(destroy(result, cur));  </div><div class="line">&#125;  </div><div class="line"><span class="comment">//RandomAccessIterator迭代器类型  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">RandomAccessIterator</span>, <span class="title">class</span> <span class="title">Size</span>, <span class="title">class</span> <span class="title">ForwardIterator</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">pair</span>&lt;RandomAccessIterator, ForwardIterator&gt;  </span></div><div class="line"><span class="class">__<span class="title">uninitialized_copy_n</span>(<span class="title">RandomAccessIterator</span> <span class="title">first</span>, <span class="title">Size</span> <span class="title">count</span>,  </span></div><div class="line"><span class="class">                       <span class="title">ForwardIterator</span> <span class="title">result</span>,  </span></div><div class="line"><span class="class">                       <span class="title">random_access_iterator_tag</span>) &#123;</span>  </div><div class="line">  RandomAccessIterator last = first + count;  </div><div class="line">  <span class="keyword">return</span> make_pair(last, uninitialized_copy(first, last, result));  </div><div class="line">&#125;  </div><div class="line"><span class="comment">//用[result, result+count)初始化[first, first+cout)  </span></div><div class="line"><span class="comment">/* </span></div><div class="line"><span class="comment">这个根据迭代器类型跳转 </span></div><div class="line"><span class="comment">                         _____input_iterator_tag，调用construct(……) </span></div><div class="line"><span class="comment">                        | </span></div><div class="line"><span class="comment">                        | </span></div><div class="line"><span class="comment">uninitialized_copy_n----&gt; iterator_category(first)?判断迭代器类型 </span></div><div class="line"><span class="comment">                        | </span></div><div class="line"><span class="comment">                        |_____random_access_iterator_tag，调用uninitialized_copy(……) </span></div><div class="line"><span class="comment">*/</span>  </div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">InputIterator</span>, <span class="title">class</span> <span class="title">Size</span>, <span class="title">class</span> <span class="title">ForwardIterator</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">pair</span>&lt;InputIterator, ForwardIterator&gt;  </span></div><div class="line"><span class="class"><span class="title">uninitialized_copy_n</span>(<span class="title">InputIterator</span> <span class="title">first</span>, <span class="title">Size</span> <span class="title">count</span>,  </span></div><div class="line"><span class="class">                     <span class="title">ForwardIterator</span> <span class="title">result</span>) &#123;</span>  </div><div class="line">  <span class="keyword">return</span> __uninitialized_copy_n(first, count, result,  </div><div class="line">                                iterator_category(first));<span class="comment">//判断迭代器类型  </span></div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="comment">// Valid if copy construction is equivalent to assignment, and if the  </span></div><div class="line"><span class="comment">//  destructor is trivial.  </span></div><div class="line"><span class="comment">//如果复制构造函数和赋值操作符效果相同，且析构函数时trivial的  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">ForwardIterator</span>, <span class="title">class</span> <span class="title">T</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span>  </span></div><div class="line"><span class="class">__<span class="title">uninitialized_fill_aux</span>(<span class="title">ForwardIterator</span> <span class="title">first</span>, <span class="title">ForwardIterator</span> <span class="title">last</span>,   </span></div><div class="line"><span class="class">                         <span class="title">const</span> <span class="title">T</span>&amp; <span class="title">x</span>, __<span class="title">true_type</span>)//<span class="title">POD</span>类型  </span></div><div class="line"><span class="class">&#123;</span>  </div><div class="line">  fill(first, last, x);  </div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">ForwardIterator</span>, <span class="title">class</span> <span class="title">T</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">void</span>  </span></div><div class="line"><span class="class">__<span class="title">uninitialized_fill_aux</span>(<span class="title">ForwardIterator</span> <span class="title">first</span>, <span class="title">ForwardIterator</span> <span class="title">last</span>,   </span></div><div class="line"><span class="class">                         <span class="title">const</span> <span class="title">T</span>&amp; <span class="title">x</span>, __<span class="title">false_type</span>)//<span class="title">non</span>-<span class="title">POD</span>类型  </span></div><div class="line"><span class="class">&#123;</span>  </div><div class="line">  ForwardIterator cur = first;  </div><div class="line">  __STL_TRY &#123;  </div><div class="line">    <span class="keyword">for</span> ( ; cur != last; ++cur)<span class="comment">//一个一个构建  </span></div><div class="line">      construct(&amp;*cur, x);  </div><div class="line">  &#125;  </div><div class="line">  __STL_UNWIND(destroy(first, cur));  </div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">ForwardIterator</span>, <span class="title">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">T1</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> __<span class="title">uninitialized_fill</span>(<span class="title">ForwardIterator</span> <span class="title">first</span>, <span class="title">ForwardIterator</span> <span class="title">last</span>,   </span></div><div class="line"><span class="class">                                 <span class="title">const</span> <span class="title">T</span>&amp; <span class="title">x</span>, <span class="title">T1</span>*) &#123;</span>  </div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> __type_traits&lt;T1&gt;::is_POD_type is_POD;  </div><div class="line">  __uninitialized_fill_aux(first, last, x, is_POD());  </div><div class="line">                     </div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="comment">/* </span></div><div class="line"><span class="comment">用x初始化空间[first, last) </span></div><div class="line"><span class="comment">                        ___&gt;  construct(……) </span></div><div class="line"><span class="comment">                        | __false_type </span></div><div class="line"><span class="comment">                        | </span></div><div class="line"><span class="comment">uninitialized_fill------&gt; is POD? </span></div><div class="line"><span class="comment">                        |   __true_type </span></div><div class="line"><span class="comment">                        |___&gt;   fill(……) </span></div><div class="line"><span class="comment"> </span></div><div class="line"><span class="comment">*/</span>  </div><div class="line">  </div><div class="line">  </div><div class="line">  </div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">ForwardIterator</span>, <span class="title">class</span> <span class="title">T</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> <span class="title">uninitialized_fill</span>(<span class="title">ForwardIterator</span> <span class="title">first</span>, <span class="title">ForwardIterator</span> <span class="title">last</span>,   </span></div><div class="line"><span class="class">                               <span class="title">const</span> <span class="title">T</span>&amp; <span class="title">x</span>) &#123;</span>  </div><div class="line">  __uninitialized_fill(first, last, x, value_type(first));<span class="comment">//判断first是不是POD类型  </span></div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="comment">// Valid if copy construction is equivalent to assignment, and if the  </span></div><div class="line"><span class="comment">//  destructor is trivial.  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">ForwardIterator</span>, <span class="title">class</span> <span class="title">Size</span>, <span class="title">class</span> <span class="title">T</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">ForwardIterator</span>  </span></div><div class="line"><span class="class">__<span class="title">uninitialized_fill_n_aux</span>(<span class="title">ForwardIterator</span> <span class="title">first</span>, <span class="title">Size</span> <span class="title">n</span>,  </span></div><div class="line"><span class="class">                           <span class="title">const</span> <span class="title">T</span>&amp; <span class="title">x</span>, __<span class="title">true_type</span>) &#123;</span>  </div><div class="line">  <span class="keyword">return</span> fill_n(first, n, x);  </div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">ForwardIterator</span>, <span class="title">class</span> <span class="title">Size</span>, <span class="title">class</span> <span class="title">T</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">ForwardIterator</span>  </span></div><div class="line"><span class="class">__<span class="title">uninitialized_fill_n_aux</span>(<span class="title">ForwardIterator</span> <span class="title">first</span>, <span class="title">Size</span> <span class="title">n</span>,  </span></div><div class="line"><span class="class">                           <span class="title">const</span> <span class="title">T</span>&amp; <span class="title">x</span>, __<span class="title">false_type</span>) &#123;</span>  </div><div class="line">  ForwardIterator cur = first;  </div><div class="line">  __STL_TRY &#123;  </div><div class="line">    <span class="keyword">for</span> ( ; n &gt; <span class="number">0</span>; --n, ++cur)  </div><div class="line">      construct(&amp;*cur, x);  </div><div class="line">    <span class="keyword">return</span> cur;  </div><div class="line">  &#125;  </div><div class="line">  __STL_UNWIND(destroy(first, cur));  </div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">ForwardIterator</span>, <span class="title">class</span> <span class="title">Size</span>, <span class="title">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">T1</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">ForwardIterator</span> __<span class="title">uninitialized_fill_n</span>(<span class="title">ForwardIterator</span> <span class="title">first</span>, <span class="title">Size</span> <span class="title">n</span>,  </span></div><div class="line"><span class="class">                                              <span class="title">const</span> <span class="title">T</span>&amp; <span class="title">x</span>, <span class="title">T1</span>*) &#123;</span>  </div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> __type_traits&lt;T1&gt;::is_POD_type is_POD;  </div><div class="line">  <span class="keyword">return</span> __uninitialized_fill_n_aux(first, n, x, is_POD());  </div><div class="line">                                      </div><div class="line">&#125;  </div><div class="line"><span class="comment">/* </span></div><div class="line"><span class="comment">用x初始化[first, first+n)。也要判断是不是POD类型，看懂前面两个的话，这个自然就懂了，不再赘述。 </span></div><div class="line"><span class="comment">*/</span>  </div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">ForwardIterator</span>, <span class="title">class</span> <span class="title">Size</span>, <span class="title">class</span> <span class="title">T</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">ForwardIterator</span> <span class="title">uninitialized_fill_n</span>(<span class="title">ForwardIterator</span> <span class="title">first</span>, <span class="title">Size</span> <span class="title">n</span>,  </span></div><div class="line"><span class="class">                                            <span class="title">const</span> <span class="title">T</span>&amp; <span class="title">x</span>) &#123;</span>  </div><div class="line">  <span class="keyword">return</span> __uninitialized_fill_n(first, n, x, value_type(first));  </div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="comment">// Copies [first1, last1) into [result, result + (last1 - first1)), and  </span></div><div class="line"><span class="comment">//  copies [first2, last2) into  </span></div><div class="line"><span class="comment">//  [result, result + (last1 - first1) + (last2 - first2)).  </span></div><div class="line">  </div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">InputIterator1</span>, <span class="title">class</span> <span class="title">InputIterator2</span>, <span class="title">class</span> <span class="title">ForwardIterator</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">ForwardIterator</span>  </span></div><div class="line"><span class="class">__<span class="title">uninitialized_copy_copy</span>(<span class="title">InputIterator1</span> <span class="title">first1</span>, <span class="title">InputIterator1</span> <span class="title">last1</span>,  </span></div><div class="line"><span class="class">                          <span class="title">InputIterator2</span> <span class="title">first2</span>, <span class="title">InputIterator2</span> <span class="title">last2</span>,  </span></div><div class="line"><span class="class">                          <span class="title">ForwardIterator</span> <span class="title">result</span>) &#123;</span>  </div><div class="line">  ForwardIterator mid = uninitialized_copy(first1, last1, result);  </div><div class="line">  __STL_TRY &#123;  </div><div class="line">    <span class="keyword">return</span> uninitialized_copy(first2, last2, mid);  </div><div class="line">  &#125;  </div><div class="line">  __STL_UNWIND(destroy(result, mid));  </div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="comment">// Fills [result, mid) with x, and copies [first, last) into  </span></div><div class="line"><span class="comment">//  [mid, mid + (last - first)).  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">ForwardIterator</span>, <span class="title">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">InputIterator</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">ForwardIterator</span>   </span></div><div class="line"><span class="class">__<span class="title">uninitialized_fill_copy</span>(<span class="title">ForwardIterator</span> <span class="title">result</span>, <span class="title">ForwardIterator</span> <span class="title">mid</span>,  </span></div><div class="line"><span class="class">                          <span class="title">const</span> <span class="title">T</span>&amp; <span class="title">x</span>,  </span></div><div class="line"><span class="class">                          <span class="title">InputIterator</span> <span class="title">first</span>, <span class="title">InputIterator</span> <span class="title">last</span>) &#123;</span>  </div><div class="line">  uninitialized_fill(result, mid, x);  </div><div class="line">  __STL_TRY &#123;  </div><div class="line">    <span class="keyword">return</span> uninitialized_copy(first, last, mid);  </div><div class="line">  &#125;  </div><div class="line">  __STL_UNWIND(destroy(result, mid));  </div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="comment">// Copies [first1, last1) into [first2, first2 + (last1 - first1)), and  </span></div><div class="line"><span class="comment">//  fills [first2 + (last1 - first1), last2) with x.  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">InputIterator</span>, <span class="title">class</span> <span class="title">ForwardIterator</span>, <span class="title">class</span> <span class="title">T</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span>  </span></div><div class="line"><span class="class">__<span class="title">uninitialized_copy_fill</span>(<span class="title">InputIterator</span> <span class="title">first1</span>, <span class="title">InputIterator</span> <span class="title">last1</span>,  </span></div><div class="line"><span class="class">                          <span class="title">ForwardIterator</span> <span class="title">first2</span>, <span class="title">ForwardIterator</span> <span class="title">last2</span>,  </span></div><div class="line"><span class="class">                          <span class="title">const</span> <span class="title">T</span>&amp; <span class="title">x</span>) &#123;</span>  </div><div class="line">  ForwardIterator mid2 = uninitialized_copy(first1, last1, first2);  </div><div class="line">  __STL_TRY &#123;  </div><div class="line">    uninitialized_fill(mid2, last2, x);  </div><div class="line">  &#125;  </div><div class="line">  __STL_UNWIND(destroy(first2, mid2));  </div><div class="line">&#125;  </div><div class="line">  </div><div class="line">__STL_END_NAMESPACE  </div><div class="line">  </div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">/* __SGI_STL_INTERNAL_UNINITIALIZED_H */</span>  </span></div><div class="line">  </div><div class="line"><span class="comment">// Local Variables:  </span></div><div class="line"><span class="comment">// mode:C++  </span></div><div class="line"><span class="comment">// End:</span></div></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/STL学习/" rel="tag"># STL学习</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/04/STL源码剖析笔记三/" rel="next" title="STL源码剖析笔记<三> 智能指针、traits技法">
+                <i class="fa fa-chevron-left"></i> STL源码剖析笔记<三> 智能指针、traits技法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Lan" />
+          <p class="site-author-name" itemprop="name">Lan</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://lanxiuwen.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://yoursite.com/2018/03/05/STL源码剖析笔记四/';
+          this.page.identifier = '2018/03/05/STL源码剖析笔记四/';
+          this.page.title = 'STL源码剖析<四> 回到空间配置器及traits技术的应用';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://lanxiuwen.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
