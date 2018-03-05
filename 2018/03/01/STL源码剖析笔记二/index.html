@@ -78,7 +78,7 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="STL学习," />
 
 
 
@@ -94,22 +94,23 @@
 
 
 
-<meta name="description" content="STL源码刨析笔记&amp;lt;二&amp;gt; 空间配置器1. allocator类有时候我们需要把内存分配和对象构造分离开来，使用allocator就可以达到这个目的。 当一个allocator对象分配内存时候，就会根据给定的对象类型来确定恰当的内存大小和对齐位置。12allocator&amp;lt;string&amp;gt; alloc;//用以分配string对象的allocator对象auto const p=">
+<meta name="description" content="STL源码剖析笔记&amp;lt;二&amp;gt; 空间配置器1. allocator类有时候我们需要把内存分配和对象构造分离开来，使用allocator就可以达到这个目的。 当一个allocator对象分配内存时候，就会根据给定的对象类型来确定恰当的内存大小和对齐位置。12allocator&amp;lt;string&amp;gt; alloc;//用以分配string对象的allocator对象auto const p=">
+<meta name="keywords" content="STL学习">
 <meta property="og:type" content="article">
-<meta property="og:title" content="STL源码刨析笔记&lt;二&gt; 空间配置器">
+<meta property="og:title" content="STL源码剖析笔记&lt;二&gt; 空间配置器">
 <meta property="og:url" content="http://yoursite.com/2018/03/01/STL源码剖析笔记二/index.html">
 <meta property="og:site_name" content="蓝新闻">
-<meta property="og:description" content="STL源码刨析笔记&amp;lt;二&amp;gt; 空间配置器1. allocator类有时候我们需要把内存分配和对象构造分离开来，使用allocator就可以达到这个目的。 当一个allocator对象分配内存时候，就会根据给定的对象类型来确定恰当的内存大小和对齐位置。12allocator&amp;lt;string&amp;gt; alloc;//用以分配string对象的allocator对象auto const p=">
+<meta property="og:description" content="STL源码剖析笔记&amp;lt;二&amp;gt; 空间配置器1. allocator类有时候我们需要把内存分配和对象构造分离开来，使用allocator就可以达到这个目的。 当一个allocator对象分配内存时候，就会根据给定的对象类型来确定恰当的内存大小和对齐位置。12allocator&amp;lt;string&amp;gt; alloc;//用以分配string对象的allocator对象auto const p=">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/images/外碎片.png">
 <meta property="og:image" content="http://yoursite.com/images/二级空间配置器.png">
 <meta property="og:image" content="http://yoursite.com/images/2jkj1.png">
 <meta property="og:image" content="http://yoursite.com/images/2jkj2.png">
 <meta property="og:image" content="http://yoursite.com/images/2jncc.png">
-<meta property="og:updated_time" content="2018-03-01T13:11:54.980Z">
+<meta property="og:updated_time" content="2018-03-04T08:49:53.616Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="STL源码刨析笔记&lt;二&gt; 空间配置器">
-<meta name="twitter:description" content="STL源码刨析笔记&amp;lt;二&amp;gt; 空间配置器1. allocator类有时候我们需要把内存分配和对象构造分离开来，使用allocator就可以达到这个目的。 当一个allocator对象分配内存时候，就会根据给定的对象类型来确定恰当的内存大小和对齐位置。12allocator&amp;lt;string&amp;gt; alloc;//用以分配string对象的allocator对象auto const p=">
+<meta name="twitter:title" content="STL源码剖析笔记&lt;二&gt; 空间配置器">
+<meta name="twitter:description" content="STL源码剖析笔记&amp;lt;二&amp;gt; 空间配置器1. allocator类有时候我们需要把内存分配和对象构造分离开来，使用allocator就可以达到这个目的。 当一个allocator对象分配内存时候，就会根据给定的对象类型来确定恰当的内存大小和对齐位置。12allocator&amp;lt;string&amp;gt; alloc;//用以分配string对象的allocator对象auto const p=">
 <meta name="twitter:image" content="http://yoursite.com/images/外碎片.png">
 
 
@@ -145,7 +146,7 @@
 
 
 
-  <title>STL源码刨析笔记<二> 空间配置器 | 蓝新闻</title>
+  <title>STL源码剖析笔记<二> 空间配置器 | 蓝新闻</title>
   
 
 
@@ -212,6 +213,26 @@
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
             首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
           </a>
         </li>
       
@@ -285,7 +306,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">STL源码刨析笔记<二> 空间配置器</h1>
+          <h1 class="post-title" itemprop="name headline">STL源码剖析笔记<二> 空间配置器</h1>
         
 
         <div class="post-meta">
@@ -307,6 +328,28 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/STL学习/" itemprop="url" rel="index">
+                    <span itemprop="name">STL学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -346,7 +389,7 @@
       
 
       
-        <h1 id="STL源码刨析笔记-lt-二-gt-空间配置器"><a href="#STL源码刨析笔记-lt-二-gt-空间配置器" class="headerlink" title="STL源码刨析笔记&lt;二&gt; 空间配置器"></a>STL源码刨析笔记&lt;二&gt; 空间配置器</h1><h2 id="1-allocator类"><a href="#1-allocator类" class="headerlink" title="1. allocator类"></a>1. allocator类</h2><p>有时候我们需要把内存分配和对象构造分离开来，使用allocator就可以达到这个目的。</p>
+        <h1 id="STL源码剖析笔记-lt-二-gt-空间配置器"><a href="#STL源码剖析笔记-lt-二-gt-空间配置器" class="headerlink" title="STL源码剖析笔记&lt;二&gt; 空间配置器"></a>STL源码剖析笔记&lt;二&gt; 空间配置器</h1><h2 id="1-allocator类"><a href="#1-allocator类" class="headerlink" title="1. allocator类"></a>1. allocator类</h2><p>有时候我们需要把内存分配和对象构造分离开来，使用allocator就可以达到这个目的。</p>
 <p>当一个allocator对象分配内存时候，就会根据给定的对象类型来确定恰当的内存大小和对齐位置。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">allocator&lt;<span class="built_in">string</span>&gt; alloc;<span class="comment">//用以分配string对象的allocator对象</span></div><div class="line"><span class="keyword">auto</span> <span class="keyword">const</span> p=alloc.allocate(n);<span class="comment">//分配n个未初始化的对象的内存</span></div></pre></td></tr></table></figure></p>
 <p><strong>STL中allocator类及算法</strong></p>
 <table>
@@ -473,6 +516,12 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/STL学习/" rel="tag"># STL学习</a>
+          
+        </div>
+      
 
       
       
@@ -482,8 +531,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/03/01/STL源码剖析笔记一/" rel="next" title="STL源码刨析笔记<一>">
-                <i class="fa fa-chevron-left"></i> STL源码刨析笔记<一>
+              <a href="/2018/03/01/STL源码剖析笔记一/" rel="next" title="STL源码剖析笔记<一>">
+                <i class="fa fa-chevron-left"></i> STL源码剖析笔记<一>
               </a>
             
           </div>
@@ -585,15 +634,24 @@
           
 
           
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
 
           
             
             
             <div class="site-state-item site-state-tags">
-              
-                <span class="site-state-item-count">1</span>
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">6</span>
                 <span class="site-state-item-name">标签</span>
-              
+              </a>
             </div>
           
 
@@ -626,7 +684,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#STL源码刨析笔记-lt-二-gt-空间配置器"><span class="nav-number">1.</span> <span class="nav-text">STL源码刨析笔记<二> 空间配置器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-allocator类"><span class="nav-number">1.1.</span> <span class="nav-text">1. allocator类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-使用new及delete的一些问题"><span class="nav-number">1.2.</span> <span class="nav-text">2.使用new及delete的一些问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-STL中空间配置器的具体实现"><span class="nav-number">1.3.</span> <span class="nav-text">3. STL中空间配置器的具体实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-实现第二级空间配置器"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.2 实现第二级空间配置器</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#STL源码剖析笔记-lt-二-gt-空间配置器"><span class="nav-number">1.</span> <span class="nav-text">STL源码剖析笔记<二> 空间配置器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-allocator类"><span class="nav-number">1.1.</span> <span class="nav-text">1. allocator类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-使用new及delete的一些问题"><span class="nav-number">1.2.</span> <span class="nav-text">2.使用new及delete的一些问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-STL中空间配置器的具体实现"><span class="nav-number">1.3.</span> <span class="nav-text">3. STL中空间配置器的具体实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-实现第二级空间配置器"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.2 实现第二级空间配置器</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
@@ -776,7 +834,7 @@
         var disqus_config = function () {
           this.page.url = 'http://yoursite.com/2018/03/01/STL源码剖析笔记二/';
           this.page.identifier = '2018/03/01/STL源码剖析笔记二/';
-          this.page.title = 'STL源码刨析笔记<二> 空间配置器';
+          this.page.title = 'STL源码剖析笔记<二> 空间配置器';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://lanxiuwen.disqus.com/embed.js';

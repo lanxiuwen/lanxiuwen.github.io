@@ -78,7 +78,7 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="STL学习," />
 
 
 
@@ -95,13 +95,14 @@
 
 
 <meta name="description" content="智能指针与迭代器STL的中心思想是把数据容器和算法分开设计，C++使用泛型技术class template和function template技术都可以实现，但难点却在于将两者配合好。算法的设计过多的依赖容器，容器的改动会造成大量算法函数的随之改动，迭代器便是用来粘合算法与数据容器的技术。">
+<meta name="keywords" content="STL学习">
 <meta property="og:type" content="article">
 <meta property="og:title" content="STL源码剖析笔记&lt;三&gt; 智能指针、traits技法">
 <meta property="og:url" content="http://yoursite.com/2018/03/04/STL源码剖析笔记三/index.html">
 <meta property="og:site_name" content="蓝新闻">
 <meta property="og:description" content="智能指针与迭代器STL的中心思想是把数据容器和算法分开设计，C++使用泛型技术class template和function template技术都可以实现，但难点却在于将两者配合好。算法的设计过多的依赖容器，容器的改动会造成大量算法函数的随之改动，迭代器便是用来粘合算法与数据容器的技术。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-04T08:08:21.657Z">
+<meta property="og:updated_time" content="2018-03-04T08:48:24.064Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="STL源码剖析笔记&lt;三&gt; 智能指针、traits技法">
 <meta name="twitter:description" content="智能指针与迭代器STL的中心思想是把数据容器和算法分开设计，C++使用泛型技术class template和function template技术都可以实现，但难点却在于将两者配合好。算法的设计过多的依赖容器，容器的改动会造成大量算法函数的随之改动，迭代器便是用来粘合算法与数据容器的技术。">
@@ -210,6 +211,26 @@
         </li>
       
         
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-archives">
           <a href="/archives/" rel="section">
             
@@ -301,6 +322,28 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/STL学习/" itemprop="url" rel="index">
+                    <span itemprop="name">STL学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -438,6 +481,12 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/STL学习/" rel="tag"># STL学习</a>
+          
+        </div>
+      
 
       
       
@@ -546,15 +595,24 @@
           
 
           
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
 
           
             
             
             <div class="site-state-item site-state-tags">
-              
-                <span class="site-state-item-count">1</span>
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">6</span>
                 <span class="site-state-item-name">标签</span>
-              
+              </a>
             </div>
           
 

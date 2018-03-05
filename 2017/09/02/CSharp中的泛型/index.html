@@ -78,7 +78,7 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="C#," />
 
 
 
@@ -95,13 +95,14 @@
 
 
 <meta name="description" content="C#中的泛型泛型的来历&amp;emsp;&amp;emsp;在写程序中常常遇到两个模块的功能非常相似，只是一个是处理int数据，另一个是处理string数据，或者其他自定义的数据类型，但我们没有办法，只能分别写多个方法处理每个数据类型，因为方法的参数类型不同。有没有一种办法，在方法中传入通用的数据类型，这样不就可以合并代码了吗？具体在C#中，基本集合是没有类型化的，需要把object项转化为集合中实际存储的对象">
+<meta name="keywords" content="C#">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CSharp中的泛型">
 <meta property="og:url" content="http://yoursite.com/2017/09/02/CSharp中的泛型/index.html">
 <meta property="og:site_name" content="蓝新闻">
 <meta property="og:description" content="C#中的泛型泛型的来历&amp;emsp;&amp;emsp;在写程序中常常遇到两个模块的功能非常相似，只是一个是处理int数据，另一个是处理string数据，或者其他自定义的数据类型，但我们没有办法，只能分别写多个方法处理每个数据类型，因为方法的参数类型不同。有没有一种办法，在方法中传入通用的数据类型，这样不就可以合并代码了吗？具体在C#中，基本集合是没有类型化的，需要把object项转化为集合中实际存储的对象">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-09-02T14:14:33.045Z">
+<meta property="og:updated_time" content="2018-03-05T11:04:53.414Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CSharp中的泛型">
 <meta name="twitter:description" content="C#中的泛型泛型的来历&amp;emsp;&amp;emsp;在写程序中常常遇到两个模块的功能非常相似，只是一个是处理int数据，另一个是处理string数据，或者其他自定义的数据类型，但我们没有办法，只能分别写多个方法处理每个数据类型，因为方法的参数类型不同。有没有一种办法，在方法中传入通用的数据类型，这样不就可以合并代码了吗？具体在C#中，基本集合是没有类型化的，需要把object项转化为集合中实际存储的对象">
@@ -210,6 +211,26 @@
         </li>
       
         
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-archives">
           <a href="/archives/" rel="section">
             
@@ -301,6 +322,28 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C/" itemprop="url" rel="index">
+                    <span itemprop="name">C#</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -582,6 +625,12 @@ IMyInterface&lt;SuperCow&gt; superCowInterface=cowInterface;
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/C/" rel="tag"># C#</a>
+          
+        </div>
+      
 
       
       
@@ -694,15 +743,24 @@ IMyInterface&lt;SuperCow&gt; superCowInterface=cowInterface;
           
 
           
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
 
           
             
             
             <div class="site-state-item site-state-tags">
-              
-                <span class="site-state-item-count">1</span>
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">6</span>
                 <span class="site-state-item-name">标签</span>
-              
+              </a>
             </div>
           
 
