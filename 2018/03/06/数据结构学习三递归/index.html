@@ -78,7 +78,7 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="C/C++," />
+  <meta name="keywords" content="数据结构学习," />
 
 
 
@@ -94,21 +94,20 @@
 
 
 
-<meta name="description" content="输出当前程序的代码问题和白博聊天，白博提了一个问题，一个程序输出其代码本身。 在和白博的交流中，想到一个比较取巧的办法，就是直接读取源代码，然后输出。 先给出代码 #include&amp;lt;iostream&amp;gt; #include&amp;lt;fstream&amp;gt; #include&amp;lt;vector&amp;gt; #include&amp;lt;string.h&amp;gt; #include&amp;lt;sstream&amp;g">
-<meta name="keywords" content="C&#x2F;C++">
+<meta name="description" content="递归是数学和计算机科学中的基本概念，与数学上我们熟悉的数学归纳法有异曲同工之妙，例如阶乘就可以由递归实现。12345int factorial(int N)&amp;#123;    if(N==0) return 1;    return N*(factorial(N-1));&amp;#125;">
+<meta name="keywords" content="数据结构学习">
 <meta property="og:type" content="article">
-<meta property="og:title" content="输出当前程序的代码">
-<meta property="og:url" content="http://yoursite.com/2017/10/18/输出当前运行的程序/index.html">
+<meta property="og:title" content="数据结构学习&lt;三&gt; 递归及相关问题">
+<meta property="og:url" content="http://yoursite.com/2018/03/06/数据结构学习三递归/index.html">
 <meta property="og:site_name" content="蓝新闻">
-<meta property="og:description" content="输出当前程序的代码问题和白博聊天，白博提了一个问题，一个程序输出其代码本身。 在和白博的交流中，想到一个比较取巧的办法，就是直接读取源代码，然后输出。 先给出代码 #include&amp;lt;iostream&amp;gt; #include&amp;lt;fstream&amp;gt; #include&amp;lt;vector&amp;gt; #include&amp;lt;string.h&amp;gt; #include&amp;lt;sstream&amp;g">
+<meta property="og:description" content="递归是数学和计算机科学中的基本概念，与数学上我们熟悉的数学归纳法有异曲同工之妙，例如阶乘就可以由递归实现。12345int factorial(int N)&amp;#123;    if(N==0) return 1;    return N*(factorial(N-1));&amp;#125;">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/images/CurrentProgram.png">
-<meta property="og:image" content="http://yoursite.com/images/3.png">
-<meta property="og:updated_time" content="2018-03-05T11:03:49.887Z">
+<meta property="og:image" content="http://yoursite.com/images/hanoi1.gif">
+<meta property="og:updated_time" content="2018-03-06T12:27:38.541Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="输出当前程序的代码">
-<meta name="twitter:description" content="输出当前程序的代码问题和白博聊天，白博提了一个问题，一个程序输出其代码本身。 在和白博的交流中，想到一个比较取巧的办法，就是直接读取源代码，然后输出。 先给出代码 #include&amp;lt;iostream&amp;gt; #include&amp;lt;fstream&amp;gt; #include&amp;lt;vector&amp;gt; #include&amp;lt;string.h&amp;gt; #include&amp;lt;sstream&amp;g">
-<meta name="twitter:image" content="http://yoursite.com/images/CurrentProgram.png">
+<meta name="twitter:title" content="数据结构学习&lt;三&gt; 递归及相关问题">
+<meta name="twitter:description" content="递归是数学和计算机科学中的基本概念，与数学上我们熟悉的数学归纳法有异曲同工之妙，例如阶乘就可以由递归实现。12345int factorial(int N)&amp;#123;    if(N==0) return 1;    return N*(factorial(N-1));&amp;#125;">
+<meta name="twitter:image" content="http://yoursite.com/images/hanoi1.gif">
 
 
 
@@ -137,13 +136,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/10/18/输出当前运行的程序/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/03/06/数据结构学习三递归/"/>
 
 
 
 
 
-  <title>输出当前程序的代码 | 蓝新闻</title>
+  <title>数据结构学习<三> 递归及相关问题 | 蓝新闻</title>
   
 
 
@@ -286,7 +285,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/18/输出当前运行的程序/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/06/数据结构学习三递归/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Lan">
@@ -303,7 +302,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">输出当前程序的代码</h1>
+          <h1 class="post-title" itemprop="name headline">数据结构学习<三> 递归及相关问题</h1>
         
 
         <div class="post-meta">
@@ -315,8 +314,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-18T13:47:25+08:00">
-                2017-10-18
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-06T20:21:22+08:00">
+                2018-03-06
               </time>
             
 
@@ -338,8 +337,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/C-C/" itemprop="url" rel="index">
-                    <span itemprop="name">C/C++</span>
+                  <a href="/categories/数据结构学习/" itemprop="url" rel="index">
+                    <span itemprop="name">数据结构学习</span>
                   </a>
                 </span>
 
@@ -356,9 +355,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2017/10/18/输出当前运行的程序/#comments" itemprop="discussionUrl">
+                <a href="/2018/03/06/数据结构学习三递归/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2017/10/18/输出当前运行的程序/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2018/03/06/数据结构学习三递归/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -386,76 +385,41 @@
       
 
       
-        <h1 id="输出当前程序的代码"><a href="#输出当前程序的代码" class="headerlink" title="输出当前程序的代码"></a>输出当前程序的代码</h1><h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>和白博聊天，白博提了一个问题，一个程序输出其代码本身。</p>
-<p>在和白博的交流中，想到一个比较取巧的办法，就是直接读取源代码，然后输出。</p>
-<p>先给出代码</p>
-<pre><code>#include&lt;iostream&gt;
-#include&lt;fstream&gt;
-#include&lt;vector&gt;
-#include&lt;string.h&gt;
-#include&lt;sstream&gt;
-
-using namespace std;
-int main(void)
-{
-    //打开文件
-    ifstream infile(__FILE__);
-    if (!infile)
-        return -1;
-
-    string strAll;
-    ostringstream sin;
-    sin &lt;&lt; infile.rdbuf();
-    strAll = sin.str();
-    cout &lt;&lt; strAll;
-    return 0;
-}
-</code></pre><a id="more"></a>
-<p>运行结果为</p>
-<p><img src="/images/CurrentProgram.png" alt="运行结果"></p>
-<h2 id="理论"><a href="#理论" class="headerlink" title="理论"></a>理论</h2><p>这样做的理论基础是，由于程序在由源代码到可执行文件的转变过程后与最初的.cpp文件已经没有关系了</p>
-<p>一般来说这个过程分为编译和链接两个部分，如下图</p>
-<p><img src="/images/3.png" alt="理论"></p>
-<p>编译阶段将源程序（*.c) 转换成为目标代码（一般是obj文件，至于具体过程就是上面说的那些），链接阶段是把源程序转换成的目标代码（obj文件）与你程序里面调用的库函数对应的代码连接起来形成对应的可执行文件（exe文件）就可以了</p>
-<h3 id="编译预处理"><a href="#编译预处理" class="headerlink" title="编译预处理"></a>编译预处理</h3><p>预处理的过程主要处理包括以下过程：</p>
-<p>将所有的#define删除，并且展开所有的宏定义</p>
-<p>处理所有的条件预编译指令，比如#if #ifdef #elif #else #endif等</p>
-<p>处理#include 预编译指令，将被包含的文件插入到该预编译指令的位置。</p>
-<p>删除所有注释 “//”和”/<em> </em>/”.</p>
-<p>添加行号和文件标识，以便编译时产生调试用的行号及编译错误警告行号。</p>
-<p>保留所有的#pragma编译器指令，因为编译器需要使用它们</p>
-<p>命令为 gcc-E hello.c hello.i</p>
-<p>这里 -E 是只进行预处理</p>
-<h3 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h3><p>编译过程就是把预处理完的文件进行一系列的词法分析，语法分析，语义分析及优化后生成相应的汇编代码。</p>
-<p>现在版本的GCC把预处理和编译两个步骤合成一个步骤，用cc1工具来完成。gcc其实是后台程序的一些包装，根据不同参数去调用其他的实际处理程序，比如：预编译编译程序cc1、汇编器as、连接器ld</p>
-<h3 id="汇编"><a href="#汇编" class="headerlink" title="汇编"></a>汇编</h3><p>把经过编译的.s文件转化为机器码 .o 文件 .obj文件也是</p>
-<h3 id="链接"><a href="#链接" class="headerlink" title="链接"></a>链接</h3><p>链接分为静态链接和动态链接。</p>
-<p>静态链接是指在编译阶段直接把静态库加入到可执行文件中去，这样可执行文件会比较大。</p>
-<p>而动态链接则是指链接阶段仅仅只加入一些描述信息，而程序执行时再从系统中把相应动态库加载到内存中去。</p>
-<p>链接的主要内容是把各个模块之间相互引用的部分处理好，使得各个模块之间能够正确地衔接。</p>
-<p>链接的主要过程包括：地址和空间分配（Address and Storage Allocation），符号决议（Symbol Resolution），重定位（Relocation）等。</p>
-<p>在这之后就能产生可以运行的exe文件了</p>
-<h3 id="VS中的编译链接"><a href="#VS中的编译链接" class="headerlink" title="VS中的编译链接"></a>VS中的编译链接</h3><p>但是在目前大多用的集成度比较高的IDE的情况下，很多步骤都被继承在了一起，例如在VS中按下F5一切都OK了</p>
-<p>打开安装目录下的VSDIR\VC\bin可以看到一系列的可执行程序.exe和批处理文件，这些就是构建、编译、链接时要用到的工具。看一下几个主要的工具： </p>
-<p>cl.exe：编译程序 </p>
-<p>link.exe：链接程序 </p>
-<p>lib.exe：加载lib库的程序 </p>
-<p>nmake.exe：用makefile进行构建、编译的工具</p>
-<h2 id="再回到问题"><a href="#再回到问题" class="headerlink" title="再回到问题"></a>再回到问题</h2><p>我们之前采用的方法有些讨巧，但反而具有了通用性，可以将其封装为一个函数，在任意的一个代码文件中均可以输出当前文件的代码</p>
-<pre><code>int PutsSelfCode()
-{
-    ifstream infile(__FILE__);
-    if (!infile)
-        return -1;
-
-    string strAll;
-    ostringstream sin;
-    sin &lt;&lt; infile.rdbuf();
-    strAll = sin.str();
-    cout &lt;&lt; strAll;
-    return 0;
-}
-</code></pre><p>对于其他方法，这里可以参见<a href="http://www.cnblogs.com/xkfz007/archive/2012/03/27/2420162.html" target="_blank" rel="external">这篇博客</a></p>
+        <p>递归是数学和计算机科学中的基本概念，与数学上我们熟悉的数学归纳法有异曲同工之妙，例如阶乘就可以由递归实现。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">factorial</span><span class="params">(<span class="keyword">int</span> N)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    <span class="keyword">if</span>(N==<span class="number">0</span>) <span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">    <span class="keyword">return</span> N*(factorial(N<span class="number">-1</span>));</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<a id="more"></a>
+<p>递归函数满足两个基本属性：</p>
+<ul>
+<li>必须明确解决归纳基础。</li>
+<li>每一次调用，必须包含更小的参数值。</li>
+</ul>
+<p>接下来主要介绍用到递归的问题或者算法</p>
+<h1 id="欧几里得算法"><a href="#欧几里得算法" class="headerlink" title="欧几里得算法"></a>欧几里得算法</h1><p>欧几里德算法又称辗转相除法，是指用于计算两个正整数a，b的最大公约数gcd。</p>
+<p><strong>gcd(a,b) = gcd(b,a mod b) (不妨设a&gt;b 且r=a mod b ,r不为0)</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">//算法，求两个数A，B的最大公约数</div><div class="line">int gcd(int A,int B)</div><div class="line">&#123;</div><div class="line">    if(B==0) return A;</div><div class="line">    return gcd(B,A%B);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>对于欧几里得算法，递归的深度由参数的算数性质决定。</p>
+<h1 id="分治法求最大值"><a href="#分治法求最大值" class="headerlink" title="分治法求最大值"></a>分治法求最大值</h1><p>分治法可以把一个大小为N的问题分解为两个独立非空部分的递归函数，它递归调用自身进行求解的次数会少于N次<br>如果两部分的大小分别为k和N-K,那么递归函数调用的总数为</p>
+<p>$$T_N=T<em>k+T</em>{N-k}+1,N\geq1,且T_1=0$$</p>
+<p>可以由归纳法得到</p>
+<p>$$T_N=N-1$$</p>
+<p>所以用分治法求最大值，便是讲数据分成两组，分别求出最大值，然后再比较出较大的那个值<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function">Item <span class="title">max</span><span class="params">(Item a[],<span class="keyword">int</span> l,<span class="keyword">int</span> r)</span><span class="comment">//l:left,r=right,m=midle</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    Item u,v;<span class="keyword">int</span> m=(l+r)&gt;&gt;<span class="number">1</span>;</div><div class="line">    <span class="keyword">if</span>(l==r) <span class="keyword">return</span> a[l];</div><div class="line">    u=max(a,l,m);</div><div class="line">    v=max(a,m+<span class="number">1</span>,r);</div><div class="line">    <span class="keyword">if</span>(u&gt;v) <span class="keyword">return</span> u;</div><div class="line">    <span class="keyword">else</span> <span class="keyword">return</span> v;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h1 id="汉诺塔问题"><a href="#汉诺塔问题" class="headerlink" title="汉诺塔问题"></a>汉诺塔问题</h1><p>汉诺塔问题是递归的一个经典问题</p>
+<p>汉诺塔：汉诺塔（又称河内塔）问题是源于印度一个古老传说的益智玩具。大梵天创造世界的时候做了三根金刚石柱子，在一根柱子上从下往上按照大小顺序摞着64片黄金圆盘。大梵天命令婆罗门把圆盘从下面开始按大小顺序重新摆放在另一根柱子上。并且规定，在小圆盘上不能放大圆盘，在三根柱子之间一次只能移动一个圆盘。</p>
+<p><img src="/images/hanoi1.gif" alt="汉诺塔"></p>
+<p>汉诺塔很深刻的适配了递归的精神！</p>
+<p>所有的递归其核心便是</p>
+<ul>
+<li>要解决一个大问题，我可以先做一个小事情</li>
+<li>做了一个小事情后，余下的是和之前大问题一样的知识规模小一些的问题</li>
+<li>最小的那个问题我很容易就解决了</li>
+</ul>
+<p><strong>这里解决汉诺塔问题就可以按上述思想来，千万就不要去细究递归具体的运行了</strong></p>
+<ul>
+<li>如果要把一个N层汉诺塔从A搬到C，那么：</li>
+<li>如果前N-1层可以找别人搞定，咱只管搬第N层，会不会变得非常容易？这一下就简单了：这时当它只有两层就好了，先把前N-1层看作一个整体，把它搬到B；然后把最下面的第N层搬到C；然后再把前N-1层从B搬到C。</li>
+<li>如果只有一个盘子，那就直接A-&gt;C就可以了撒</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">hanoi</span><span class="params">(<span class="keyword">int</span> n, <span class="keyword">char</span> A, <span class="keyword">char</span> B, <span class="keyword">char</span> C)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">	<span class="keyword">if</span> (n == <span class="number">1</span>)</div><div class="line">	&#123;</div><div class="line">		<span class="built_in">cout</span> &lt;&lt; <span class="string">"把第 "</span> &lt;&lt; n &lt;&lt; <span class="string">" 个盘子"</span> &lt;&lt; <span class="string">"from "</span> &lt;&lt; A &lt;&lt; <span class="string">" to "</span> &lt;&lt; C &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">		<span class="keyword">return</span>;</div><div class="line">	&#125;</div><div class="line">	hanoi(n - <span class="number">1</span>, A, C, B);</div><div class="line">	<span class="built_in">cout</span>&lt;&lt; <span class="string">"把第 "</span> &lt;&lt; n &lt;&lt; <span class="string">" 个盘子"</span> &lt;&lt; <span class="string">"from "</span> &lt;&lt; A &lt;&lt; <span class="string">" to "</span> &lt;&lt; C &lt;&lt; <span class="built_in">endl</span>;</div><div class="line">	hanoi(n - <span class="number">1</span>, B, A, C);</div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    hanoi(<span class="number">3</span>,<span class="string">'A'</span>,<span class="string">'B'</span>,<span class="string">'C'</span>);</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>下一次就讲讲动态规划中递归解决背包问题:)</p>
 
       
     </div>
@@ -473,7 +437,7 @@ int main(void)
       
         <div class="post-tags">
           
-            <a href="/tags/C-C/" rel="tag"># C/C++</a>
+            <a href="/tags/数据结构学习/" rel="tag"># 数据结构学习</a>
           
         </div>
       
@@ -486,8 +450,8 @@ int main(void)
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/10/16/最大子数组问题相关/" rel="next" title="最大子数组问题相关">
-                <i class="fa fa-chevron-left"></i> 最大子数组问题相关
+              <a href="/2018/03/05/STL源码剖析笔记四/" rel="next" title="STL源码剖析<四> 回到空间配置器及traits技术的应用">
+                <i class="fa fa-chevron-left"></i> STL源码剖析<四> 回到空间配置器及traits技术的应用
               </a>
             
           </div>
@@ -495,10 +459,6 @@ int main(void)
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/01/02/用程序分析C语言声明/" rel="prev" title="用程序来分析C语言声明">
-                用程序来分析C语言声明 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -639,7 +599,7 @@ int main(void)
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#输出当前程序的代码"><span class="nav-number">1.</span> <span class="nav-text">输出当前程序的代码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题"><span class="nav-number">1.1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#理论"><span class="nav-number">1.2.</span> <span class="nav-text">理论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#编译预处理"><span class="nav-number">1.2.1.</span> <span class="nav-text">编译预处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编译"><span class="nav-number">1.2.2.</span> <span class="nav-text">编译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#汇编"><span class="nav-number">1.2.3.</span> <span class="nav-text">汇编</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#链接"><span class="nav-number">1.2.4.</span> <span class="nav-text">链接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VS中的编译链接"><span class="nav-number">1.2.5.</span> <span class="nav-text">VS中的编译链接</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#再回到问题"><span class="nav-number">1.3.</span> <span class="nav-text">再回到问题</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#欧几里得算法"><span class="nav-number">1.</span> <span class="nav-text">欧几里得算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分治法求最大值"><span class="nav-number">2.</span> <span class="nav-text">分治法求最大值</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#汉诺塔问题"><span class="nav-number">3.</span> <span class="nav-text">汉诺塔问题</span></a></li></ol></div>
             
 
           </div>
@@ -787,9 +747,9 @@ int main(void)
     
       <script type="text/javascript">
         var disqus_config = function () {
-          this.page.url = 'http://yoursite.com/2017/10/18/输出当前运行的程序/';
-          this.page.identifier = '2017/10/18/输出当前运行的程序/';
-          this.page.title = '输出当前程序的代码';
+          this.page.url = 'http://yoursite.com/2018/03/06/数据结构学习三递归/';
+          this.page.identifier = '2018/03/06/数据结构学习三递归/';
+          this.page.title = '数据结构学习<三> 递归及相关问题';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://lanxiuwen.disqus.com/embed.js';
