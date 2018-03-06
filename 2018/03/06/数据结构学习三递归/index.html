@@ -103,7 +103,7 @@
 <meta property="og:description" content="递归是数学和计算机科学中的基本概念，与数学上我们熟悉的数学归纳法有异曲同工之妙，例如阶乘就可以由递归实现。12345int factorial(int N)&amp;#123;    if(N==0) return 1;    return N*(factorial(N-1));&amp;#125;">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/images/hanoi1.gif">
-<meta property="og:updated_time" content="2018-03-06T12:27:38.541Z">
+<meta property="og:updated_time" content="2018-03-06T12:36:25.816Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="数据结构学习&lt;三&gt; 递归及相关问题">
 <meta name="twitter:description" content="递归是数学和计算机科学中的基本概念，与数学上我们熟悉的数学归纳法有异曲同工之妙，例如阶乘就可以由递归实现。12345int factorial(int N)&amp;#123;    if(N==0) return 1;    return N*(factorial(N-1));&amp;#125;">
@@ -398,9 +398,9 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">//算法，求两个数A，B的最大公约数</div><div class="line">int gcd(int A,int B)</div><div class="line">&#123;</div><div class="line">    if(B==0) return A;</div><div class="line">    return gcd(B,A%B);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>对于欧几里得算法，递归的深度由参数的算数性质决定。</p>
 <h1 id="分治法求最大值"><a href="#分治法求最大值" class="headerlink" title="分治法求最大值"></a>分治法求最大值</h1><p>分治法可以把一个大小为N的问题分解为两个独立非空部分的递归函数，它递归调用自身进行求解的次数会少于N次<br>如果两部分的大小分别为k和N-K,那么递归函数调用的总数为</p>
-<p>$$T_N=T<em>k+T</em>{N-k}+1,N\geq1,且T_1=0$$</p>
+<p>$$<br>T_N=T_k+T_{N-k}+1,N\geq1,且T_1=0<br>$$</p>
 <p>可以由归纳法得到</p>
-<p>$$T_N=N-1$$</p>
+<p>$$<br>T_N=N-1<br>$$</p>
 <p>所以用分治法求最大值，便是讲数据分成两组，分别求出最大值，然后再比较出较大的那个值<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function">Item <span class="title">max</span><span class="params">(Item a[],<span class="keyword">int</span> l,<span class="keyword">int</span> r)</span><span class="comment">//l:left,r=right,m=midle</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    Item u,v;<span class="keyword">int</span> m=(l+r)&gt;&gt;<span class="number">1</span>;</div><div class="line">    <span class="keyword">if</span>(l==r) <span class="keyword">return</span> a[l];</div><div class="line">    u=max(a,l,m);</div><div class="line">    v=max(a,m+<span class="number">1</span>,r);</div><div class="line">    <span class="keyword">if</span>(u&gt;v) <span class="keyword">return</span> u;</div><div class="line">    <span class="keyword">else</span> <span class="keyword">return</span> v;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <h1 id="汉诺塔问题"><a href="#汉诺塔问题" class="headerlink" title="汉诺塔问题"></a>汉诺塔问题</h1><p>汉诺塔问题是递归的一个经典问题</p>
 <p>汉诺塔：汉诺塔（又称河内塔）问题是源于印度一个古老传说的益智玩具。大梵天创造世界的时候做了三根金刚石柱子，在一根柱子上从下往上按照大小顺序摞着64片黄金圆盘。大梵天命令婆罗门把圆盘从下面开始按大小顺序重新摆放在另一根柱子上。并且规定，在小圆盘上不能放大圆盘，在三根柱子之间一次只能移动一个圆盘。</p>
@@ -791,6 +791,28 @@
   
 
   
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
 
   
 

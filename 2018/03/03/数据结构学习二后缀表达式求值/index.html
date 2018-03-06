@@ -384,7 +384,7 @@
 
       
         <h1 id="中缀表达式"><a href="#中缀表达式" class="headerlink" title="中缀表达式"></a>中缀表达式</h1><p>一般来说我们常用的计算表达式就是中缀表达式，例如(5<em>9+8)</em>(4*6+7),这样的表达式器运算符操作符是在操作数中间，但对于计算机来说，中缀表达式计算比较麻烦，也不容易实现，而后缀表达式则容易使用栈来实现计算。</p>
-<h1 id="后缀表达式"><a href="#后缀表达式" class="headerlink" title="后缀表达式"></a>后缀表达式</h1><p>后缀表达式，指的是不包含括号，运算符放在两个运算对象的后面，所有的计算按运算符出现的顺序，严格从左向右进行（不再考虑运算符的优先规则）。<br>上例中的中缀表达式<strong>(5<em>9+8)</em>(4*6+7)</strong>的后缀表达形式则是<strong>598+46</strong>7+<em>*</em></p>
+<h1 id="后缀表达式"><a href="#后缀表达式" class="headerlink" title="后缀表达式"></a>后缀表达式</h1><p>后缀表达式，指的是不包含括号，运算符放在两个运算对象的后面，所有的计算按运算符出现的顺序，严格从左向右进行（不再考虑运算符的优先规则）。<br>上例中的中缀表达式<strong>(5<em>9+8)</em>(4*6+7)</strong>的后缀表达形式则是<strong>598+46</strong>7+***</p>
 <a id="more"></a>
 <p>对于后缀表达式可以用栈来实现求值</p>
 <table>
@@ -408,7 +408,7 @@
 </tr>
 </tbody>
 </table>
-<p>计算<strong>598+46</strong>7+<em>*</em><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">表达式值              栈S</div><div class="line">    5                  5</div><div class="line">    9                  5    9</div><div class="line">    8                  5    9   8</div><div class="line">    +                  5    17</div><div class="line">    4                  5    17  4</div><div class="line">    6                  5    17  4   6</div><div class="line">    *                  5    17  24</div><div class="line">    *                  5    408</div><div class="line">    7                  5    408 7</div><div class="line">    +                  5    145</div><div class="line">    *               2075</div></pre></td></tr></table></figure></p>
+<p>计算<strong>598+46</strong>7+***<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">表达式值              栈S</div><div class="line">    5                  5</div><div class="line">    9                  5    9</div><div class="line">    8                  5    9   8</div><div class="line">    +                  5    17</div><div class="line">    4                  5    17  4</div><div class="line">    6                  5    17  4   6</div><div class="line">    *                  5    17  24</div><div class="line">    *                  5    408</div><div class="line">    7                  5    408 7</div><div class="line">    +                  5    145</div><div class="line">    *               2075</div></pre></td></tr></table></figure></p>
 <p><strong>那么问题来了</strong></p>
 <ul>
 <li>中缀表达式怎么转为后缀表达式</li>
@@ -795,6 +795,8 @@
   
 
   
+  
+
 
   
 

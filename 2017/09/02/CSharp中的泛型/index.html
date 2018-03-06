@@ -513,7 +513,7 @@ class SuperFarm&lt;T&gt;: Farm&lt;T&gt; where T:SuperCow {...}//SuperCow继承�
 </code></pre><p>另外，如果继承于一个泛型类型，就必须提供所必须的类型信息，一是可以使用上面的使用其他泛型类型的参数形式提供，也可以显式提供</p>
 <pre><code>public class Cards:List&lt;Card&gt;,ICloneable{...}//这是可行的
 public class Cards:List&lt;T&gt;,ICloneable{...}//没有提供T的信息，所以无法编译
-</code></pre><p>如果给泛型类型提供了参数，例如List<card\>就称该类型是关闭的，没有提供，如List<t\> 就是继承一个打开的泛型类型</t\></card\></p>
+</code></pre><p>如果给泛型类型提供了参数，例如List&lt;Card>就称该类型是关闭的，没有提供，如List&lt;T> 就是继承一个打开的泛型类型</p>
 <h3 id="泛型运算符"><a href="#泛型运算符" class="headerlink" title="泛型运算符"></a>泛型运算符</h3><p>在C#中也是可以进行运算符重写的</p>
 <p>例如，隐式转换运算符,可以在Farm<t>中定义：</t></p>
 <pre><code>public static implicit operator List&lt;Animal&gt;(Farm&lt;T&gt; farm){...}
@@ -603,7 +603,7 @@ Animal myAnimal=myCow;
 </code></pre><p>这是允许的，因为Cow派生自Animal但是这不适用于接口</p>
 <pre><code>IMyInterface&lt;Cow&gt; cowInterface=myCow;
 IMyInterface&lt;Animal&gt; animalInterface=cowInterface;
-</code></pre><p>这就不行了。假定Cow支持IMyInterface<cow>接口第一行是没问题的，但是第二行预先假定了两个接口类型有某种关系，为了使上述代码工作，就要让IMyInterface<t\>的类型参数是协变的，在IMyInterface<cow\>和IMyInterface<animal\>建立继承关系。协变是把泛型接口值放到使用基类的变量中，而抗变则是把泛型接口值放到使用派生类型的变量中，例如：</animal\></cow\></t\></cow></p>
+</code></pre><p>这就不行了。假定Cow支持IMyInterface<cow>接口第一行是没问题的，但是第二行预先假定了两个接口类型有某种关系，为了使上述代码工作，就要让IMyInterface&lt;T>的类型参数是协变的，在IMyInterface&lt;Cow>和IMyInterface&lt;Animal>建立继承关系。协变是把泛型接口值放到使用基类的变量中，而抗变则是把泛型接口值放到使用派生类型的变量中，例如：</cow></p>
 <pre><code>IMyInterface&lt;Cow&gt; cowInterface=myCow;
 IMyInterface&lt;SuperCow&gt; superCowInterface=cowInterface;
 </code></pre><p>协变是在类型定义中使用out关键词：</p>
@@ -985,6 +985,8 @@ IMyInterface&lt;SuperCow&gt; superCowInterface=cowInterface;
   
 
   
+  
+
 
   
 

@@ -541,7 +541,7 @@
       
         
           <p>在<a href="http://lanxiuwen.github.io/2018/03/01/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%E7%AC%94%E8%AE%B0%E4%BA%8C/" target="_blank" rel="external">之前</a>我们研究了STL中的空间配置器，提到STL将内存分配和对象构造分开来，当时只讲了空间分配，现在来分析STL空间配置器的对象构造</p>
-<p>在SGISTL的 <stl_construct.h> 文件便是用来构造和析构对象<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;new.h&gt;   //欲使用 placement new，需先包含此文件  </span></span></div><div class="line">  </div><div class="line"><span class="comment">//construct()  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> _<span class="title">T1</span>, <span class="title">class</span> _<span class="title">T2</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> <span class="title">construct</span>(_<span class="title">T1</span>* __<span class="title">p</span>, <span class="title">const</span> _<span class="title">T2</span>&amp; __<span class="title">value</span>) </span></div><div class="line"><span class="class">&#123;</span>  </div><div class="line">    <span class="keyword">new</span> ((<span class="keyword">void</span>*)__p) _T1(__value);   <span class="comment">//placementnew;调用_T1::_T1(__value),构造新对象到预分配的内存上</span></div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> _<span class="title">T1</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> <span class="title">construct</span>(_<span class="title">T1</span>* __<span class="title">p</span>) &#123;</span>  </div><div class="line">    <span class="keyword">new</span> ((<span class="keyword">void</span>*)__p) _T1();  </div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="comment">//destroy()  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> _<span class="title">Tp</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> <span class="title">destroy</span>(_<span class="title">Tp</span>* __<span class="title">pointer</span>) &#123;</span>  </div><div class="line">    __pointer-&gt;~_Tp();    <span class="comment">//调用~_Tp()  </span></div><div class="line">&#125;</div></pre></td></tr></table></figure></stl_construct.h></p>
+<p>在SGISTL的 &lt;stl_construct.h&gt; 文件便是用来构造和析构对象<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;new.h&gt;   //欲使用 placement new，需先包含此文件  </span></span></div><div class="line">  </div><div class="line"><span class="comment">//construct()  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> _<span class="title">T1</span>, <span class="title">class</span> _<span class="title">T2</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> <span class="title">construct</span>(_<span class="title">T1</span>* __<span class="title">p</span>, <span class="title">const</span> _<span class="title">T2</span>&amp; __<span class="title">value</span>) </span></div><div class="line"><span class="class">&#123;</span>  </div><div class="line">    <span class="keyword">new</span> ((<span class="keyword">void</span>*)__p) _T1(__value);   <span class="comment">//placementnew;调用_T1::_T1(__value),构造新对象到预分配的内存上</span></div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> _<span class="title">T1</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> <span class="title">construct</span>(_<span class="title">T1</span>* __<span class="title">p</span>) &#123;</span>  </div><div class="line">    <span class="keyword">new</span> ((<span class="keyword">void</span>*)__p) _T1();  </div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="comment">//destroy()  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> _<span class="title">Tp</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span> <span class="title">destroy</span>(_<span class="title">Tp</span>* __<span class="title">pointer</span>) &#123;</span>  </div><div class="line">    __pointer-&gt;~_Tp();    <span class="comment">//调用~_Tp()  </span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2018/03/05/STL源码剖析笔记四/#more" rel="contents">
@@ -856,7 +856,7 @@
       
         
           <h1 id="中缀表达式"><a href="#中缀表达式" class="headerlink" title="中缀表达式"></a>中缀表达式</h1><p>一般来说我们常用的计算表达式就是中缀表达式，例如(5<em>9+8)</em>(4*6+7),这样的表达式器运算符操作符是在操作数中间，但对于计算机来说，中缀表达式计算比较麻烦，也不容易实现，而后缀表达式则容易使用栈来实现计算。</p>
-<h1 id="后缀表达式"><a href="#后缀表达式" class="headerlink" title="后缀表达式"></a>后缀表达式</h1><p>后缀表达式，指的是不包含括号，运算符放在两个运算对象的后面，所有的计算按运算符出现的顺序，严格从左向右进行（不再考虑运算符的优先规则）。<br>上例中的中缀表达式<strong>(5<em>9+8)</em>(4*6+7)</strong>的后缀表达形式则是<strong>598+46</strong>7+<em>*</em></p>
+<h1 id="后缀表达式"><a href="#后缀表达式" class="headerlink" title="后缀表达式"></a>后缀表达式</h1><p>后缀表达式，指的是不包含括号，运算符放在两个运算对象的后面，所有的计算按运算符出现的顺序，严格从左向右进行（不再考虑运算符的优先规则）。<br>上例中的中缀表达式<strong>(5<em>9+8)</em>(4*6+7)</strong>的后缀表达形式则是<strong>598+46</strong>7+***</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2018/03/03/数据结构学习二后缀表达式求值/#more" rel="contents">
@@ -2211,6 +2211,28 @@ int main(void)
   
 
   
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
 
   
 
