@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="STL学习," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="序列式容器 所谓序列式容器，主要是指其中元素可序，但未必有序，C++本身提供一个序列式容器array,STL另外提供了vector,list,deque,stack,queue等等容器，其中stack和queue只是deque改头换面而来的，技术上可能更应该化为配接器(adapter) vector  vector的数据安排以及操作方式，与array非常相似。两者的唯一区别在于空间的运用的灵活性。">
+<meta name="keywords" content="STL学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="STL源码剖析笔记&lt;五&gt; 序列式容器-Vector">
+<meta property="og:url" content="http://yoursite.com/2018/03/10/STL源码剖析笔记五序列式容器-Vector/index.html">
+<meta property="og:site_name" content="蓝新闻">
+<meta property="og:description" content="序列式容器 所谓序列式容器，主要是指其中元素可序，但未必有序，C++本身提供一个序列式容器array,STL另外提供了vector,list,deque,stack,queue等等容器，其中stack和queue只是deque改头换面而来的，技术上可能更应该化为配接器(adapter) vector  vector的数据安排以及操作方式，与array非常相似。两者的唯一区别在于空间的运用的灵活性。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-03-10T12:46:04.520Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="STL源码剖析笔记&lt;五&gt; 序列式容器-Vector">
+<meta name="twitter:description" content="序列式容器 所谓序列式容器，主要是指其中元素可序，但未必有序，C++本身提供一个序列式容器array,STL另外提供了vector,list,deque,stack,queue等等容器，其中stack和queue只是deque改头换面而来的，技术上可能更应该化为配接器(adapter) vector  vector的数据安排以及操作方式，与array非常相似。两者的唯一区别在于空间的运用的灵活性。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/10/STL源码剖析笔记五序列式容器-Vector/"/>
+
+
+
+
+
+  <title>STL源码剖析笔记<五> 序列式容器-Vector | 蓝新闻</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">蓝新闻</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/10/STL源码剖析笔记五序列式容器-Vector/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Lan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蓝新闻">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">STL源码剖析笔记<五> 序列式容器-Vector</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-10T20:39:58+08:00">
+                2018-03-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/STL学习/" itemprop="url" rel="index">
+                    <span itemprop="name">STL学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/03/10/STL源码剖析笔记五序列式容器-Vector/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/03/10/STL源码剖析笔记五序列式容器-Vector/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="序列式容器"><a href="#序列式容器" class="headerlink" title="序列式容器"></a>序列式容器</h1><p> 所谓序列式容器，主要是指其中元素可序，但未必有序，C++本身提供一个序列式容器array,STL另外提供了vector,list,deque,stack,queue等等容器，其中stack和queue只是deque改头换面而来的，技术上可能更应该化为配接器(adapter)</p>
+<h1 id="vector"><a href="#vector" class="headerlink" title="vector"></a>vector</h1><p>  vector的数据安排以及操作方式，与array非常相似。两者的唯一区别在于空间的运用的灵活性。array是静态空间，一旦配置了就不能改变；要换个大（或小）一点的房子，可以，一切琐细都得由客户端自己来：首先配置一块新空间，然后将元素从旧址一一搬往新址，再把原来的空间释还给系统。vector是动态空间，随着元素的加入，它的内部机制会自行扩充空间以容纳新元素。因此，vector的运用对于内存的合理利用与运用的灵活性有很大的帮助，我们再也不必因为害怕空间不足而一开始要求一个大块头的array了。</p>
+<a id="more"></a>
+<p><strong>由于vector维护的是一个连续线性空间，所以vector支持随机存取。</strong></p>
+<p>vector动态增加大小时，并不是在原空间之后持续新空间（因为无法保证原空间之后尚有可供配置的空间），而是以原大小的两倍另外配置一块较大的空间，然后将原内容拷贝过来，然后才开始在原内容之后构造新元素，并释放原空间。因此，对vector的任何操作，<strong>一旦引起空间重新配置，指向原vector的所有迭代器就都失效了</strong>。这是程序员易犯的一个错误，务需小心。</p>
+<h1 id="vector的迭代器"><a href="#vector的迭代器" class="headerlink" title="vector的迭代器"></a>vector的迭代器</h1><p>vector 维护的是一个连续的线性空间，所以普通指针就可以作为vector的迭代器，vector支持随机存取，所哟vector提供的是Random Access Iterator<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T,<span class="class"><span class="keyword">class</span> <span class="title">Alloc</span>=<span class="title">alloc</span>&gt;</span></div><div class="line"><span class="class"><span class="title">class</span> <span class="title">vector</span></span></div><div class="line"><span class="class">&#123;</span></div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="keyword">typedef</span> T       value_type;</div><div class="line">    <span class="keyword">typedef</span> value_type* iterator;<span class="comment">//vector的迭代器就是普通指针</span></div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>使用的时候<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;::iterator ivite;</div></pre></td></tr></table></figure></p>
+<h2 id="vector的数据结构"><a href="#vector的数据结构" class="headerlink" title="vector的数据结构"></a>vector的数据结构</h2><p>vector以两个迭代器start和finish分别指向配置来的空间中已经使用的范围，再以迭代器end_of_storage指向整块区域的尾端<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span> = <span class="title">alloc</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">class</span> <span class="title">vector</span></span></div><div class="line"><span class="class">&#123;</span></div><div class="line">...</div><div class="line"><span class="keyword">protected</span>:</div><div class="line">    iterator start;<span class="comment">//指向使用空间的头</span></div><div class="line">    iterator finish;<span class="comment">//指向使用空间的尾</span></div><div class="line">    iterator end_of_storage;<span class="comment">//指向可用空间的尾部</span></div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>有了这三个迭代器，就可以容易的得到大小，容量，空，[]运算符等<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span> = <span class="title">alloc</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">class</span> <span class="title">vector</span></span></div><div class="line"><span class="class">&#123;</span></div><div class="line">...</div><div class="line"><span class="keyword">public</span>:  </div><div class="line">    <span class="comment">// 获取几种迭代器  </span></div><div class="line">    <span class="function">iterator <span class="title">begin</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> start; &#125;  </div><div class="line">    <span class="function">iterator <span class="title">end</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> finish; &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 返回当前对象个数  </span></div><div class="line">    <span class="function">size_type <span class="title">size</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> size_type(end() - begin()); &#125;  </div><div class="line">    <span class="function">size_type <span class="title">max_size</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> size_type(<span class="number">-1</span>) / <span class="keyword">sizeof</span>(T); &#125;  </div><div class="line">    <span class="comment">// 返回重新分配内存前最多能存储的对象个数  </span></div><div class="line">    <span class="function">size_type <span class="title">capacity</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> size_type(end_of_storage - begin()); &#125;  </div><div class="line">    <span class="comment">//返回是否为空vector</span></div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">empty</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> begin() == end(); &#125;  </div><div class="line">    <span class="comment">//[]运算符</span></div><div class="line">    reference <span class="keyword">operator</span>[](size_type n) &#123; <span class="keyword">return</span> *(begin() + n); &#125;  </div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h1 id="vector的实现"><a href="#vector的实现" class="headerlink" title="vector的实现"></a>vector的实现</h1><p>了解了vector的基本结构，我们来看看vector的实现<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div><div class="line">212</div><div class="line">213</div><div class="line">214</div><div class="line">215</div><div class="line">216</div><div class="line">217</div><div class="line">218</div><div class="line">219</div><div class="line">220</div><div class="line">221</div><div class="line">222</div><div class="line">223</div><div class="line">224</div><div class="line">225</div><div class="line">226</div><div class="line">227</div><div class="line">228</div><div class="line">229</div><div class="line">230</div><div class="line">231</div><div class="line">232</div><div class="line">233</div><div class="line">234</div><div class="line">235</div><div class="line">236</div><div class="line">237</div><div class="line">238</div><div class="line">239</div><div class="line">240</div><div class="line">241</div><div class="line">242</div><div class="line">243</div><div class="line">244</div><div class="line">245</div><div class="line">246</div><div class="line">247</div><div class="line">248</div><div class="line">249</div><div class="line">250</div><div class="line">251</div><div class="line">252</div><div class="line">253</div><div class="line">254</div><div class="line">255</div><div class="line">256</div><div class="line">257</div><div class="line">258</div><div class="line">259</div><div class="line">260</div><div class="line">261</div><div class="line">262</div><div class="line">263</div><div class="line">264</div><div class="line">265</div><div class="line">266</div><div class="line">267</div><div class="line">268</div><div class="line">269</div><div class="line">270</div><div class="line">271</div><div class="line">272</div><div class="line">273</div><div class="line">274</div><div class="line">275</div><div class="line">276</div><div class="line">277</div><div class="line">278</div><div class="line">279</div><div class="line">280</div><div class="line">281</div><div class="line">282</div><div class="line">283</div><div class="line">284</div><div class="line">285</div><div class="line">286</div><div class="line">287</div><div class="line">288</div><div class="line">289</div><div class="line">290</div><div class="line">291</div><div class="line">292</div><div class="line">293</div><div class="line">294</div><div class="line">295</div><div class="line">296</div><div class="line">297</div><div class="line">298</div><div class="line">299</div><div class="line">300</div><div class="line">301</div><div class="line">302</div><div class="line">303</div><div class="line">304</div><div class="line">305</div><div class="line">306</div><div class="line">307</div><div class="line">308</div><div class="line">309</div><div class="line">310</div><div class="line">311</div><div class="line">312</div><div class="line">313</div><div class="line">314</div><div class="line">315</div><div class="line">316</div><div class="line">317</div><div class="line">318</div><div class="line">319</div><div class="line">320</div><div class="line">321</div><div class="line">322</div><div class="line">323</div><div class="line">324</div><div class="line">325</div><div class="line">326</div><div class="line">327</div><div class="line">328</div><div class="line">329</div><div class="line">330</div><div class="line">331</div><div class="line">332</div><div class="line">333</div><div class="line">334</div><div class="line">335</div><div class="line">336</div><div class="line">337</div><div class="line">338</div><div class="line">339</div><div class="line">340</div><div class="line">341</div><div class="line">342</div><div class="line">343</div><div class="line">344</div><div class="line">345</div><div class="line">346</div><div class="line">347</div><div class="line">348</div><div class="line">349</div><div class="line">350</div><div class="line">351</div><div class="line">352</div><div class="line">353</div><div class="line">354</div><div class="line">355</div><div class="line">356</div><div class="line">357</div><div class="line">358</div><div class="line">359</div><div class="line">360</div><div class="line">361</div><div class="line">362</div><div class="line">363</div><div class="line">364</div><div class="line">365</div><div class="line">366</div><div class="line">367</div><div class="line">368</div><div class="line">369</div><div class="line">370</div><div class="line">371</div><div class="line">372</div><div class="line">373</div><div class="line">374</div><div class="line">375</div><div class="line">376</div><div class="line">377</div><div class="line">378</div><div class="line">379</div><div class="line">380</div><div class="line">381</div><div class="line">382</div><div class="line">383</div><div class="line">384</div><div class="line">385</div><div class="line">386</div><div class="line">387</div><div class="line">388</div><div class="line">389</div><div class="line">390</div><div class="line">391</div><div class="line">392</div><div class="line">393</div><div class="line">394</div><div class="line">395</div><div class="line">396</div><div class="line">397</div><div class="line">398</div><div class="line">399</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;  </span></span></div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;  </div><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;memory.h&gt;    </span></span></div><div class="line">  </div><div class="line"><span class="comment">// alloc是SGI STL的空间配置器  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span> = <span class="title">alloc</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">class</span> <span class="title">vector</span>  </span></div><div class="line"><span class="class">&#123;</span>  </div><div class="line"><span class="keyword">public</span>:  </div><div class="line">    <span class="comment">// vector的嵌套类型定义,typedefs用于提供iterator_traits&lt;I&gt;支持  </span></div><div class="line">    <span class="keyword">typedef</span> T value_type;  </div><div class="line">    <span class="keyword">typedef</span> value_type* pointer;  </div><div class="line">    <span class="keyword">typedef</span> value_type* iterator;  </div><div class="line">    <span class="keyword">typedef</span> value_type&amp; reference;  </div><div class="line">    <span class="keyword">typedef</span> <span class="keyword">size_t</span> size_type;  </div><div class="line">    <span class="keyword">typedef</span> <span class="keyword">ptrdiff_t</span> difference_type;  </div><div class="line"><span class="keyword">protected</span>:  </div><div class="line">    <span class="comment">// 这个提供STL标准的allocator接口  </span></div><div class="line">    <span class="keyword">typedef</span> simple_alloc &lt;value_type, Alloc&gt; data_allocator;  </div><div class="line">  </div><div class="line">    iterator start;               <span class="comment">// 表示目前使用空间的头  </span></div><div class="line">    iterator finish;              <span class="comment">// 表示目前使用空间的尾  </span></div><div class="line">    iterator end_of_storage;      <span class="comment">// 表示实际分配内存空间的尾  </span></div><div class="line">    </div><div class="line">    <span class="comment">//如果没有备用空间的插入函数</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">insert_aux</span><span class="params">(iterator position, <span class="keyword">const</span> T&amp; x)</span></span>;  </div><div class="line">  </div><div class="line">    <span class="comment">// 释放分配的内存空间  </span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">deallocate</span><span class="params">()</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        <span class="comment">// 由于使用的是data_allocator进行内存空间的分配,  </span></div><div class="line">        <span class="comment">// 所以需要同样使用data_allocator::deallocate()进行释放  </span></div><div class="line">        <span class="comment">// 如果直接释放, 对于data_allocator内部使用内存池的版本  </span></div><div class="line">        <span class="comment">// 就会发生错误  </span></div><div class="line">        <span class="keyword">if</span> (start)  </div><div class="line">            data_allocator::deallocate(start, end_of_storage - start);  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">fill_initialize</span><span class="params">(size_type n, <span class="keyword">const</span> T&amp; value)</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        start = allocate_and_fill(n, value);  </div><div class="line">        finish = start + n;                         <span class="comment">// 设置当前使用内存空间的结束点  </span></div><div class="line">        <span class="comment">// 构造阶段, 此实作不多分配内存,  </span></div><div class="line">        <span class="comment">// 所以要设置内存空间结束点和, 已经使用的内存空间结束点相同  </span></div><div class="line">        end_of_storage = finish;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line"><span class="keyword">public</span>:  </div><div class="line">    <span class="comment">// 获取几种迭代器  </span></div><div class="line">    <span class="function">iterator <span class="title">begin</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> start; &#125;  </div><div class="line">    <span class="function">iterator <span class="title">end</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> finish; &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 返回当前对象个数  </span></div><div class="line">    <span class="function">size_type <span class="title">size</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> size_type(end() - begin()); &#125;  </div><div class="line">    <span class="function">size_type <span class="title">max_size</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> size_type(<span class="number">-1</span>) / <span class="keyword">sizeof</span>(T); &#125;  </div><div class="line">    <span class="comment">// 返回重新分配内存前最多能存储的对象个数  </span></div><div class="line">    <span class="function">size_type <span class="title">capacity</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> size_type(end_of_storage - begin()); &#125;  </div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">empty</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> begin() == end(); &#125;  </div><div class="line">    reference <span class="keyword">operator</span>[](size_type n) &#123; <span class="keyword">return</span> *(begin() + n); &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 本实作中默认构造出的vector不分配内存空间  </span></div><div class="line">    <span class="built_in">vector</span>() : start(<span class="number">0</span>), finish(<span class="number">0</span>), end_of_storage(<span class="number">0</span>) &#123;&#125;  </div><div class="line">  </div><div class="line">  <span class="comment">//几种构造函数</span></div><div class="line">    <span class="built_in">vector</span>(size_type n, <span class="keyword">const</span> T&amp; value) &#123; fill_initialize(n, value); &#125;  </div><div class="line">    <span class="built_in">vector</span>(<span class="keyword">int</span> n, <span class="keyword">const</span> T&amp; value) &#123; fill_initialize(n, value); &#125;  </div><div class="line">    <span class="built_in">vector</span>(<span class="keyword">long</span> n, <span class="keyword">const</span> T&amp; value) &#123; fill_initialize(n, value); &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 需要对象提供默认构造函数  </span></div><div class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">vector</span><span class="params">(size_type n)</span> </span>&#123; fill_initialize(n, T()); &#125;  </div><div class="line">  </div><div class="line">    <span class="built_in">vector</span>(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;T, Alloc&gt;&amp; x)  </div><div class="line">    &#123;  </div><div class="line">        start = allocate_and_copy(x.end() - x.begin(), x.begin(), x.end());  </div><div class="line">        finish = start + (x.end() - x.begin());  </div><div class="line">        end_of_storage = finish;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    ~<span class="built_in">vector</span>()  </div><div class="line">    &#123;  </div><div class="line">        <span class="comment">// 析构对象  </span></div><div class="line">        destroy(start, finish);  </div><div class="line">        <span class="comment">// 释放内存  </span></div><div class="line">        deallocate();  </div><div class="line">    &#125;  </div><div class="line">  <span class="comment">//拷贝操作</span></div><div class="line">    <span class="built_in">vector</span>&lt;T, Alloc&gt;&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;T, Alloc&gt;&amp; x);  </div><div class="line">  </div><div class="line">    <span class="comment">// 提供访问函数  </span></div><div class="line">    <span class="function">reference <span class="title">front</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> *begin(); &#125;  </div><div class="line">    <span class="function">reference <span class="title">back</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> *(end() - <span class="number">1</span>); &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">    <span class="comment">// 向容器尾追加一个元素, 可能导致内存重新分配  </span></div><div class="line">    <span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">    <span class="comment">//                          push_back(const T&amp; x)  </span></div><div class="line">    <span class="comment">//                                   |  </span></div><div class="line">    <span class="comment">//                                   |---------------- 容量已满?  </span></div><div class="line">    <span class="comment">//                                   |  </span></div><div class="line">    <span class="comment">//               ----------------------------  </span></div><div class="line">    <span class="comment">//           No  |                          |  Yes  </span></div><div class="line">    <span class="comment">//               |                          |  </span></div><div class="line">    <span class="comment">//               ↓                          ↓  </span></div><div class="line">    <span class="comment">//      construct(finish, x);       insert_aux(end(), x);  </span></div><div class="line">    <span class="comment">//      ++finish;                           |  </span></div><div class="line">    <span class="comment">//                                          |------ 内存不足, 重新分配  </span></div><div class="line">    <span class="comment">//                                          |       大小为原来的2倍  </span></div><div class="line">    <span class="comment">//      new_finish = data_allocator::allocate(len);       &lt;stl_alloc.h&gt;  </span></div><div class="line">    <span class="comment">//      uninitialized_copy(start, position, new_start);   &lt;stl_uninitialized.h&gt;  </span></div><div class="line">    <span class="comment">//      construct(new_finish, x);                         &lt;stl_construct.h&gt;  </span></div><div class="line">    <span class="comment">//      ++new_finish;  </span></div><div class="line">    <span class="comment">//      uninitialized_copy(position, finish, new_finish); &lt;stl_uninitialized.h&gt;  </span></div><div class="line">    <span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">push_back</span><span class="params">(<span class="keyword">const</span> T&amp; x)</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        <span class="comment">// 内存满足条件则直接追加元素, 否则需要重新分配内存空间  </span></div><div class="line">        <span class="keyword">if</span> (finish != end_of_storage)  </div><div class="line">        &#123;  </div><div class="line">            construct(finish, x);  </div><div class="line">            ++finish;  </div><div class="line">        &#125;  </div><div class="line">        <span class="keyword">else</span>  </div><div class="line">            insert_aux(end(), x);  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">  </div><div class="line">    <span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">    <span class="comment">// 在指定位置插入元素  </span></div><div class="line">    <span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">    <span class="comment">//                   insert(iterator position, const T&amp; x)  </span></div><div class="line">    <span class="comment">//                                   |  </span></div><div class="line">    <span class="comment">//                                   |------------ 容量是否足够 &amp;&amp; 是否是end()?  </span></div><div class="line">    <span class="comment">//                                   |  </span></div><div class="line">    <span class="comment">//               -------------------------------------------  </span></div><div class="line">    <span class="comment">//            No |                                         | Yes  </span></div><div class="line">    <span class="comment">//               |                                         |  </span></div><div class="line">    <span class="comment">//               ↓                                         ↓  </span></div><div class="line">    <span class="comment">//    insert_aux(position, x);                  construct(finish, x);  </span></div><div class="line">    <span class="comment">//               |                              ++finish;  </span></div><div class="line">    <span class="comment">//               |-------- 容量是否够用?  </span></div><div class="line">    <span class="comment">//               |  </span></div><div class="line">    <span class="comment">//        --------------------------------------------------  </span></div><div class="line">    <span class="comment">//    Yes |                                                | No  </span></div><div class="line">    <span class="comment">//        |                                                |  </span></div><div class="line">    <span class="comment">//        ↓                                                |  </span></div><div class="line">    <span class="comment">// construct(finish, *(finish - 1));                       |  </span></div><div class="line">    <span class="comment">// ++finish;                                               |  </span></div><div class="line">    <span class="comment">// T x_copy = x;                                           |  </span></div><div class="line">    <span class="comment">// copy_backward(position, finish - 2, finish - 1);        |  </span></div><div class="line">    <span class="comment">// *position = x_copy;                                     |  </span></div><div class="line">    <span class="comment">//                                                         ↓  </span></div><div class="line">    <span class="comment">// data_allocator::allocate(len);                       &lt;stl_alloc.h&gt;  </span></div><div class="line">    <span class="comment">// uninitialized_copy(start, position, new_start);      &lt;stl_uninitialized.h&gt;  </span></div><div class="line">    <span class="comment">// construct(new_finish, x);                            &lt;stl_construct.h&gt;  </span></div><div class="line">    <span class="comment">// ++new_finish;  </span></div><div class="line">    <span class="comment">// uninitialized_copy(position, finish, new_finish);    &lt;stl_uninitialized.h&gt;  </span></div><div class="line">    <span class="comment">// destroy(begin(), end());                             &lt;stl_construct.h&gt;  </span></div><div class="line">    <span class="comment">// deallocate();  </span></div><div class="line">    <span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">  </div><div class="line">    <span class="function">iterator <span class="title">insert</span><span class="params">(iterator position, <span class="keyword">const</span> T&amp; x)</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        size_type n = position - begin();  </div><div class="line">        <span class="keyword">if</span> (finish != end_of_storage &amp;&amp; position == end())  </div><div class="line">        &#123;  </div><div class="line">            construct(finish, x);  </div><div class="line">            ++finish;  </div><div class="line">        &#125;  </div><div class="line">        <span class="keyword">else</span>  </div><div class="line">            insert_aux(position, x);  </div><div class="line">        <span class="keyword">return</span> begin() + n;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="function">iterator <span class="title">insert</span><span class="params">(iterator position)</span> </span>&#123; <span class="keyword">return</span> insert(position, T()); &#125;  </div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">pop_back</span><span class="params">()</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        --finish;  </div><div class="line">        destroy(finish);  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="function">iterator <span class="title">erase</span><span class="params">(iterator position)</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        <span class="keyword">if</span> (position + <span class="number">1</span> != end())  </div><div class="line">            copy(position + <span class="number">1</span>, finish, position);  </div><div class="line">        --finish;  </div><div class="line">        destroy(finish);  </div><div class="line">        <span class="keyword">return</span> position;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">  </div><div class="line">    <span class="function">iterator <span class="title">erase</span><span class="params">(iterator first, iterator last)</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        iterator i = copy(last, finish, first);  </div><div class="line">        <span class="comment">// 析构掉需要析构的元素  </span></div><div class="line">        destroy(i, finish);  </div><div class="line">        finish = finish - (last - first);  </div><div class="line">        <span class="keyword">return</span> first;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 调整size, 但是并不会重新分配内存空间  </span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">resize</span><span class="params">(size_type new_size, <span class="keyword">const</span> T&amp; x)</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        <span class="keyword">if</span> (new_size &lt; size())  </div><div class="line">            erase(begin() + new_size, end());  </div><div class="line">        <span class="keyword">else</span>  </div><div class="line">            insert(end(), new_size - size(), x);  </div><div class="line">    &#125;  </div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">resize</span><span class="params">(size_type new_size)</span> </span>&#123; resize(new_size, T()); &#125;  </div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">clear</span><span class="params">()</span> </span>&#123; erase(begin(), end()); &#125;  </div><div class="line">  </div><div class="line"><span class="keyword">protected</span>:  </div><div class="line">    <span class="comment">// 分配空间, 并且复制对象到分配的空间处  </span></div><div class="line">    <span class="function">iterator <span class="title">allocate_and_fill</span><span class="params">(size_type n, <span class="keyword">const</span> T&amp; x)</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        iterator result = data_allocator::allocate(n);  </div><div class="line">        uninitialized_fill_n(result, n, x);  </div><div class="line">        <span class="keyword">return</span> result;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 提供插入操作  </span></div><div class="line">    <span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">    <span class="comment">//                 insert_aux(iterator position, const T&amp; x)  </span></div><div class="line">    <span class="comment">//                                   |  </span></div><div class="line">    <span class="comment">//                                   |---------------- 容量是否足够?  </span></div><div class="line">    <span class="comment">//                                   ↓  </span></div><div class="line">    <span class="comment">//              -----------------------------------------  </span></div><div class="line">    <span class="comment">//        Yes   |                                       | No  </span></div><div class="line">    <span class="comment">//              |                                       |  </span></div><div class="line">    <span class="comment">//              ↓                                       |  </span></div><div class="line">    <span class="comment">// 从opsition开始, 整体向后移动一个位置                     |  </span></div><div class="line">    <span class="comment">// construct(finish, *(finish - 1));                    |  </span></div><div class="line">    <span class="comment">// ++finish;                                            |  </span></div><div class="line">    <span class="comment">// T x_copy = x;                                        |  </span></div><div class="line">    <span class="comment">// copy_backward(position, finish - 2, finish - 1);     |  </span></div><div class="line">    <span class="comment">// *position = x_copy;                                  |  </span></div><div class="line">    <span class="comment">//                                                      ↓  </span></div><div class="line">    <span class="comment">//                            data_allocator::allocate(len);  </span></div><div class="line">    <span class="comment">//                            uninitialized_copy(start, position, new_start);  </span></div><div class="line">    <span class="comment">//                            construct(new_finish, x);  </span></div><div class="line">    <span class="comment">//                            ++new_finish;  </span></div><div class="line">    <span class="comment">//                            uninitialized_copy(position, finish, new_finish);  </span></div><div class="line">    <span class="comment">//                            destroy(begin(), end());  </span></div><div class="line">    <span class="comment">//                            deallocate();  </span></div><div class="line">    <span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">  </div><div class="line">    <span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>&gt;  </span></div><div class="line"><span class="class">    <span class="title">void</span> <span class="title">insert_aux</span>(<span class="title">iterator</span> <span class="title">position</span>, <span class="title">const</span> <span class="title">T</span>&amp; <span class="title">x</span>)  </span></div><div class="line"><span class="class">    &#123;</span>  </div><div class="line">        <span class="keyword">if</span> (finish != end_of_storage)    <span class="comment">// 还有备用空间  </span></div><div class="line">        &#123;  </div><div class="line">            <span class="comment">// 在备用空间起始处构造一个元素，并以vector最后一个元素值为其初值  </span></div><div class="line">            construct(finish, *(finish - <span class="number">1</span>));  </div><div class="line">            ++finish;  </div><div class="line">            T x_copy = x;  </div><div class="line">            从后往前copy</div><div class="line">            copy_backward(position, finish - <span class="number">2</span>, finish - <span class="number">1</span>);  </div><div class="line">            *position = x_copy;  </div><div class="line">        &#125;  </div><div class="line">        <span class="keyword">else</span>   <span class="comment">// 已无备用空间  </span></div><div class="line">        &#123;  </div><div class="line">            <span class="keyword">const</span> size_type old_size = size();  </div><div class="line">            <span class="keyword">const</span> size_type len = old_size != <span class="number">0</span> ? <span class="number">2</span> * old_size : <span class="number">1</span>;  </div><div class="line">            <span class="comment">// 以上配置元素：如果大小为0，则配置1（个元素大小）  </span></div><div class="line">            <span class="comment">// 如果大小不为0，则配置原来大小的两倍  </span></div><div class="line">            <span class="comment">// 前半段用来放置原数据，后半段准备用来放置新数据  </span></div><div class="line">  </div><div class="line">            iterator new_start = data_allocator::allocate(len);  <span class="comment">// 实际配置  </span></div><div class="line">            iterator new_finish = new_start;  </div><div class="line">            <span class="comment">// 将内存重新配置  </span></div><div class="line">            <span class="keyword">try</span>  </div><div class="line">            &#123;  </div><div class="line">                <span class="comment">// 将原vector的安插点以前的内容拷贝到新vector  </span></div><div class="line">                new_finish = uninitialized_copy(start, position, new_start);  </div><div class="line">                <span class="comment">// 为新元素设定初值 x  </span></div><div class="line">                construct(new_finish, x);  </div><div class="line">                <span class="comment">// 调整水位  </span></div><div class="line">                ++new_finish;  </div><div class="line">                <span class="comment">// 将安插点以后的原内容也拷贝过来  </span></div><div class="line">                new_finish = uninitialized_copy(position, finish, new_finish);  </div><div class="line">            &#125;  </div><div class="line">            <span class="keyword">catch</span>(...)  </div><div class="line">            &#123;  </div><div class="line">                <span class="comment">// 回滚操作  </span></div><div class="line">                destroy(new_start, new_finish);  </div><div class="line">                data_allocator::deallocate(new_start, len);  </div><div class="line">                <span class="keyword">throw</span>;  </div><div class="line">            &#125;  </div><div class="line">            <span class="comment">// 析构并释放原vector  </span></div><div class="line">            destroy(begin(), end());  </div><div class="line">            deallocate();  </div><div class="line">  </div><div class="line">            <span class="comment">// 调整迭代器，指向新vector  </span></div><div class="line">            start = new_start;  </div><div class="line">            finish = new_finish;  </div><div class="line">            end_of_storage = new_start + len;  </div><div class="line">        &#125;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">    <span class="comment">// 在指定位置插入n个元素  </span></div><div class="line">    <span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">    <span class="comment">//             insert(iterator position, size_type n, const T&amp; x)  </span></div><div class="line">    <span class="comment">//                                   |  </span></div><div class="line">    <span class="comment">//                                   |---------------- 插入元素个数是否为0?  </span></div><div class="line">    <span class="comment">//                                   ↓  </span></div><div class="line">    <span class="comment">//              -----------------------------------------  </span></div><div class="line">    <span class="comment">//        No    |                                       | Yes  </span></div><div class="line">    <span class="comment">//              |                                       |  </span></div><div class="line">    <span class="comment">//              |                                       ↓  </span></div><div class="line">    <span class="comment">//              |                                    return;  </span></div><div class="line">    <span class="comment">//              |----------- 内存是否足够?  </span></div><div class="line">    <span class="comment">//              |  </span></div><div class="line">    <span class="comment">//      -------------------------------------------------  </span></div><div class="line">    <span class="comment">//  Yes |                                               | No  </span></div><div class="line">    <span class="comment">//      |                                               |  </span></div><div class="line">    <span class="comment">//      |------ (finish - position) &gt; n?                |  </span></div><div class="line">    <span class="comment">//      |       分别调整指针                              |  </span></div><div class="line">    <span class="comment">//      ↓                                               |  </span></div><div class="line">    <span class="comment">//    ----------------------------                      |  </span></div><div class="line">    <span class="comment">// No |                          | Yes                  |  </span></div><div class="line">    <span class="comment">//    |                          |                      |  </span></div><div class="line">    <span class="comment">//    ↓                          ↓                      |  </span></div><div class="line">    <span class="comment">// 插入操作, 调整指针           插入操作, 调整指针           |  </span></div><div class="line">    <span class="comment">//                                                      ↓  </span></div><div class="line">    <span class="comment">//            data_allocator::allocate(len);  </span></div><div class="line">    <span class="comment">//            new_finish = uninitialized_copy(start, position, new_start);  </span></div><div class="line">    <span class="comment">//            new_finish = uninitialized_fill_n(new_finish, n, x);  </span></div><div class="line">    <span class="comment">//            new_finish = uninitialized_copy(position, finish, new_finish);  </span></div><div class="line">    <span class="comment">//            destroy(start, finish);  </span></div><div class="line">    <span class="comment">//            deallocate();  </span></div><div class="line">    <span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">  </div><div class="line">    <span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>&gt;  </span></div><div class="line"><span class="class">    <span class="title">void</span> <span class="title">insert</span>(<span class="title">iterator</span> <span class="title">position</span>, <span class="title">size_type</span> <span class="title">n</span>, <span class="title">const</span> <span class="title">T</span>&amp; <span class="title">x</span>)  </span></div><div class="line"><span class="class">    &#123;</span>  </div><div class="line">        <span class="comment">// 如果n为0则不进行任何操作  </span></div><div class="line">        <span class="keyword">if</span> (n != <span class="number">0</span>)  </div><div class="line">        &#123;  </div><div class="line">            <span class="keyword">if</span> (size_type(end_of_storage - finish) &gt;= n)  </div><div class="line">            &#123;      <span class="comment">// 剩下的备用空间大于等于“新增元素的个数”  </span></div><div class="line">                T x_copy = x;  </div><div class="line">                <span class="comment">// 以下计算插入点之后的现有元素个数  </span></div><div class="line">                <span class="keyword">const</span> size_type elems_after = finish - position;  </div><div class="line">                iterator old_finish = finish;  </div><div class="line">                <span class="keyword">if</span> (elems_after &gt; n)  </div><div class="line">                &#123;  </div><div class="line">                    <span class="comment">// 插入点之后的现有元素个数 大于 新增元素个数  </span></div><div class="line">                    uninitialized_copy(finish - n, finish, finish);  </div><div class="line">                    finish += n;    <span class="comment">// 将vector 尾端标记后移  </span></div><div class="line">                    copy_backward(position, old_finish - n, old_finish);  </div><div class="line">                    fill(position, position + n, x_copy); <span class="comment">// 从插入点开始填入新值  </span></div><div class="line">                &#125;  </div><div class="line">                <span class="keyword">else</span>  </div><div class="line">                &#123;  </div><div class="line">                    <span class="comment">// 插入点之后的现有元素个数 小于等于 新增元素个数  </span></div><div class="line">                    uninitialized_fill_n(finish, n - elems_after, x_copy);  </div><div class="line">                    finish += n - elems_after;  </div><div class="line">                    uninitialized_copy(position, old_finish, finish);  </div><div class="line">                    finish += elems_after;  </div><div class="line">                    fill(position, old_finish, x_copy);  </div><div class="line">                &#125;  </div><div class="line">            &#125;  </div><div class="line">            <span class="keyword">else</span>  </div><div class="line">            &#123;   <span class="comment">// 剩下的备用空间小于“新增元素个数”（那就必须配置额外的内存）  </span></div><div class="line">                <span class="comment">// 首先决定新长度：就长度的两倍 ， 或旧长度+新增元素个数  </span></div><div class="line">                <span class="keyword">const</span> size_type old_size = size();  </div><div class="line">                <span class="keyword">const</span> size_type len = old_size + max(old_size, n);  </div><div class="line">                <span class="comment">// 以下配置新的vector空间  </span></div><div class="line">                iterator new_start = data_allocator::allocate(len);  </div><div class="line">                iterator new_finish = new_start;  </div><div class="line">                __STL_TRY  </div><div class="line">                &#123;  </div><div class="line">                    <span class="comment">// 以下首先将旧的vector的插入点之前的元素复制到新空间  </span></div><div class="line">                    new_finish = uninitialized_copy(start, position, new_start);  </div><div class="line">                    <span class="comment">// 以下再将新增元素（初值皆为n）填入新空间  </span></div><div class="line">                    new_finish = uninitialized_fill_n(new_finish, n, x);  </div><div class="line">                    <span class="comment">// 以下再将旧vector的插入点之后的元素复制到新空间  </span></div><div class="line">                    new_finish = uninitialized_copy(position, finish, new_finish);  </div><div class="line">                &#125;  </div><div class="line"><span class="meta">#         <span class="meta-keyword">ifdef</span>  __STL_USE_EXCEPTIONS  </span></div><div class="line">                <span class="keyword">catch</span>(...)  </div><div class="line">                &#123;  </div><div class="line">                    destroy(new_start, new_finish);  </div><div class="line">                    data_allocator::deallocate(new_start, len);  </div><div class="line">                    <span class="keyword">throw</span>;  </div><div class="line">                &#125;  </div><div class="line"><span class="meta">#         <span class="meta-keyword">endif</span> <span class="comment">/* __STL_USE_EXCEPTIONS */</span>  </span></div><div class="line">                destroy(start, finish);  </div><div class="line">                deallocate();  </div><div class="line">                start = new_start;  </div><div class="line">                finish = new_finish;  </div><div class="line">                end_of_storage = new_start + len;  </div><div class="line">            &#125;  </div><div class="line">        &#125;  </div><div class="line">    &#125;  </div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>之后还有个问题，为什么增长的倍数是2 ？其实也可以是其他值</p>
+<p>Vector在capacity不够的时候会增长内部空间，是为了保证后续capacity-size个insert的O(1)插入复杂度，但还要考虑可能产生的堆空间浪费，所以增长倍数不能太大，假设vector按两倍空间增长，你要插入17个元素，到16个的时候capacity变为32，那么有15个元素的空间被浪费，当然你也可以用提前调用reserve(17)来解决，可是遇到无法得知insert数量的场景这个问题仍然存在。常见的做法是增长为原来的两倍，libstd++里也是这样，见 /usr/include/c++/4.8/bits/std_vector.h 1336行</p>
+<p>使用 k=2 增长因子的问题在于，每次扩展的新尺寸必然刚好大于之前分配的总和</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">size_type</div><div class="line">_M_check_len(size_type __n, <span class="keyword">const</span> <span class="keyword">char</span>* __s) <span class="keyword">const</span></div><div class="line">&#123;</div><div class="line"><span class="keyword">if</span> (max_size() - size() &lt; __n)</div><div class="line">__throw_length_error(__N(__s));</div><div class="line"><span class="keyword">const</span> size_type __len = size() + <span class="built_in">std</span>::max(size(), __n); <span class="comment">// 2*size() when not empty</span></div><div class="line"><span class="keyword">return</span> (__len &lt; size() || __len &gt; max_size()) ? max_size() : __len;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>但是VC++里则选择的是增长为原来的1.5倍，</p>
+<p>见C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\vector 1570行</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">size_type _Grow_to(size_type _Count) <span class="keyword">const</span></div><div class="line">&#123;	<span class="comment">// grow by 50% or at least to _Count</span></div><div class="line">size_type _Capacity = capacity();</div><div class="line"></div><div class="line">_Capacity = max_size() - _Capacity / <span class="number">2</span> &lt; _Capacity</div><div class="line">? <span class="number">0</span> : _Capacity + _Capacity / <span class="number">2</span>;	<span class="comment">// try to grow by 50%</span></div><div class="line"><span class="keyword">if</span> (_Capacity &lt; _Count)</div><div class="line">_Capacity = _Count;</div><div class="line"><span class="keyword">return</span> (_Capacity);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在增长因子设置为1.5的情况下内存可以复用，而2的情况下不能复用之前用过的，因为每次开辟的都比之前分配的总和。<br>例如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">k=2的情况</div><div class="line">0123</div><div class="line">    01234567</div><div class="line">            0123456789ABCDEF</div><div class="line">                            0123456789ABCDEF0123456789ABCDEF</div><div class="line">                                                            ...</div><div class="line">                                                            </div><div class="line">K=1.5的情况</div><div class="line">0123</div><div class="line">    012345</div><div class="line">          012345678</div><div class="line">                   0123456789ABCD</div><div class="line">                                 0123456789ABCDEF0123</div><div class="line">0123456789ABCDEF0123456789ABCD</div></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/STL学习/" rel="tag"># STL学习</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/08/数据结构学习四背包问题(递归，动态规划）/" rel="next" title="数据结构学习<四> 背包问题(递归，动态规划）">
+                <i class="fa fa-chevron-left"></i> 数据结构学习<四> 背包问题(递归，动态规划）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Lan" />
+          <p class="site-author-name" itemprop="name">Lan</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#序列式容器"><span class="nav-number">1.</span> <span class="nav-text">序列式容器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#vector"><span class="nav-number">2.</span> <span class="nav-text">vector</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#vector的迭代器"><span class="nav-number">3.</span> <span class="nav-text">vector的迭代器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#vector的数据结构"><span class="nav-number">3.1.</span> <span class="nav-text">vector的数据结构</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#vector的实现"><span class="nav-number">4.</span> <span class="nav-text">vector的实现</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://lanxiuwen.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://yoursite.com/2018/03/10/STL源码剖析笔记五序列式容器-Vector/';
+          this.page.identifier = '2018/03/10/STL源码剖析笔记五序列式容器-Vector/';
+          this.page.title = 'STL源码剖析笔记<五> 序列式容器-Vector';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://lanxiuwen.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+
+  
+
+  
+
+</body>
+</html>
