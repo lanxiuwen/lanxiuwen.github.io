@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="STL学习," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="listvector是以线性空间存储数据，list是由链表实现，每次插入，删除一个元素就配置或者释放一个元素空间，list对于空间的利用是精准不浪费的，对于任何位置元素的插入或者移除，List都是线性时间 list实现一些重要的特性 list是一个双向链表，而且还是一个环状的链表。  在尾端之后加上一个空白节点，在代码种为node,便可以表示整个链表了。 12iterator begin()&amp;#1">
+<meta name="keywords" content="STL学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="STL源码剖析笔记&lt;六&gt; 序列式容器-list">
+<meta property="og:url" content="http://yoursite.com/2018/03/12/STL源码剖析笔记六/index.html">
+<meta property="og:site_name" content="蓝新闻">
+<meta property="og:description" content="listvector是以线性空间存储数据，list是由链表实现，每次插入，删除一个元素就配置或者释放一个元素空间，list对于空间的利用是精准不浪费的，对于任何位置元素的插入或者移除，List都是线性时间 list实现一些重要的特性 list是一个双向链表，而且还是一个环状的链表。  在尾端之后加上一个空白节点，在代码种为node,便可以表示整个链表了。 12iterator begin()&amp;#1">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-03-12T12:59:29.673Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="STL源码剖析笔记&lt;六&gt; 序列式容器-list">
+<meta name="twitter:description" content="listvector是以线性空间存储数据，list是由链表实现，每次插入，删除一个元素就配置或者释放一个元素空间，list对于空间的利用是精准不浪费的，对于任何位置元素的插入或者移除，List都是线性时间 list实现一些重要的特性 list是一个双向链表，而且还是一个环状的链表。  在尾端之后加上一个空白节点，在代码种为node,便可以表示整个链表了。 12iterator begin()&amp;#1">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/12/STL源码剖析笔记六/"/>
+
+
+
+
+
+  <title>STL源码剖析笔记<六> 序列式容器-list | 蓝新闻</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">蓝新闻</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/12/STL源码剖析笔记六/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Lan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蓝新闻">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">STL源码剖析笔记<六> 序列式容器-list</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-12T20:56:37+08:00">
+                2018-03-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/STL学习/" itemprop="url" rel="index">
+                    <span itemprop="name">STL学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/03/12/STL源码剖析笔记六/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/03/12/STL源码剖析笔记六/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="list"><a href="#list" class="headerlink" title="list"></a>list</h1><p>vector是以线性空间存储数据，list是由链表实现，每次插入，删除一个元素就配置或者释放一个元素空间，list对于空间的利用是精准不浪费的，对于任何位置元素的插入或者移除，List都是线性时间</p>
+<h1 id="list实现一些重要的特性"><a href="#list实现一些重要的特性" class="headerlink" title="list实现一些重要的特性"></a>list实现一些重要的特性</h1><ul>
+<li><p>list是一个双向链表，而且还是一个环状的链表。<br>  在尾端之后加上一个空白节点，在代码种为node,便可以表示整个链表了。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function">iterator <span class="title">begin</span><span class="params">()</span></span>&#123;<span class="keyword">return</span> (link_type)((*node).next);&#125;</div><div class="line"><span class="function">itreator <span class="title">end</span><span class="params">()</span></span>&#123;<span class="keyword">return</span> node;&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>插入操作和接合操作都不会造成原有的list迭代器失效。<br> 这在vector是不成立的。因为vector的插入操作可能造成记忆体重新配置，导致原有的迭代器全部失效。甚至list的元素删除操作（erase），也只有“指向被删除元素”的那个迭代器失效，其他迭代器不受任何影响。</p>
+</li>
+<li>merge() 操作需要两个list内容都经过排序，</li>
+<li>reverse() 将链表逆序</li>
+<li>sort() List必须使用自己的sort()，因为STL算法sort() 只接受RamdonAccessIterator,SGI使用的quick sort</li>
+<li>内部函数transfer是将连续范围的元素从一个List移动到另一个（或同一个)list的某个定点之前</li>
+</ul>
+<a id="more"></a>
+<h1 id="list的源码分析"><a href="#list的源码分析" class="headerlink" title="list的源码分析"></a>list的源码分析</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div><div class="line">212</div><div class="line">213</div><div class="line">214</div><div class="line">215</div><div class="line">216</div><div class="line">217</div><div class="line">218</div><div class="line">219</div><div class="line">220</div><div class="line">221</div><div class="line">222</div><div class="line">223</div><div class="line">224</div><div class="line">225</div><div class="line">226</div><div class="line">227</div><div class="line">228</div><div class="line">229</div><div class="line">230</div><div class="line">231</div><div class="line">232</div><div class="line">233</div><div class="line">234</div><div class="line">235</div><div class="line">236</div><div class="line">237</div><div class="line">238</div><div class="line">239</div><div class="line">240</div><div class="line">241</div><div class="line">242</div><div class="line">243</div><div class="line">244</div><div class="line">245</div><div class="line">246</div><div class="line">247</div><div class="line">248</div><div class="line">249</div><div class="line">250</div><div class="line">251</div><div class="line">252</div><div class="line">253</div><div class="line">254</div><div class="line">255</div><div class="line">256</div><div class="line">257</div><div class="line">258</div><div class="line">259</div><div class="line">260</div><div class="line">261</div><div class="line">262</div><div class="line">263</div><div class="line">264</div><div class="line">265</div><div class="line">266</div><div class="line">267</div><div class="line">268</div><div class="line">269</div><div class="line">270</div><div class="line">271</div><div class="line">272</div><div class="line">273</div><div class="line">274</div><div class="line">275</div><div class="line">276</div><div class="line">277</div><div class="line">278</div><div class="line">279</div><div class="line">280</div><div class="line">281</div><div class="line">282</div><div class="line">283</div><div class="line">284</div><div class="line">285</div><div class="line">286</div><div class="line">287</div><div class="line">288</div><div class="line">289</div><div class="line">290</div><div class="line">291</div><div class="line">292</div><div class="line">293</div><div class="line">294</div><div class="line">295</div><div class="line">296</div><div class="line">297</div><div class="line">298</div><div class="line">299</div><div class="line">300</div><div class="line">301</div><div class="line">302</div><div class="line">303</div><div class="line">304</div><div class="line">305</div><div class="line">306</div><div class="line">307</div><div class="line">308</div><div class="line">309</div><div class="line">310</div><div class="line">311</div><div class="line">312</div><div class="line">313</div><div class="line">314</div><div class="line">315</div><div class="line">316</div><div class="line">317</div><div class="line">318</div><div class="line">319</div><div class="line">320</div><div class="line">321</div><div class="line">322</div><div class="line">323</div><div class="line">324</div><div class="line">325</div><div class="line">326</div><div class="line">327</div><div class="line">328</div><div class="line">329</div><div class="line">330</div><div class="line">331</div><div class="line">332</div><div class="line">333</div><div class="line">334</div><div class="line">335</div><div class="line">336</div><div class="line">337</div><div class="line">338</div><div class="line">339</div><div class="line">340</div><div class="line">341</div><div class="line">342</div><div class="line">343</div><div class="line">344</div><div class="line">345</div><div class="line">346</div><div class="line">347</div><div class="line">348</div><div class="line">349</div><div class="line">350</div><div class="line">351</div><div class="line">352</div><div class="line">353</div><div class="line">354</div><div class="line">355</div><div class="line">356</div><div class="line">357</div><div class="line">358</div><div class="line">359</div><div class="line">360</div><div class="line">361</div><div class="line">362</div><div class="line">363</div><div class="line">364</div><div class="line">365</div><div class="line">366</div><div class="line">367</div><div class="line">368</div><div class="line">369</div><div class="line">370</div><div class="line">371</div><div class="line">372</div><div class="line">373</div><div class="line">374</div><div class="line">375</div><div class="line">376</div><div class="line">377</div><div class="line">378</div><div class="line">379</div><div class="line">380</div><div class="line">381</div><div class="line">382</div><div class="line">383</div><div class="line">384</div><div class="line">385</div><div class="line">386</div><div class="line">387</div><div class="line">388</div><div class="line">389</div><div class="line">390</div><div class="line">391</div><div class="line">392</div><div class="line">393</div><div class="line">394</div><div class="line">395</div><div class="line">396</div><div class="line">397</div><div class="line">398</div><div class="line">399</div><div class="line">400</div><div class="line">401</div><div class="line">402</div><div class="line">403</div><div class="line">404</div><div class="line">405</div><div class="line">406</div><div class="line">407</div><div class="line">408</div><div class="line">409</div><div class="line">410</div><div class="line">411</div><div class="line">412</div><div class="line">413</div><div class="line">414</div><div class="line">415</div><div class="line">416</div><div class="line">417</div><div class="line">418</div><div class="line">419</div><div class="line">420</div><div class="line">421</div><div class="line">422</div><div class="line">423</div><div class="line">424</div><div class="line">425</div><div class="line">426</div><div class="line">427</div><div class="line">428</div><div class="line">429</div><div class="line">430</div><div class="line">431</div><div class="line">432</div><div class="line">433</div><div class="line">434</div><div class="line">435</div><div class="line">436</div><div class="line">437</div><div class="line">438</div><div class="line">439</div><div class="line">440</div><div class="line">441</div><div class="line">442</div><div class="line">443</div><div class="line">444</div><div class="line">445</div><div class="line">446</div><div class="line">447</div><div class="line">448</div><div class="line">449</div><div class="line">450</div><div class="line">451</div><div class="line">452</div><div class="line">453</div><div class="line">454</div><div class="line">455</div><div class="line">456</div><div class="line">457</div><div class="line">458</div><div class="line">459</div><div class="line">460</div><div class="line">461</div><div class="line">462</div><div class="line">463</div></pre></td><td class="code"><pre><div class="line"><span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line"><span class="comment">// list结点, 提供双向访问能力  </span></div><div class="line"><span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line"><span class="comment">//  --------           --------           --------           --------  </span></div><div class="line"><span class="comment">//  | next |----------&gt;| next |----------&gt;| next |----------&gt;| next |  </span></div><div class="line"><span class="comment">//  --------           --------           --------           --------  </span></div><div class="line"><span class="comment">//  | prev |&lt;----------| prev |&lt;----------| prev |&lt;----------| prev |  </span></div><div class="line"><span class="comment">//  --------           --------           --------           --------  </span></div><div class="line"><span class="comment">//  | data |           | data |           | data |           | data |  </span></div><div class="line"><span class="comment">//  --------           --------           --------           --------  </span></div><div class="line"><span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line"> </div><div class="line"> <span class="comment">//list节点结构</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">struct</span> __<span class="title">list_node</span>  </span></div><div class="line"><span class="class">&#123;</span>  </div><div class="line">    <span class="keyword">typedef</span> <span class="keyword">void</span>* void_pointer;  </div><div class="line">    void_pointer next;  <span class="comment">//使用void* 为指针类型</span></div><div class="line">    void_pointer prev;  </div><div class="line">    T data;  </div><div class="line">&#125;;  </div><div class="line">  </div><div class="line"><span class="comment">// 至于为什么不使用默认参数, 这个是因为有一些编译器不能提供推导能力,  </span></div><div class="line"><span class="comment">// 而作者又不想维护两份代码, 故不使用默认参数  </span></div><div class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Ref</span>, <span class="title">class</span> <span class="title">Ptr</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">struct</span> __<span class="title">list_iterator</span>  </span></div><div class="line"><span class="class">&#123;</span>  </div><div class="line">    <span class="keyword">typedef</span> __list_iterator&lt;T, T&amp;, T*&gt;             iterator;   <span class="comment">// STL标准强制要求  </span></div><div class="line">    <span class="keyword">typedef</span> __list_iterator&lt;T, Ref, Ptr&gt;           self;  </div><div class="line">  </div><div class="line">    <span class="keyword">typedef</span> bidirectional_iterator_tag iterator_category;  <span class="comment">//双向迭代器</span></div><div class="line">    <span class="keyword">typedef</span> T value_type;  </div><div class="line">    <span class="keyword">typedef</span> Ptr pointer;  </div><div class="line">    <span class="keyword">typedef</span> Ref reference;  </div><div class="line">    <span class="keyword">typedef</span> __list_node&lt;T&gt;* link_type;  </div><div class="line">    <span class="keyword">typedef</span> <span class="keyword">size_t</span> size_type;  </div><div class="line">    <span class="keyword">typedef</span> <span class="keyword">ptrdiff_t</span> difference_type;  </div><div class="line">  </div><div class="line">    link_type node;   <span class="comment">//迭代器内部当然要有一个普通指针，指向list的节点  </span></div><div class="line">  </div><div class="line">    __list_iterator(link_type x) : node(x) &#123;&#125;  </div><div class="line">    __list_iterator() &#123;&#125;  </div><div class="line">    __list_iterator(<span class="keyword">const</span> iterator&amp; x) : node(x.node) &#123;&#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 在STL算法中需要迭代器提供支持  </span></div><div class="line">    <span class="keyword">bool</span> <span class="keyword">operator</span>==(<span class="keyword">const</span> self&amp; x) <span class="keyword">const</span> &#123; <span class="keyword">return</span> node == x.node; &#125;  </div><div class="line">    <span class="keyword">bool</span> <span class="keyword">operator</span>!=(<span class="keyword">const</span> self&amp; x) <span class="keyword">const</span> &#123; <span class="keyword">return</span> node != x.node; &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 以下对迭代器取值（dereference）,取的是节点的数据值  </span></div><div class="line">    reference <span class="keyword">operator</span>*() <span class="keyword">const</span> &#123; <span class="keyword">return</span> (*node).data; &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 以下是迭代器的成员存取运算子的标准做法  </span></div><div class="line">    pointer <span class="keyword">operator</span>-&gt;() <span class="keyword">const</span> &#123; <span class="keyword">return</span> &amp;(<span class="keyword">operator</span>*()); &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 前缀自加，对迭代器累加1，就是前进一个节点  </span></div><div class="line">    self&amp; <span class="keyword">operator</span>++()  </div><div class="line">    &#123;  </div><div class="line">        node = (link_type)((*node).next);  </div><div class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 后缀自加, 需要先产生自身的一个副本, 然会再对自身操作, 最后返回副本  </span></div><div class="line">    self <span class="keyword">operator</span>++(<span class="keyword">int</span>)  </div><div class="line">    &#123;  </div><div class="line">        self tmp = *<span class="keyword">this</span>;  </div><div class="line">        ++*<span class="keyword">this</span>;  </div><div class="line">        <span class="keyword">return</span> tmp;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 前缀自减  </span></div><div class="line">    self&amp; <span class="keyword">operator</span>--()  </div><div class="line">    &#123;  </div><div class="line">        node = (link_type)((*node).prev);  </div><div class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;  </div><div class="line">    &#125;  </div><div class="line">  <span class="comment">//后缀自减</span></div><div class="line">    self <span class="keyword">operator</span>--(<span class="keyword">int</span>)  </div><div class="line">    &#123;  </div><div class="line">        self tmp = *<span class="keyword">this</span>;  </div><div class="line">        --*<span class="keyword">this</span>;  </div><div class="line">        <span class="keyword">return</span> tmp;  </div><div class="line">    &#125;  </div><div class="line">&#125;;  </div><div class="line">  </div><div class="line"><span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line"><span class="comment">// list不仅是个双向链表, 而且还是一个环状双向链表  </span></div><div class="line"><span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line"><span class="comment">//       end()              头结点(node)              begin()  </span></div><div class="line"><span class="comment">//         ↓                  ↓                  ↓  </span></div><div class="line"><span class="comment">//      --------           --------           --------           --------  </span></div><div class="line"><span class="comment">// ----&gt;| next |----------&gt;| next |----------&gt;| next |----------&gt;| next |------  </span></div><div class="line"><span class="comment">// |    --------           --------           --------           --------     |  </span></div><div class="line"><span class="comment">// |  --| prev |&lt;----------| prev |&lt;----------| prev |&lt;----------| prev |&lt;--| |  </span></div><div class="line"><span class="comment">// |  | --------           --------           --------           --------   | |  </span></div><div class="line"><span class="comment">// |  | | data |           | data |           | data |           | data |   | |  </span></div><div class="line"><span class="comment">// |  | --------           --------           --------           --------   | |  </span></div><div class="line"><span class="comment">// |  |                                                                     | |  </span></div><div class="line"><span class="comment">// |  | --------           --------           --------           --------   | |  </span></div><div class="line"><span class="comment">// ---|-| next |&lt;----------| next |&lt;----------| next |&lt;----------| next |&lt;--|--  </span></div><div class="line"><span class="comment">//    | --------           --------           --------           --------   |  </span></div><div class="line"><span class="comment">//    -&gt;| prev |----------&gt;| prev |----------&gt;| prev |----------&gt;| prev |----  </span></div><div class="line"><span class="comment">//      --------           --------           --------           --------  </span></div><div class="line"><span class="comment">//      | data |           | data |           | data |           | data |  </span></div><div class="line"><span class="comment">//      --------           --------           --------           --------  </span></div><div class="line"><span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">  </div><div class="line"><span class="comment">// 默认allocator为alloc, 其具体使用版本请参照&lt;stl_alloc.h&gt;  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span> = <span class="title">alloc</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">class</span> <span class="title">list</span>  </span></div><div class="line"><span class="class">&#123;</span>  </div><div class="line"><span class="keyword">protected</span>:  </div><div class="line">    <span class="keyword">typedef</span> <span class="keyword">void</span>* void_pointer;  </div><div class="line">    <span class="keyword">typedef</span> __list_node&lt;T&gt; list_node;  </div><div class="line">  </div><div class="line">    <span class="comment">// 专属之空间配置器，每次配置一个节点大小  </span></div><div class="line">    <span class="keyword">typedef</span> simple_alloc&lt;list_node, Alloc&gt; list_node_allocator;  </div><div class="line">  </div><div class="line"><span class="keyword">public</span>:  </div><div class="line">    <span class="keyword">typedef</span> T value_type;  </div><div class="line">    <span class="keyword">typedef</span> value_type* pointer;  </div><div class="line">    <span class="keyword">typedef</span> value_type&amp; reference;  </div><div class="line">    <span class="keyword">typedef</span> list_node* link_type;  </div><div class="line">    <span class="keyword">typedef</span> <span class="keyword">size_t</span> size_type;  </div><div class="line">    <span class="keyword">typedef</span> <span class="keyword">ptrdiff_t</span> difference_type;  </div><div class="line">  </div><div class="line">    <span class="keyword">typedef</span> __list_iterator&lt;T, T&amp;, T*&gt;             iterator;  </div><div class="line">  </div><div class="line"><span class="keyword">protected</span>:  </div><div class="line">    link_type node ;     <span class="comment">// 只要一个指针，便可表示整个环状双向链表  </span></div><div class="line">    <span class="comment">// 分配一个新结点, 注意这里并不进行构造,  </span></div><div class="line">    <span class="comment">// 构造交给全局的construct, 见&lt;stl_stl_uninitialized.h&gt;  </span></div><div class="line">    <span class="function">link_type <span class="title">get_node</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> list_node_allocator::allocate(); &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 释放指定结点, 不进行析构, 析构交给全局的destroy  </span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">put_node</span><span class="params">(link_type p)</span> </span>&#123; list_node_allocator::deallocate(p); &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 产生（配置并构造）一个节点, 首先分配内存, 然后进行构造  </span></div><div class="line">    <span class="function">link_type <span class="title">create_node</span><span class="params">(<span class="keyword">const</span> T&amp; x)</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        link_type p = get_node();  </div><div class="line">        construct(&amp;p-&gt;data, x);  </div><div class="line">        <span class="keyword">return</span> p;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 析构结点元素, 并释放内存  </span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">destroy_node</span><span class="params">(link_type p)</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        destroy(&amp;p-&gt;data);  </div><div class="line">        put_node(p);  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line"><span class="keyword">protected</span>:  </div><div class="line">    <span class="comment">// 用于空链表的建立  </span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">empty_initialize</span><span class="params">()</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        node = get_node();   <span class="comment">// 配置一个节点空间，令node指向它  </span></div><div class="line">        node-&gt;next = node;   <span class="comment">// 令node头尾都指向自己，不设元素值  </span></div><div class="line">        node-&gt;prev = node;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">  <span class="comment">// 创建值为value共n个结点的链表  </span></div><div class="line">  <span class="comment">// 注: commit or rollback  </span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">fill_initialize</span><span class="params">(size_type n, <span class="keyword">const</span> T&amp; value)</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        empty_initialize();  </div><div class="line">        __STL_TRY  </div><div class="line">        &#123;  </div><div class="line">            <span class="comment">// 此处插入操作时间复杂度O(1)  </span></div><div class="line">            insert(begin(), n, value);  </div><div class="line">        &#125;  </div><div class="line">        __STL_UNWIND(clear(); put_node(node));  </div><div class="line">    &#125;  </div><div class="line">      </div><div class="line">  </div><div class="line"><span class="keyword">public</span>:  </div><div class="line">    <span class="built_in">list</span>() &#123; empty_initialize(); &#125;  </div><div class="line">    </div><div class="line">    <span class="comment">// 链表成环, 当指所以begin()就是Node的下一个 </span></div><div class="line">    <span class="function">iterator <span class="title">begin</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> (link_type)((*node).next); &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 链表成环, 当指所以头节点也就是end  </span></div><div class="line">    <span class="function">iterator <span class="title">end</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> node; &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 头结点指向自身说明链表中无元素  </span></div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">empty</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> node-&gt;next == node; &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 使用全局函数distance()进行计算, 时间复杂度O(n)  </span></div><div class="line">    <span class="function">size_type <span class="title">size</span><span class="params">()</span> <span class="keyword">const</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        size_type result = <span class="number">0</span>;  </div><div class="line">        distance(begin(), end(), result);  </div><div class="line">        <span class="keyword">return</span> result;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="function">size_type <span class="title">max_size</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> size_type(<span class="number">-1</span>); &#125;  </div><div class="line">    <span class="function">reference <span class="title">front</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> *begin(); &#125;  </div><div class="line">    <span class="function">reference <span class="title">back</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> *(--end()); &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">    <span class="comment">// 在指定位置插入元素 ，是插入在position之前</span></div><div class="line">    <span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">    <span class="comment">//       insert(iterator position, const T&amp; x)  </span></div><div class="line">    <span class="comment">//                       ↓  </span></div><div class="line">    <span class="comment">//                 create_node(x)  </span></div><div class="line">    <span class="comment">//                 p = get_node();--------&gt;list_node_allocator::allocate();  </span></div><div class="line">    <span class="comment">//                 construct(&amp;p-&gt;data, x);  </span></div><div class="line">    <span class="comment">//                       ↓  </span></div><div class="line">    <span class="comment">//            tmp-&gt;next = position.node;  </span></div><div class="line">    <span class="comment">//            tmp-&gt;prev = position.node-&gt;prev;  </span></div><div class="line">    <span class="comment">//            (link_type(position.node-&gt;prev))-&gt;next = tmp;  </span></div><div class="line">    <span class="comment">//            position.node-&gt;prev = tmp;  </span></div><div class="line">    <span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">  </div><div class="line">    <span class="function">iterator <span class="title">insert</span><span class="params">(iterator position, <span class="keyword">const</span> T&amp; x)</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        link_type tmp = create_node(x);   <span class="comment">// 产生一个节点  </span></div><div class="line">        <span class="comment">// 调整双向指针，使tmp插入进去  </span></div><div class="line">        tmp-&gt;next = position.node;  </div><div class="line">        tmp-&gt;prev = position.node-&gt;prev;  </div><div class="line">        (link_type(position.node-&gt;prev))-&gt;next = tmp;  </div><div class="line">        position.node-&gt;prev = tmp;  </div><div class="line">        <span class="keyword">return</span> tmp;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">  <span class="comment">// 指定位置插入n个值为x的元素, 详细解析见实现部分  </span></div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">insert</span><span class="params">(iterator pos, size_type n, <span class="keyword">const</span> T&amp; x)</span></span>;  </div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">insert</span><span class="params">(iterator pos, <span class="keyword">int</span> n, <span class="keyword">const</span> T&amp; x)</span>  </span></div><div class="line"><span class="function">  </span>&#123;  </div><div class="line">      insert(pos, (size_type)n, x);  </div><div class="line">  &#125;  </div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">insert</span><span class="params">(iterator pos, <span class="keyword">long</span> n, <span class="keyword">const</span> T&amp; x)</span>  </span></div><div class="line"><span class="function">  </span>&#123;  </div><div class="line">      insert(pos, (size_type)n, x);  </div><div class="line">  &#125;  </div><div class="line">  </div><div class="line">  <span class="comment">// 在链表前端插入结点  </span></div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">push_front</span><span class="params">(<span class="keyword">const</span> T&amp; x)</span> </span>&#123; insert(begin(), x); &#125;  </div><div class="line">  <span class="comment">// 在链表最后插入结点  </span></div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">push_back</span><span class="params">(<span class="keyword">const</span> T&amp; x)</span> </span>&#123; insert(end(), x); &#125;  </div><div class="line">  </div><div class="line">  <span class="comment">// 移除迭代器position所指节点  </span></div><div class="line">  <span class="function">iterator <span class="title">erase</span><span class="params">(iterator position)</span>  </span></div><div class="line"><span class="function">  </span>&#123;  </div><div class="line">      link_type next_node = link_type(position.node-&gt;next);  </div><div class="line">      link_type prev_node = link_type(position.node-&gt;prev);  </div><div class="line">      prev_node-&gt;next = next_node;  </div><div class="line">      next_node-&gt;prev = prev_node;  </div><div class="line">      destroy_node(position.node);  </div><div class="line">      <span class="keyword">return</span> iterator(next_node);  </div><div class="line">  &#125;  </div><div class="line">  </div><div class="line">  <span class="comment">// 擦除一个区间的结点, 详细解析见实现部分  </span></div><div class="line">  <span class="function">iterator <span class="title">erase</span><span class="params">(iterator first, iterator last)</span></span>;  </div><div class="line">  </div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">resize</span><span class="params">(size_type new_size, <span class="keyword">const</span> T&amp; x)</span></span>;  </div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">resize</span><span class="params">(size_type new_size)</span> </span>&#123; resize(new_size, T()); &#125;  </div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">clear</span><span class="params">()</span></span>;  </div><div class="line">  </div><div class="line">  <span class="comment">// 删除链表第一个结点  </span></div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">pop_front</span><span class="params">()</span> </span>&#123; erase(begin()); &#125;  </div><div class="line">  <span class="comment">// 删除链表最后一个结点  </span></div><div class="line">  <span class="function"><span class="keyword">void</span> <span class="title">pop_back</span><span class="params">()</span>  </span></div><div class="line"><span class="function">  </span>&#123;  </div><div class="line">      iterator tmp = end();  </div><div class="line">      erase(--tmp);  </div><div class="line">  &#125;  </div><div class="line">  </div><div class="line">  <span class="built_in">list</span>(size_type n, <span class="keyword">const</span> T&amp; value) &#123; fill_initialize(n, value); &#125;  </div><div class="line">  <span class="built_in">list</span>(<span class="keyword">int</span> n, <span class="keyword">const</span> T&amp; value) &#123; fill_initialize(n, value); &#125;  </div><div class="line">  <span class="built_in">list</span>(<span class="keyword">long</span> n, <span class="keyword">const</span> T&amp; value) &#123; fill_initialize(n, value); &#125;  </div><div class="line">  </div><div class="line"><span class="comment">// 使用全局函数distance()进行计算, 时间复杂度O(n)  </span></div><div class="line">  <span class="function">size_type <span class="title">size</span><span class="params">()</span> <span class="keyword">const</span>  </span></div><div class="line"><span class="function">  </span>&#123;  </div><div class="line">    size_type result = <span class="number">0</span>;  </div><div class="line">    distance(begin(), end(), result);  </div><div class="line">    <span class="keyword">return</span> result;  </div><div class="line">  &#125; </div><div class="line">  ~<span class="built_in">list</span>()  </div><div class="line">  &#123;  </div><div class="line">    <span class="comment">// 释放所有结点 </span></div><div class="line"></div><div class="line">  clear();  </div><div class="line">  <span class="comment">// 释放头结点  </span></div><div class="line">  put_node(node);  </div><div class="line">  &#125;  </div><div class="line">  </div><div class="line">  <span class="built_in">list</span>&lt;T, Alloc&gt;&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> <span class="built_in">list</span>&lt;T, Alloc&gt;&amp; x);  </div><div class="line">  </div><div class="line"><span class="keyword">protected</span>:  </div><div class="line">  </div><div class="line">    <span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">    <span class="comment">// 将[first, last)内的所有元素移动到position之前  </span></div><div class="line">    <span class="comment">// 如果last == position, 则相当于链表不变化, 不进行操作  </span></div><div class="line">    <span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">    <span class="comment">// 初始状态  </span></div><div class="line">    <span class="comment">//                   first                             last  </span></div><div class="line">    <span class="comment">//                     ↓                                 ↓  </span></div><div class="line">    <span class="comment">//      --------   --------   --------     --------   --------   --------  </span></div><div class="line">    <span class="comment">//      | next |--&gt;| next |--&gt;| next |     | next |--&gt;| next |--&gt;| next |  </span></div><div class="line">    <span class="comment">//  ... --------   --------   -------- ... --------   --------   -------- ...  </span></div><div class="line">    <span class="comment">//      | prev |&lt;--| prev |&lt;--| prev |     | prev |&lt;--| prev |&lt;--| prev |  </span></div><div class="line">    <span class="comment">//      --------   --------   --------     --------   --------   --------  </span></div><div class="line">    <span class="comment">//  </span></div><div class="line">    <span class="comment">//                           position  </span></div><div class="line">    <span class="comment">//                               ↓  </span></div><div class="line">    <span class="comment">//      --------   --------   --------   --------   --------   --------  </span></div><div class="line">    <span class="comment">//      | next |--&gt;| next |--&gt;| next |--&gt;| next |--&gt;| next |--&gt;| next |  </span></div><div class="line">    <span class="comment">//  ... --------   --------   --------   --------   --------   -------- ...  </span></div><div class="line">    <span class="comment">//      | prev |&lt;--| prev |&lt;--| prev |&lt;--| prev |&lt;--| prev |&lt;--| prev |  </span></div><div class="line">    <span class="comment">//      --------   --------   --------   --------   --------   --------  </span></div><div class="line">    <span class="comment">//  </span></div><div class="line">    <span class="comment">// 操作完成后状态  </span></div><div class="line">    <span class="comment">//                           first  </span></div><div class="line">    <span class="comment">//                             |  </span></div><div class="line">    <span class="comment">//               --------------|--------------------------------------  </span></div><div class="line">    <span class="comment">//               | ------------|------------------------------------ |   last  </span></div><div class="line">    <span class="comment">//               | |           ↓                                   | |     ↓  </span></div><div class="line">    <span class="comment">//      -------- | |        --------   --------     --------       | |  --------   --------  </span></div><div class="line">    <span class="comment">//      | next |-- |  -----&gt;| next |--&gt;| next |     | next |-----  | --&gt;| next |--&gt;| next |  </span></div><div class="line">    <span class="comment">//  ... --------   |  |     --------   -------- ... --------    |  |    --------   -------- ...  </span></div><div class="line">    <span class="comment">//      | prev |&lt;---  |  ---| prev |&lt;--| prev |     | prev |&lt;-- |  -----| prev |&lt;--| prev |  </span></div><div class="line">    <span class="comment">//      --------      |  |  --------   --------     --------  | |       --------   --------  </span></div><div class="line">    <span class="comment">//                    |  |                                    | |  </span></div><div class="line">    <span class="comment">//                    |  ------                               | |  </span></div><div class="line">    <span class="comment">//                    ------- |  ------------------------------ |  </span></div><div class="line">    <span class="comment">//                          | |  |                              |  </span></div><div class="line">    <span class="comment">//                          | |  |  -----------------------------  </span></div><div class="line">    <span class="comment">//                          | |  |  |  </span></div><div class="line">    <span class="comment">//                          | |  |  |  position  </span></div><div class="line">    <span class="comment">//                          | |  |  |     ↓  </span></div><div class="line">    <span class="comment">//      --------   -------- | |  |  |  --------   --------   --------   --------  </span></div><div class="line">    <span class="comment">//      | next |--&gt;| next |-- |  |  --&gt;| next |--&gt;| next |--&gt;| next |--&gt;| next |  </span></div><div class="line">    <span class="comment">//  ... --------   --------   |  |     --------   --------   --------   -------- ...  </span></div><div class="line">    <span class="comment">//      | prev |&lt;--| prev |&lt;---  ------| prev |&lt;--| prev |&lt;--| prev |&lt;--| prev |  </span></div><div class="line">    <span class="comment">//      --------   --------            --------   --------   --------   --------  </span></div><div class="line">    <span class="comment">////////////////////////////////////////////////////////////////////////////////  </span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">transfer</span><span class="params">(iterator position, iterator first, iterator last)</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        <span class="keyword">if</span> (position != last)   <span class="comment">// 如果last == position, 则相当于链表不变化, 不进行操作  </span></div><div class="line">        &#123;  </div><div class="line">            (*(link_type((*last.node).prev))).next = position.node;  </div><div class="line">            (*(link_type((*first.node).prev))).next = last.node;  </div><div class="line">            (*(link_type((*position.node).prev))).next = first.node;  </div><div class="line">            link_type tmp = link_type((*position.node).prev);  </div><div class="line">            (*position.node).prev = (*last.node).prev;  </div><div class="line">            (*last.node).prev = (*first.node).prev;  </div><div class="line">            (*first.node).prev = tmp;  </div><div class="line">        &#125;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line"><span class="keyword">public</span>:  </div><div class="line">    <span class="comment">// 将链表x移动到position所指位置之前  </span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">splice</span><span class="params">(iterator position, <span class="built_in">list</span>&amp; x)</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        <span class="keyword">if</span> (!x.empty())  </div><div class="line">            transfer(position, x.begin(), x.end());  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 将链表中i指向的内容移动到position之前  </span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">splice</span><span class="params">(iterator position, <span class="built_in">list</span>&amp;, iterator i)</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        iterator j = i;  </div><div class="line">        ++j;  </div><div class="line">        <span class="keyword">if</span> (position == i || position == j) <span class="keyword">return</span>;  </div><div class="line">        transfer(position, i, j);  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">// 将[first, last)元素移动到position之前  </span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">splice</span><span class="params">(iterator position, <span class="built_in">list</span>&amp;, iterator first, iterator last)</span>  </span></div><div class="line"><span class="function">    </span>&#123;  </div><div class="line">        <span class="keyword">if</span> (first != last)  </div><div class="line">            transfer(position, first, last);  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">remove</span><span class="params">(<span class="keyword">const</span> T&amp; value)</span></span>;  </div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">unique</span><span class="params">()</span></span>;  </div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">merge</span><span class="params">(<span class="built_in">list</span>&amp; x)</span></span>;  </div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">reverse</span><span class="params">()</span></span>;  </div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">sort</span><span class="params">()</span></span>;  </div><div class="line">  </div><div class="line">&#125;;  </div><div class="line">  </div><div class="line"><span class="comment">// 销毁所有结点, 将链表置空  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">void</span> <span class="title">list</span>&lt;T, Alloc&gt;:</span>:clear()  </div><div class="line">&#123;  </div><div class="line">  link_type cur = (link_type) node-&gt;next;  </div><div class="line">  <span class="keyword">while</span> (cur != node)  </div><div class="line">  &#123;  </div><div class="line">    link_type tmp = cur;  </div><div class="line">    cur = (link_type) cur-&gt;next;  </div><div class="line">    destroy_node(tmp);  </div><div class="line">  &#125;  </div><div class="line">  <span class="comment">// 恢复node原始状态  </span></div><div class="line">  node-&gt;next = node;  </div><div class="line">  node-&gt;prev = node;  </div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="comment">// 链表赋值操作  </span></div><div class="line"><span class="comment">// 如果当前容器元素少于x容器, 则析构多余元素,  </span></div><div class="line"><span class="comment">// 否则将调用insert插入x中剩余的元素  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">list</span>&lt;T, Alloc&gt;&amp; <span class="title">list</span>&lt;T, Alloc&gt;:</span>:<span class="keyword">operator</span>=(<span class="keyword">const</span> <span class="built_in">list</span>&lt;T, Alloc&gt;&amp; x)  </div><div class="line">&#123;  </div><div class="line">  <span class="keyword">if</span> (<span class="keyword">this</span> != &amp;x)  </div><div class="line">  &#123;  </div><div class="line">    iterator first1 = begin();  </div><div class="line">    iterator last1 = end();  </div><div class="line">    const_iterator first2 = x.begin();  </div><div class="line">    const_iterator last2 = x.end();  </div><div class="line">    <span class="keyword">while</span> (first1 != last1 &amp;&amp; first2 != last2) *first1++ = *first2++;  </div><div class="line">    <span class="keyword">if</span> (first2 == last2)  </div><div class="line">      erase(first1, last1);  </div><div class="line">    <span class="keyword">else</span>  </div><div class="line">      insert(last1, first2, last2);  </div><div class="line">  &#125;  </div><div class="line">  <span class="keyword">return</span> *<span class="keyword">this</span>;  </div><div class="line">&#125;  </div><div class="line">  </div><div class="line">  </div><div class="line"><span class="comment">// 移除容器内所有的相邻的重复结点  </span></div><div class="line"><span class="comment">// 时间复杂度O(n)  </span></div><div class="line"><span class="comment">// 用户自定义数据类型需要提供operator ==()重载  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">void</span> <span class="title">list</span>&lt;T, Alloc&gt;:</span>:unique()  </div><div class="line">&#123;  </div><div class="line">  iterator first = begin();  </div><div class="line">  iterator last = end();  </div><div class="line">  <span class="keyword">if</span> (first == last) <span class="keyword">return</span>;  </div><div class="line">  iterator next = first;  </div><div class="line">  <span class="keyword">while</span> (++next != last)  </div><div class="line">  &#123;  </div><div class="line">    <span class="keyword">if</span> (*first == *next)  </div><div class="line">      erase(next);  </div><div class="line">    <span class="keyword">else</span>  </div><div class="line">      first = next;  </div><div class="line">    next = first;  </div><div class="line">  &#125;  </div><div class="line">&#125;  </div><div class="line">  </div><div class="line"><span class="comment">// 假设当前容器和x都已序, 保证两容器合并后仍然有序  </span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>&gt;  </span></div><div class="line"><span class="class"><span class="title">void</span> <span class="title">list</span>&lt;T, Alloc&gt;:</span>:merge(<span class="built_in">list</span>&lt;T, Alloc&gt;&amp; x)  </div><div class="line">&#123;  </div><div class="line">  iterator first1 = begin();  </div><div class="line">  iterator last1 = end();  </div><div class="line">  iterator first2 = x.begin();  </div><div class="line">  iterator last2 = x.end();  </div><div class="line">  </div><div class="line">  <span class="comment">// 注意：前提是，两个lists都已经递增排序  </span></div><div class="line">  <span class="keyword">while</span> (first1 != last1 &amp;&amp; first2 != last2)  </div><div class="line">    <span class="keyword">if</span> (*first2 &lt; *first1)  </div><div class="line">    &#123;  </div><div class="line">      iterator next = first2;  </div><div class="line">      transfer(first1, first2, ++next);  </div><div class="line">      first2 = next;  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">else</span>  </div><div class="line">      ++first1;  </div><div class="line">  <span class="keyword">if</span> (first2 != last2)  </div><div class="line">      transfer(last1, first2, last2);  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/STL学习/" rel="tag"># STL学习</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/10/STL源码剖析笔记五序列式容器-Vector/" rel="next" title="STL源码剖析笔记<五> 序列式容器-Vector">
+                <i class="fa fa-chevron-left"></i> STL源码剖析笔记<五> 序列式容器-Vector
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/12/STL源码剖析学习笔记七Deque/" rel="prev" title="STL源码剖析学习笔记七 Deque">
+                STL源码剖析学习笔记七 Deque <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Lan" />
+          <p class="site-author-name" itemprop="name">Lan</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#list"><span class="nav-number">1.</span> <span class="nav-text">list</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#list实现一些重要的特性"><span class="nav-number">2.</span> <span class="nav-text">list实现一些重要的特性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#list的源码分析"><span class="nav-number">3.</span> <span class="nav-text">list的源码分析</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://lanxiuwen.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://yoursite.com/2018/03/12/STL源码剖析笔记六/';
+          this.page.identifier = '2018/03/12/STL源码剖析笔记六/';
+          this.page.title = 'STL源码剖析笔记<六> 序列式容器-list';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://lanxiuwen.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+
+  
+
+  
+
+</body>
+</html>

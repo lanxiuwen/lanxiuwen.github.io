@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="STL学习," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="Dequevector在内存中是分配一段连续的内存空间进行存储，其迭代器采用原生指针即可，因此其支持随机访问和存储，支持下标操作符，节省空间。但是其在分配的内存不够的情况下，需要对容器整体进行重新分配、拷贝和释放等操作，而且在vector中间插入或删除元素效率很低。list是以节点形式来存放数据，使用的是非连续的内存空间来存放数据，因此，在其内部插入和删除元素的时间复杂度都是O(1),但是其不支持">
+<meta name="keywords" content="STL学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="STL源码剖析学习笔记七 Deque">
+<meta property="og:url" content="http://yoursite.com/2018/03/12/STL源码剖析学习笔记七Deque/index.html">
+<meta property="og:site_name" content="蓝新闻">
+<meta property="og:description" content="Dequevector在内存中是分配一段连续的内存空间进行存储，其迭代器采用原生指针即可，因此其支持随机访问和存储，支持下标操作符，节省空间。但是其在分配的内存不够的情况下，需要对容器整体进行重新分配、拷贝和释放等操作，而且在vector中间插入或删除元素效率很低。list是以节点形式来存放数据，使用的是非连续的内存空间来存放数据，因此，在其内部插入和删除元素的时间复杂度都是O(1),但是其不支持">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/images/deuqe1.gif">
+<meta property="og:image" content="http://yoursite.com/images/deuqe2.png">
+<meta property="og:updated_time" content="2018-03-12T14:11:21.438Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="STL源码剖析学习笔记七 Deque">
+<meta name="twitter:description" content="Dequevector在内存中是分配一段连续的内存空间进行存储，其迭代器采用原生指针即可，因此其支持随机访问和存储，支持下标操作符，节省空间。但是其在分配的内存不够的情况下，需要对容器整体进行重新分配、拷贝和释放等操作，而且在vector中间插入或删除元素效率很低。list是以节点形式来存放数据，使用的是非连续的内存空间来存放数据，因此，在其内部插入和删除元素的时间复杂度都是O(1),但是其不支持">
+<meta name="twitter:image" content="http://yoursite.com/images/deuqe1.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/12/STL源码剖析学习笔记七Deque/"/>
+
+
+
+
+
+  <title>STL源码剖析学习笔记七 Deque | 蓝新闻</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">蓝新闻</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/12/STL源码剖析学习笔记七Deque/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Lan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蓝新闻">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">STL源码剖析学习笔记七 Deque</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-12T21:52:20+08:00">
+                2018-03-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/STL学习/" itemprop="url" rel="index">
+                    <span itemprop="name">STL学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/03/12/STL源码剖析学习笔记七Deque/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/03/12/STL源码剖析学习笔记七Deque/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Deque"><a href="#Deque" class="headerlink" title="Deque"></a>Deque</h1><p>vector在内存中是分配一段连续的内存空间进行存储，其迭代器采用原生指针即可，因此其支持随机访问和存储，支持下标操作符，节省空间。但是其在分配的内存不够的情况下，需要对容器整体进行重新分配、拷贝和释放等操作，而且在vector中间插入或删除元素效率很低。<br>list是以节点形式来存放数据，使用的是非连续的内存空间来存放数据，因此，在其内部插入和删除元素的时间复杂度都是O(1),但是其不支持随机访问和存取，不支持下标，而且比vector占用的内存要多。<br>综合上述的优缺点，我们貌似需要一个支持随机访问和存取，支持下标访问，而且插入和删除的效率高的容器。于是，STL的deque诞生了。<br>deque相比于vector最大的差异就在于支持常熟时间内对首尾两端进行插入和删除操作，而且deque没有容量的概念，其内部采用分段连续内存空间来存储元素，在插入元素的时候随时都可以重新增加一段新的空间并链接起来。deque提供了Ramdon Access Iterator，同时也支持随机访问和存取，但是它也为此付出了昂贵的代价，其复杂度不能跟vector的原生指针迭代器相提并论。</p>
+<a id="more"></a>
+<h1 id="deque的中控器"><a href="#deque的中控器" class="headerlink" title="deque的中控器"></a>deque的中控器</h1><p>deque为了维持整体连续的假象，设计一个中控器，其用来记录deque内部每一段连续空间的地址。大体上可以理解为deque中的每一段连续空间分布在内存的不连续空间上，然后用一个所谓的map作为主控，记录每一段内存空间的入口，从而做到整体连续的假象。其布局大概如下(配图来自STL源码剖析)</p>
+<p><img src="/images/deuqe1.gif" alt="图1"></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span> = <span class="title">alloc</span>, <span class="title">size_t</span> <span class="title">BufSiz</span> = 0&gt;</span></div><div class="line"><span class="class"><span class="title">class</span> <span class="title">deque</span> &#123;</span></div><div class="line"><span class="keyword">public</span>:</div><div class="line">  <span class="keyword">typedef</span> T value_type;</div><div class="line">  <span class="keyword">typedef</span> value_type* pointer;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">const</span> value_type* const_pointer;</div><div class="line">  <span class="keyword">typedef</span> value_type&amp; reference;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">const</span> value_type&amp; const_reference;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">size_t</span> size_type;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">ptrdiff_t</span> difference_type;</div><div class="line"></div><div class="line"><span class="keyword">protected</span>:</div><div class="line">  <span class="keyword">typedef</span> pointer* map_pointer;</div><div class="line"></div><div class="line">  <span class="comment">// 指向map, map是一个连续的空间, 其每个元素都是一个指向缓冲区的指针</span></div><div class="line">  map_pointer <span class="built_in">map</span>;</div><div class="line">  size_type map_size;   <span class="comment">// map容量</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>抛弃型别定义，我们可以看到map实际上就是一个指向指针的指针(T**)，map所指向的是一个指针，该指针指向型别为T的一块内存空间。理解到这里，大概就清楚了deque的实现原理，不过，这些都不是重点！重点是deque的各种运算符的实现。</p>
+<h1 id="deque的迭代器"><a href="#deque的迭代器" class="headerlink" title="deque的迭代器"></a>deque的迭代器</h1><p>deque提供的是一个随机访问迭代器，由于是分段连续空间，其必须记录当前元素所在段的信息，从而在该段连续空间的边缘进行前进或者后退的时候能知道跳跃到的上一个或下一个缓冲区。deque必须完完全全地掌握和控制这些信息，以达到正确地跳跃！<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 注意deque的迭代器没有重载STL的Iterator</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Ref</span>, <span class="title">class</span> <span class="title">Ptr</span>, <span class="title">size_t</span> <span class="title">BufSiz</span>&gt;</span></div><div class="line"><span class="class"><span class="title">struct</span> __<span class="title">deque_iterator</span> &#123;</span></div><div class="line">  <span class="keyword">typedef</span> __deque_iterator&lt;T, T&amp;, T*, BufSiz&gt;             iterator;</div><div class="line">  <span class="keyword">typedef</span> __deque_iterator&lt;T, <span class="keyword">const</span> T&amp;, <span class="keyword">const</span> T*, BufSiz&gt; const_iterator;</div><div class="line"></div><div class="line">  <span class="comment">// 以下为支持Iterator_traits而定义的一些类型</span></div><div class="line">  <span class="keyword">typedef</span> random_access_iterator_tag iterator_category;      </div><div class="line">  <span class="keyword">typedef</span> T value_type;                                      </div><div class="line">  <span class="keyword">typedef</span> Ptr pointer;                                       </div><div class="line">  <span class="keyword">typedef</span> Ref reference;                                     </div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">size_t</span> size_type;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">ptrdiff_t</span> difference_type;                        </div><div class="line">  <span class="keyword">typedef</span> T** map_pointer;</div><div class="line"></div><div class="line">  <span class="keyword">typedef</span> __deque_iterator self;</div><div class="line"></div><div class="line">  <span class="comment">// 保存容器中的结点</span></div><div class="line">  T* cur;       <span class="comment">// 指向当前缓冲区中的元素</span></div><div class="line">  T* first;     <span class="comment">// 当前缓冲区的起点</span></div><div class="line">  T* last;      <span class="comment">// 当前缓冲区的终点</span></div><div class="line"></div><div class="line">  map_pointer node;   <span class="comment">// 指向管控中心</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Ref</span>, <span class="title">class</span> <span class="title">Ptr</span>, <span class="title">size_t</span> <span class="title">BufSiz</span>&gt;</span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">random_access_iterator_tag</span></span></div><div class="line"><span class="class"><span class="title">iterator_category</span>(<span class="title">const</span> __<span class="title">deque_iterator</span>&lt;T, Ref, Ptr, BufSiz&gt;&amp;) &#123;</span></div><div class="line">  <span class="keyword">return</span> random_access_iterator_tag();</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Ref</span>, <span class="title">class</span> <span class="title">Ptr</span>, <span class="title">size_t</span> <span class="title">BufSiz</span>&gt;</span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">T</span>* <span class="title">value_type</span>(<span class="title">const</span> __<span class="title">deque_iterator</span>&lt;T, Ref, Ptr, BufSiz&gt;&amp;) &#123;</span></div><div class="line">  <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Ref</span>, <span class="title">class</span> <span class="title">Ptr</span>, <span class="title">size_t</span> <span class="title">BufSiz</span>&gt;</span></div><div class="line"><span class="class"><span class="title">inline</span> <span class="title">ptrdiff_t</span>* <span class="title">distance_type</span>(<span class="title">const</span> __<span class="title">deque_iterator</span>&lt;T, Ref, Ptr, BufSiz&gt;&amp;) &#123;</span></div><div class="line">  <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>从源码中可以看出，deque的迭代器中有cur,first,last和node四个指针，前三个记录了迭代器与缓冲区的联系，最后一个记录了迭代器于中控器的关系。从下面这张图可以很好的看出其关系：</p>
+<p><img src="/images/deuqe2.png" alt="图2"></p>
+<h1 id="迭代器实现"><a href="#迭代器实现" class="headerlink" title="迭代器实现"></a>迭代器实现</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 返回deque的buffer_size大小</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="function"><span class="keyword">static</span> size_t <span class="title">buffer_size</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> __deque_buf_size(BufSiz, <span class="keyword">sizeof</span>(T)); </div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 如果n不为0，传回n，表示buffer size由用户自己定义</span></div><div class="line"><span class="comment"> * 如果n为0，表示buffer_size采用默认值，</span></div><div class="line"><span class="comment"> *                那么如果sz(元素大小)小于512，传回512/sz</span></div><div class="line"><span class="comment"> *                  如果sz不小于512，传回1</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">inline</span> <span class="keyword">size_t</span> __deque_buf_size(<span class="keyword">size_t</span> n, <span class="keyword">size_t</span> sz)</div><div class="line">&#123;</div><div class="line">  <span class="keyword">return</span> n != <span class="number">0</span> ? n : (sz &lt; <span class="number">512</span> ? <span class="keyword">size_t</span>(<span class="number">512</span> / sz) : <span class="keyword">size_t</span>(<span class="number">1</span>));</div><div class="line">&#125;</div><div class="line"><span class="comment">//当迭代器处在当前缓冲区的边缘时，一旦前进或者后退，</span></div><div class="line"><span class="comment">//就要考虑超过当前缓冲区的情况，此时需要跳转到下一个缓冲区，这时候set_node就派上用场了。</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">set_node</span><span class="params">(map_pointer new_node)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">  node = new_node;      <span class="comment">// 跳转到相应缓冲区</span></div><div class="line">  first = *new_node;    <span class="comment">// 更新跳转后缓冲区first信息</span></div><div class="line">  last = first + difference_type(buffer_size());  <span class="comment">// 更新跳转后缓冲区last的信息</span></div><div class="line">&#125;</div><div class="line">reference <span class="keyword">operator</span>*() <span class="keyword">const</span> &#123; <span class="keyword">return</span> *cur; &#125;</div><div class="line">pointer <span class="keyword">operator</span>-&gt;() <span class="keyword">const</span> &#123; <span class="keyword">return</span> &amp;(<span class="keyword">operator</span>*()); &#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 判断两个迭代器之间的距离，重载了‘-’运算子</span></div><div class="line"><span class="comment"> */</span></div><div class="line">difference_type <span class="keyword">operator</span>-(<span class="keyword">const</span> self&amp; x) <span class="keyword">const</span></div><div class="line">&#123;</div><div class="line">  <span class="keyword">return</span> difference_type(buffer_size()) * (node - x.node - <span class="number">1</span>) +</div><div class="line">    (cur - first) + (x.last - x.cur);</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 前缀自增，注意前缀自增返回自身引用</span></div><div class="line"><span class="comment"> */</span></div><div class="line">self&amp; <span class="keyword">operator</span>++()</div><div class="line">&#123;</div><div class="line">  ++cur;    <span class="comment">// 先自增当前元素的指针</span></div><div class="line">  <span class="keyword">if</span> (cur == last) &#123;    <span class="comment">// 判断是否为当前缓冲区最后一个</span></div><div class="line">    set_node(node + <span class="number">1</span>); <span class="comment">// 如果为当前缓冲区最后一个，则跳转到下一个缓冲区</span></div><div class="line">    cur = first;    <span class="comment">// 更新为下一缓冲区的起始点</span></div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> *<span class="keyword">this</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> *  后缀自增</span></div><div class="line"><span class="comment"> *  返回当前迭代器的一个副本, 并调用前缀自增运算符实现迭代器自身的自增</span></div><div class="line"><span class="comment"> */</span></div><div class="line">self <span class="keyword">operator</span>++(<span class="keyword">int</span>)  &#123;</div><div class="line">  self tmp = *<span class="keyword">this</span>;</div><div class="line">  ++*<span class="keyword">this</span>;</div><div class="line">  <span class="keyword">return</span> tmp;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> *  前缀自减, 处理方式类似于前缀自增</span></div><div class="line"><span class="comment"> *  如果当前迭代器指向元素是当前缓冲区的第一个元素</span></div><div class="line"><span class="comment"> *  则将迭代器状态调整为前一个缓冲区的最后一个元素</span></div><div class="line"><span class="comment"> */</span></div><div class="line">self&amp; <span class="keyword">operator</span>--()</div><div class="line">&#123;</div><div class="line">  <span class="keyword">if</span> (cur == first) &#123;</div><div class="line">    set_node(node - <span class="number">1</span>);</div><div class="line">    cur = last;</div><div class="line">  &#125;</div><div class="line">  --cur;</div><div class="line">  <span class="keyword">return</span> *<span class="keyword">this</span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">// 处理方法同后缀自增</span></div><div class="line">self <span class="keyword">operator</span>--(<span class="keyword">int</span>)</div><div class="line">&#123;</div><div class="line">  self tmp = *<span class="keyword">this</span>;</div><div class="line">  --*<span class="keyword">this</span>;</div><div class="line">  <span class="keyword">return</span> tmp;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> *  实现p+=n的功能</span></div><div class="line"><span class="comment"> *  迭代器向前移动n个元素，其中n可能为负。实现步骤如下：</span></div><div class="line"><span class="comment"> *  1、计算相对于该缓冲区起始位置的偏移量offset</span></div><div class="line"><span class="comment"> *  2、如果offset没有超出缓冲区，则直接cur+=n</span></div><div class="line"><span class="comment"> *  3、如果offset超过了缓冲区空间</span></div><div class="line"><span class="comment"> *          -- 如果offset大于0，计算向前移动多少个缓冲区，offset / difference_type(buffer_size())</span></div><div class="line"><span class="comment"> *          -- 如果offset小于0，计算向后移动多少个缓冲区,-difference_type((-offset - 1) / buffer_size()) - 1;</span></div><div class="line"><span class="comment"> *  4、调整到移动后的位置。</span></div><div class="line"><span class="comment"> */</span></div><div class="line">self&amp; <span class="keyword">operator</span>+=(difference_type n)</div><div class="line">&#123;</div><div class="line">  difference_type offset = n + (cur - first);</div><div class="line">  <span class="keyword">if</span> (offset &gt;= <span class="number">0</span> &amp;&amp; offset &lt; difference_type(buffer_size()))</div><div class="line">    cur += n;</div><div class="line">  <span class="keyword">else</span> &#123;</div><div class="line">    difference_type node_offset =</div><div class="line">      offset &gt; <span class="number">0</span> ? offset / difference_type(buffer_size())</div><div class="line">                 : -difference_type((-offset - <span class="number">1</span>) / buffer_size()) - <span class="number">1</span>;</div><div class="line">    set_node(node + node_offset);</div><div class="line">    cur = first + (offset - node_offset * difference_type(buffer_size()));</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> *<span class="keyword">this</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 实现诸如p+n的功能</span></div><div class="line"><span class="comment"> * 此函数中直接调用operator +=的函数</span></div><div class="line"><span class="comment"> */</span></div><div class="line">self <span class="keyword">operator</span>+(difference_type n) <span class="keyword">const</span></div><div class="line">&#123;</div><div class="line">  self tmp = *<span class="keyword">this</span>;</div><div class="line"></div><div class="line">  <span class="comment">// 这里调用了operator +=()可以自动调整指针状态</span></div><div class="line">  <span class="keyword">return</span> tmp += n;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 实现p-=n的功能</span></div><div class="line"><span class="comment"> * 此处直接利用operator += ，改变一下n的正负即可</span></div><div class="line"><span class="comment"> */</span></div><div class="line">self&amp; <span class="keyword">operator</span>-=(difference_type n) &#123; <span class="keyword">return</span> *<span class="keyword">this</span> += -n; &#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 实现p-n的功能</span></div><div class="line"><span class="comment"> * 直接调用operator -=的函数</span></div><div class="line"><span class="comment"> */</span></div><div class="line">self <span class="keyword">operator</span>-(difference_type n) <span class="keyword">const</span> &#123;</div><div class="line">  self tmp = *<span class="keyword">this</span>;</div><div class="line">  <span class="keyword">return</span> tmp -= n;</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 下标运算子，支持随机存取的功能</span></div><div class="line"><span class="comment"> */</span></div><div class="line">reference <span class="keyword">operator</span>[](difference_type n) <span class="keyword">const</span> &#123; <span class="keyword">return</span> *(*<span class="keyword">this</span> + n); &#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 下述都是一些判断运算的实现</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">bool</span> <span class="keyword">operator</span>==(<span class="keyword">const</span> self&amp; x) <span class="keyword">const</span> &#123; <span class="keyword">return</span> cur == x.cur; &#125;</div><div class="line"><span class="keyword">bool</span> <span class="keyword">operator</span>!=(<span class="keyword">const</span> self&amp; x) <span class="keyword">const</span> &#123; <span class="keyword">return</span> !(*<span class="keyword">this</span> == x); &#125;</div><div class="line"><span class="keyword">bool</span> <span class="keyword">operator</span>&lt;(<span class="keyword">const</span> self&amp; x) <span class="keyword">const</span> &#123;</div><div class="line">  <span class="keyword">return</span> (node == x.node) ? (cur &lt; x.cur) : (node &lt; x.node);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="deque-的实现代码"><a href="#deque-的实现代码" class="headerlink" title="deque 的实现代码"></a>deque 的实现代码</h1><p>先前在deque的中控器中讲到，deque维护着一个map，用来记录每个缓冲区的位置。除了map外，deque的数据结构中还维护着start和finish两个迭代器，分别指向deque的首尾。此外，它还必须知道map的大小，一旦map所提供的节点不足，就需要配置一块更大的map。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span> = <span class="title">alloc</span>, <span class="title">size_t</span> <span class="title">BufSiz</span> = 0&gt;</span></div><div class="line"><span class="class"><span class="title">class</span> <span class="title">deque</span> &#123;</span></div><div class="line"><span class="keyword">public</span>:</div><div class="line">  <span class="keyword">typedef</span> T value_type;</div><div class="line">  <span class="keyword">typedef</span> value_type* pointer;</div><div class="line">  <span class="keyword">typedef</span> <span class="keyword">size_t</span> size_type;</div><div class="line">    <span class="comment">// 这里省略一堆支持iterator_traits型别定义</span></div><div class="line"><span class="keyword">public</span>:</div><div class="line">  <span class="keyword">typedef</span> __deque_iterator&lt;T, T&amp;, T*, BufSiz&gt;  iterator;    <span class="comment">// deque的迭代器</span></div><div class="line"><span class="keyword">protected</span>:</div><div class="line">  <span class="keyword">typedef</span> pointer* map_pointer;</div><div class="line"><span class="keyword">protected</span>:</div><div class="line">  iterator start;               <span class="comment">// 表中第一个节点</span></div><div class="line">  iterator finish;              <span class="comment">// 表中最后一个节点</span></div><div class="line"></div><div class="line">  <span class="comment">// 这是前面讲到map指针，用来记录每一个缓冲区的地址</span></div><div class="line">  map_pointer <span class="built_in">map</span>;</div><div class="line">  size_type map_size;   <span class="comment">// map容量 </span></div><div class="line"></div><div class="line">  <span class="comment">//    deque专属空间配置器，每次配置一个元素大小</span></div><div class="line">  <span class="keyword">typedef</span> simple_alloc&lt;value_type, Alloc&gt; data_allocator;</div><div class="line">  <span class="comment">//    deque专属空间配置器，每次配置一个指针大小</span></div><div class="line">  <span class="keyword">typedef</span> simple_alloc&lt;pointer, Alloc&gt; map_allocator;</div><div class="line"></div><div class="line">    <span class="comment">// 分配内存, 不进行构造</span></div><div class="line">    <span class="function">pointer <span class="title">allocate_node</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> data_allocator::allocate(buffer_size()); &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 释放内存, 不进行析构</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">deallocate_node</span><span class="params">(pointer n)</span></span></div><div class="line"><span class="function">    </span>&#123;</div><div class="line">        data_allocator::deallocate(n, buffer_size());</div><div class="line">    &#125;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">  <span class="function">iterator <span class="title">begin</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> start; &#125;    <span class="comment">// 返回第一个节点的迭代器</span></div><div class="line">  <span class="function">iterator <span class="title">end</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> finish; &#125;     <span class="comment">// 返回最后一个节点的迭代器</span></div><div class="line">  <span class="function">const_iterator <span class="title">begin</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> start; &#125;    <span class="comment">// const版本</span></div><div class="line">  <span class="function">const_iterator <span class="title">end</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> finish; &#125;     <span class="comment">// const版本</span></div><div class="line">  <span class="comment">/**</span></div><div class="line"><span class="comment">   *    提供随机访问的下标运算子</span></div><div class="line"><span class="comment">   *    这里计算实际地址的时候是经过一系列的计算得到的，效率上有缺失</span></div><div class="line"><span class="comment">   */</span></div><div class="line">  reference <span class="keyword">operator</span>[](size_type n) &#123; <span class="keyword">return</span> start[difference_type(n)]; &#125;</div><div class="line">  const_reference <span class="keyword">operator</span>[](size_type n) <span class="keyword">const</span> &#123;</div><div class="line">    <span class="keyword">return</span> start[difference_type(n)];</div><div class="line">  &#125;</div><div class="line">  <span class="comment">/**</span></div><div class="line"><span class="comment">   * 以下函数分别返回首尾元素的引用</span></div><div class="line"><span class="comment">   */</span></div><div class="line">  <span class="function">reference <span class="title">front</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> *start; &#125;</div><div class="line">  <span class="function">reference <span class="title">back</span><span class="params">()</span> </span>&#123;</div><div class="line">    iterator tmp = finish;</div><div class="line">    --tmp;</div><div class="line">    <span class="keyword">return</span> *tmp;</div><div class="line">  &#125;</div><div class="line">  <span class="function">const_reference <span class="title">front</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> *start; &#125;</div><div class="line">  <span class="function">const_reference <span class="title">back</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</div><div class="line">    const_iterator tmp = finish;</div><div class="line">    --tmp;</div><div class="line">    <span class="keyword">return</span> *tmp;</div><div class="line">  &#125;</div><div class="line">  <span class="comment">//    返回deque的大小，这里直接调用迭代器重载的‘-’运算符 </span></div><div class="line">  <span class="function">size_type <span class="title">size</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> finish - start;; &#125;</div><div class="line">  <span class="comment">//    返回deque最大容量</span></div><div class="line">  <span class="function">size_type <span class="title">max_size</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> size_type(<span class="number">-1</span>); &#125;</div><div class="line"></div><div class="line">  <span class="comment">// deque为空的时, 只有一个缓冲区</span></div><div class="line">  <span class="function"><span class="keyword">bool</span> <span class="title">empty</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> finish == start; &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>deque的构造函数</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">deque</span>() : start(), finish(), <span class="built_in">map</span>(<span class="number">0</span>), map_size(<span class="number">0</span>)</div><div class="line">&#123;</div><div class="line">  create_map_and_nodes(<span class="number">0</span>);  <span class="comment">// 直接调用create_map_and_nodes函数</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// map最少为8个</span></div><div class="line"><span class="function"><span class="keyword">static</span> size_type <span class="title">initial_map_size</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="number">8</span>; &#125;</div><div class="line"></div><div class="line"><span class="comment">// 创建内部使用的map，并配置每一个缓冲区</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>, <span class="title">size_t</span> <span class="title">BufSize</span>&gt;</span></div><div class="line"><span class="class"><span class="title">void</span> <span class="title">deque</span>&lt;T, Alloc, BufSize&gt;:</span>:create_map_and_nodes(size_type num_elements)</div><div class="line">&#123;</div><div class="line">    <span class="comment">// 需要的结点数, 元素个数 / 每个缓冲区能容纳的元素数 + 1</span></div><div class="line">  <span class="comment">// 这里如果能整除，会多分配一个</span></div><div class="line">  size_type num_nodes = num_elements / buffer_size() + <span class="number">1</span>;</div><div class="line"></div><div class="line">  <span class="comment">// map要维护的结点, 这里最小的值为8，最多为所需节点数+1，前后各留一个以便扩充</span></div><div class="line">  map_size = max(initial_map_size(), num_nodes + <span class="number">2</span>);</div><div class="line">  <span class="comment">// 调用deque专属空间配置器，配置map空间</span></div><div class="line">  <span class="built_in">map</span> = map_allocator::allocate(map_size);</div><div class="line"></div><div class="line">  <span class="comment">// 将[nstart, nfinish)区间设置在map的中间,</span></div><div class="line">  <span class="comment">// 这样就能保证前后增长而尽可能减少map的重新分配次数</span></div><div class="line">  map_pointer nstart = <span class="built_in">map</span> + (map_size - num_nodes) / <span class="number">2</span>;</div><div class="line">  map_pointer nfinish = nstart + num_nodes - <span class="number">1</span>;</div><div class="line"></div><div class="line">  <span class="comment">// 分配结点空间</span></div><div class="line">  map_pointer cur;</div><div class="line">  __STL_TRY &#123;</div><div class="line">    <span class="keyword">for</span> (cur = nstart; cur &lt;= nfinish; ++cur)</div><div class="line">        <span class="comment">// 为每一个map指针指向的缓冲区的每一个元素分配内存空间 </span></div><div class="line">      *cur = allocate_node();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="comment">// 维护指针状态，为deque的两个迭代器start和finish赋初值</span></div><div class="line">  start.set_node(nstart);</div><div class="line">  finish.set_node(nfinish);</div><div class="line">  start.cur = start.first;</div><div class="line">  finish.cur = finish.first + num_elements % buffer_size();</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 拷贝构造函数</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="built_in">deque</span>(<span class="keyword">const</span> <span class="built_in">deque</span>&amp; x)</div><div class="line">  : start(), finish(), <span class="built_in">map</span>(<span class="number">0</span>), map_size(<span class="number">0</span>)</div><div class="line">&#123;</div><div class="line">    <span class="comment">// 配置map和元素</span></div><div class="line">  create_map_and_nodes(x.size());</div><div class="line">  <span class="comment">// 将x的元素拷贝到本deque内</span></div><div class="line">  uninitialized_copy(x.begin(), x.end(), start);</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 构造一个deque，含有n个值为value的元素</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="built_in">deque</span>(size_type n, <span class="keyword">const</span> value_type&amp; value)</div><div class="line">  : start(), finish(), <span class="built_in">map</span>(<span class="number">0</span>), map_size(<span class="number">0</span>)</div><div class="line">&#123;</div><div class="line">  fill_initialize(n, value);    <span class="comment">// 调用fill_initialize函数</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 分配n个结点, 并以value为元素值初始化</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>, <span class="title">size_t</span> <span class="title">BufSize</span>&gt;</span></div><div class="line"><span class="class"><span class="title">void</span> <span class="title">deque</span>&lt;T, Alloc, BufSize&gt;:</span>:fill_initialize(size_type n,</div><div class="line">    <span class="keyword">const</span> value_type&amp; value)</div><div class="line">&#123;</div><div class="line">  create_map_and_nodes(n);  <span class="comment">// 配置map和缓冲区</span></div><div class="line">  map_pointer cur;</div><div class="line">  __STL_TRY &#123;</div><div class="line">    <span class="comment">// 为每一个缓冲区设定初值</span></div><div class="line">    <span class="keyword">for</span> (cur = start.node; cur &lt; finish.node; ++cur)</div><div class="line">      uninitialized_fill(*cur, *cur + buffer_size(), value);</div><div class="line">    <span class="comment">// 尾端可能留有备用空间，不必设初值</span></div><div class="line">    uninitialized_fill(finish.first, finish.cur, value);</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">catch</span> (...) &#123;</div><div class="line">    <span class="keyword">for</span> (map_pointer n = start.node; n &lt; cur; ++n)</div><div class="line">      destroy(*n, *n + buffer_size());</div><div class="line">    destroy_map_and_nodes();</div><div class="line">    <span class="keyword">throw</span>;</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 以区间值来构造deque</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">InputIterator</span>&gt;</span></div><div class="line"><span class="class"><span class="title">deque</span>(<span class="title">InputIterator</span> <span class="title">first</span>, <span class="title">InputIterator</span> <span class="title">last</span>)</span></div><div class="line"><span class="class">  :</span> start(), finish(), <span class="built_in">map</span>(<span class="number">0</span>), map_size(<span class="number">0</span>)</div><div class="line">&#123;</div><div class="line">  range_initialize(first, last, iterator_category(first));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>, <span class="title">size_t</span> <span class="title">BufSize</span>&gt;</span></div><div class="line"><span class="class"><span class="title">template</span> &lt;class ForwardIterator&gt;</span></div><div class="line"><span class="class"><span class="title">void</span> <span class="title">deque</span>&lt;T, Alloc, BufSize&gt;:</span>:range_initialize(ForwardIterator first,</div><div class="line">    ForwardIterator last,</div><div class="line">    forward_iterator_tag) &#123;</div><div class="line">  size_type n = <span class="number">0</span>;</div><div class="line">  distance(first, last, n); <span class="comment">// 计算有多少个元素</span></div><div class="line">  create_map_and_nodes(n);  <span class="comment">// 配置map和缓冲区</span></div><div class="line">  uninitialized_copy(first, last, start);   <span class="comment">// 调用全局函数，将[first,last)拷贝到新配置的空间上</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>析构函数</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">~<span class="built_in">deque</span>()</div><div class="line">&#123;</div><div class="line">  destroy(start, finish);     <span class="comment">// 调用全局函数</span></div><div class="line">  destroy_map_and_nodes();      <span class="comment">// 释放map和缓冲区</span></div><div class="line">&#125;</div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>, <span class="title">size_t</span> <span class="title">BufSize</span>&gt;</span></div><div class="line"><span class="class"><span class="title">void</span> <span class="title">deque</span>&lt;T, Alloc, BufSize&gt;:</span>:destroy_map_and_nodes()</div><div class="line">&#123;</div><div class="line">  <span class="keyword">for</span> (map_pointer cur = start.node; cur &lt;= finish.node; ++cur)</div><div class="line">    deallocate_node(*cur);  <span class="comment">// 释放每一个节点</span></div><div class="line">  map_allocator::deallocate(<span class="built_in">map</span>, map_size); <span class="comment">// 释放map空间</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="deque的操作函数"><a href="#deque的操作函数" class="headerlink" title="deque的操作函数"></a>deque的操作函数</h1><p><strong>push_back</strong><br>push_back完成在尾部插入一个元素，根绝上述的deque的结构特点，里面有很多情况需要考虑。</p>
+<ul>
+<li>如果备用空间足够，就直接push进去</li>
+<li>如果备用空间不足，就要考虑配置一个新的缓冲区</li>
+</ul>
+<p>配置新缓冲区的时候，还需要考虑map空间是否足够</p>
+<ul>
+<li>如果map空间足够，就直接配置一块新的缓冲区，链接到map中</li>
+<li>如果map空间不足，就需要考虑重新配置一块map</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 在deque的尾部压入一个元素</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">push_back</span><span class="params">(<span class="keyword">const</span> value_type&amp; t)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">  <span class="comment">// 注意这里采用STL的前闭后开原则</span></div><div class="line">  <span class="comment">// 所以last要-1</span></div><div class="line">  <span class="comment">// 如果deque里面还有备用空间，则直接压入</span></div><div class="line">  <span class="keyword">if</span> (finish.cur != finish.last - <span class="number">1</span>) &#123;</div><div class="line">    construct(finish.cur, t);</div><div class="line">    ++finish.cur;</div><div class="line">  &#125;</div><div class="line">  <span class="comment">// 容量已满就要新申请内存了</span></div><div class="line">  <span class="keyword">else</span></div><div class="line">    push_back_aux(t);</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 仅当finish.cur == finish.last - 1才调用</span></div><div class="line"><span class="comment"> * 即最后一个缓冲区没有空间才调用</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>, <span class="title">size_t</span> <span class="title">BufSize</span>&gt;</span></div><div class="line"><span class="class"><span class="title">void</span> <span class="title">deque</span>&lt;T, Alloc, BufSize&gt;:</span>:push_back_aux(<span class="keyword">const</span> value_type&amp; t)</div><div class="line">&#123;</div><div class="line">  value_type t_copy = t;</div><div class="line">  <span class="comment">// 判断是否需要调整map空间</span></div><div class="line">  reserve_map_at_back();</div><div class="line">  *(finish.node + <span class="number">1</span>) = allocate_node(); <span class="comment">// 配置一块新的缓冲区</span></div><div class="line">  __STL_TRY &#123;</div><div class="line">    construct(finish.cur, t_copy);  <span class="comment">// 构造新加入的元素</span></div><div class="line">    finish.set_node(finish.node + <span class="number">1</span>);   <span class="comment">// 调整finish</span></div><div class="line">    finish.cur = finish.first;</div><div class="line">  &#125;</div><div class="line">  __STL_UNWIND(deallocate_node(*(finish.node + <span class="number">1</span>)));</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * map空间不足，需要调整</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">reserve_map_at_back</span> <span class="params">(size_type nodes_to_add = <span class="number">1</span>)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    <span class="keyword">if</span> (nodes_to_add + <span class="number">1</span> &gt; map_size - (finish.node - <span class="built_in">map</span>))</div><div class="line">        <span class="comment">// 此时，需要调整map，更换一个更大的map</span></div><div class="line">        reallocate_map(nodes_to_add, <span class="literal">false</span>);</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 重新配置map, 不会对缓冲区进行操作, map维护的是指向缓冲区的指针</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>, <span class="title">size_t</span> <span class="title">BufSize</span>&gt;</span></div><div class="line"><span class="class"><span class="title">void</span> <span class="title">deque</span>&lt;T, Alloc, BufSize&gt;:</span>:reallocate_map(size_type nodes_to_add,</div><div class="line">    <span class="keyword">bool</span> add_at_front)</div><div class="line">&#123;</div><div class="line">  size_type old_num_nodes = finish.node - start.node + <span class="number">1</span>;</div><div class="line">  size_type new_num_nodes = old_num_nodes + nodes_to_add;</div><div class="line"></div><div class="line">  map_pointer new_nstart;</div><div class="line">  <span class="comment">// 此处为了防止出现一端已经用完，另一端却还有很多剩余的情况</span></div><div class="line">  <span class="keyword">if</span> (map_size &gt; <span class="number">2</span> * new_num_nodes) &#123;</div><div class="line">    <span class="comment">// 调整新的map中的起始点</span></div><div class="line">    new_nstart = <span class="built_in">map</span> + (map_size - new_num_nodes) / <span class="number">2</span></div><div class="line">                 + (add_at_front ? nodes_to_add : <span class="number">0</span>);</div><div class="line">    <span class="comment">// 如果前端剩余很多</span></div><div class="line">    <span class="keyword">if</span> (new_nstart &lt; start.node)</div><div class="line">      copy(start.node, finish.node + <span class="number">1</span>, new_nstart);</div><div class="line">    <span class="keyword">else</span>   <span class="comment">// 尾端剩余很多</span></div><div class="line">      copy_backward(start.node, finish.node + <span class="number">1</span>, new_nstart + old_num_nodes);</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">else</span> &#123;    <span class="comment">// map不够用了，就需要配置一块更大的map</span></div><div class="line">    size_type new_map_size = map_size + max(map_size, nodes_to_add) + <span class="number">2</span>;</div><div class="line">    <span class="comment">// 配置一块大的map</span></div><div class="line">    map_pointer new_map = map_allocator::allocate(new_map_size);</div><div class="line">    <span class="comment">// 始终要使start和finish处在map空间的中间</span></div><div class="line">    new_nstart = new_map + (new_map_size - new_num_nodes) / <span class="number">2</span></div><div class="line">                 + (add_at_front ? nodes_to_add : <span class="number">0</span>);</div><div class="line">    <span class="comment">// 拷贝到新的map空间中去</span></div><div class="line">    copy(start.node, finish.node + <span class="number">1</span>, new_nstart);</div><div class="line">    <span class="comment">// 释放旧的空间</span></div><div class="line">    map_allocator::deallocate(<span class="built_in">map</span>, map_size);</div><div class="line">    <span class="comment">// 改变map和size参数</span></div><div class="line">    <span class="built_in">map</span> = new_map;</div><div class="line">    map_size = new_map_size;</div><div class="line">  &#125;</div><div class="line">  <span class="comment">// 调整新的start和finish</span></div><div class="line">  start.set_node(new_nstart);</div><div class="line">  finish.set_node(new_nstart + old_num_nodes - <span class="number">1</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>pop_back</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//pop_back是将deque的尾部元素弹出，即拿掉该元素并释放空间。</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">pop_back</span><span class="params">()</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    <span class="comment">// 如果尾端不是该缓冲区最开始的那个元素</span></div><div class="line">  <span class="keyword">if</span> (finish.cur != finish.first) &#123;</div><div class="line">    --finish.cur;</div><div class="line">    destroy(finish.cur);  <span class="comment">// 直接拿掉并释放空间</span></div><div class="line">  &#125;</div><div class="line">  <span class="keyword">else</span></div><div class="line">    pop_back_aux();   <span class="comment">// 需要调整map的情况</span></div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 在pop_back中，如果碰到为首元素的情况，调用此函数</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>, <span class="title">size_t</span> <span class="title">BufSize</span>&gt;</span></div><div class="line"><span class="class"><span class="title">void</span> <span class="title">deque</span>&lt;T, Alloc, BufSize&gt;:</span>: pop_back_aux()</div><div class="line">&#123;</div><div class="line">  deallocate_node(finish.first);    <span class="comment">// 释放节点</span></div><div class="line">  finish.set_node(finish.node - <span class="number">1</span>); <span class="comment">// 重新设定finish</span></div><div class="line">  finish.cur = finish.last - <span class="number">1</span>;</div><div class="line">  destroy(finish.cur);  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>push_front</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">push_front</span><span class="params">(<span class="keyword">const</span> value_type&amp; t)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    <span class="comment">// 还是一样，不需要调整map的情况，直接压入</span></div><div class="line">  <span class="keyword">if</span> (start.cur != start.first) &#123;</div><div class="line">    construct(start.cur - <span class="number">1</span>, t);</div><div class="line">    --start.cur;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">else</span></div><div class="line">    push_front_aux(t);</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 只有再start.cur== start.first的情况下调用</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>, <span class="title">size_t</span> <span class="title">BufSize</span>&gt;</span></div><div class="line"><span class="class"><span class="title">void</span> <span class="title">deque</span>&lt;T, Alloc, BufSize&gt;:</span>:push_front_aux(<span class="keyword">const</span> value_type&amp; t)</div><div class="line">&#123;</div><div class="line">  value_type t_copy = t;</div><div class="line">  reserve_map_at_front();   <span class="comment">// 同push_back()，检查是否需要调整map</span></div><div class="line">  *(start.node - <span class="number">1</span>) = allocate_node();  <span class="comment">// 配置一块新的缓冲区</span></div><div class="line">  __STL_TRY &#123;</div><div class="line">    start.set_node(start.node - <span class="number">1</span>); <span class="comment">// 调整start</span></div><div class="line">    start.cur = start.last - <span class="number">1</span>;</div><div class="line">    construct(start.cur, t_copy);</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">catch</span> (...) &#123;</div><div class="line">    start.set_node(start.node + <span class="number">1</span>);</div><div class="line">    start.cur = start.first;</div><div class="line">    deallocate_node(*(start.node - <span class="number">1</span>));</div><div class="line">    <span class="keyword">throw</span>;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>pop_front</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">pop_front</span><span class="params">()</span> </span>&#123;</div><div class="line">  <span class="keyword">if</span> (start.cur != start.last - <span class="number">1</span>)</div><div class="line">  &#123;</div><div class="line">    destroy(start.cur);</div><div class="line">    ++start.cur;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">else</span></div><div class="line">    pop_front_aux();</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 只有在start.cur == start.last - 1的时候调用</span></div><div class="line"><span class="comment"> * 此时需要调整map</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>, <span class="title">size_t</span> <span class="title">BufSize</span>&gt;</span></div><div class="line"><span class="class"><span class="title">void</span> <span class="title">deque</span>&lt;T, Alloc, BufSize&gt;:</span>:pop_front_aux()</div><div class="line">&#123;</div><div class="line">  destroy(start.cur);</div><div class="line">  deallocate_node(start.first);</div><div class="line">  start.set_node(start.node + <span class="number">1</span>);</div><div class="line">  start.cur = start.first;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>clear</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>, <span class="title">size_t</span> <span class="title">BufSize</span>&gt;</span></div><div class="line"><span class="class"><span class="title">void</span> <span class="title">deque</span>&lt;T, Alloc, BufSize&gt;:</span>:clear()</div><div class="line">&#123;</div><div class="line">  <span class="comment">// 首先析构除起点和终点外的所有元素, 并释放相应空间</span></div><div class="line">  <span class="keyword">for</span> (map_pointer node = start.node + <span class="number">1</span>; node &lt; finish.node; ++node) &#123;</div><div class="line">    destroy(*node, *node + buffer_size());</div><div class="line">    data_allocator::deallocate(*node, buffer_size());</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="comment">// 如果deque本身不为空, 析构所有对象, 并释放掉结尾的内存</span></div><div class="line">  <span class="keyword">if</span> (start.node != finish.node) &#123;</div><div class="line">    destroy(start.cur, start.last);  <span class="comment">// 将头缓冲区的元素清除</span></div><div class="line">    destroy(finish.first, finish.cur);  <span class="comment">//将尾缓冲区的元素清除</span></div><div class="line">    data_allocator::deallocate(finish.first, buffer_size()); <span class="comment">// 头缓冲区保留，释放尾缓冲区</span></div><div class="line">  &#125;</div><div class="line">  <span class="comment">// 析构所有元素, 但是不释放空间, 因为deque要满足这个前置条件</span></div><div class="line">  <span class="keyword">else</span></div><div class="line">    destroy(start.cur, finish.cur);</div><div class="line"></div><div class="line">  finish = start; <span class="comment">// 调整finish</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>earse</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 此函数实现擦除单个指定元素</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="comment">////////////////////////////////////////////////////////////////////////////////</span></div><div class="line"><span class="comment">//                            需要擦除整个空间</span></div><div class="line"><span class="comment">//    擦出[firsr,last)的元素--|----------------&gt;直接调用clear()</span></div><div class="line"><span class="comment">//                            |</span></div><div class="line"><span class="comment">//                            |</span></div><div class="line"><span class="comment">//                            |    </span></div><div class="line"><span class="comment">//                            |                    |---&gt;区间前面元素少，移动前面</span></div><div class="line"><span class="comment">//                            |需要擦出中间指定区间|</span></div><div class="line"><span class="comment">//                            |-------------------&gt;|</span></div><div class="line"><span class="comment">//                                                 |---&gt;区间后面元素少，移动后面</span></div><div class="line"><span class="comment">//</span></div><div class="line"><span class="comment">//</span></div><div class="line"><span class="comment">//</span></div><div class="line"></div><div class="line"><span class="function">iterator <span class="title">erase</span><span class="params">(iterator pos)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">  iterator next = pos;</div><div class="line">  ++next;</div><div class="line"></div><div class="line">  <span class="comment">// 计算待擦除点前的元素个数</span></div><div class="line">  difference_type index = pos - start;</div><div class="line"></div><div class="line">  <span class="comment">// 判断待擦除结点前后元素的个数, 哪部分少就移动哪部分</span></div><div class="line">  <span class="keyword">if</span> (index &lt; (size() &gt;&gt; <span class="number">1</span>))</div><div class="line">  &#123;</div><div class="line">    <span class="comment">// 前面部分的元素少</span></div><div class="line">    copy_backward(start, pos, next);  </div><div class="line">    pop_front();</div><div class="line">  &#125;</div><div class="line">  <span class="comment">// 后面部分的元素少</span></div><div class="line">  <span class="keyword">else</span> &#123;</div><div class="line">    copy(next, finish, pos); </div><div class="line">    pop_back();</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> start + index;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>insert</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//指定位置插入</span></div><div class="line"><span class="function">iterator <span class="title">insert</span><span class="params">(iterator position, <span class="keyword">const</span> value_type&amp; x)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">  <span class="comment">// 如果是在deque的最前端插入, 那么直接push_front()即可</span></div><div class="line">  <span class="keyword">if</span> (position.cur == start.cur) &#123;</div><div class="line">    push_front(x);</div><div class="line">    <span class="keyword">return</span> start;</div><div class="line">  &#125;</div><div class="line">  <span class="comment">// 如果是在deque的末尾插入, 直接调用push_back()</span></div><div class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (position.cur == finish.cur) &#123;</div><div class="line">    push_back(x);</div><div class="line">    iterator tmp = finish;</div><div class="line">    --tmp;</div><div class="line">    <span class="keyword">return</span> tmp;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">else</span> &#123;</div><div class="line">    <span class="keyword">return</span> insert_aux(position, x);</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 不在首尾插入元素的时候调用此函数</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>, <span class="title">size_t</span> <span class="title">BufSize</span>&gt;</span></div><div class="line"><span class="class"><span class="title">typename</span> <span class="title">deque</span>&lt;T, Alloc, BufSize&gt;:</span>:iterator</div><div class="line"><span class="built_in">deque</span>&lt;T, Alloc, BufSize&gt;::insert_aux(iterator pos, <span class="keyword">const</span> value_type&amp; x)</div><div class="line">&#123;</div><div class="line">  difference_type index = pos - start;  <span class="comment">// 插入元素前面的元素个数</span></div><div class="line">  value_type x_copy = x;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (index &lt; size() / <span class="number">2</span>) &#123;  <span class="comment">// 如果前端的元素比较少</span></div><div class="line">    push_front(front());  <span class="comment">// 在最前面插入一个与第一个元素一样的数</span></div><div class="line">    iterator front1 = start;  <span class="comment">// 记录起始点</span></div><div class="line">    ++front1;</div><div class="line">    iterator front2 = front1; </div><div class="line">    ++front2;</div><div class="line">    pos = start + index;</div><div class="line">    iterator pos1 = pos;</div><div class="line">    ++pos1;</div><div class="line">    copy(front2, pos1, front1); <span class="comment">// 拷贝空间，将[front2,pos1)拷贝到front1以后</span></div><div class="line">  &#125;</div><div class="line">  <span class="keyword">else</span> &#123;   <span class="comment">// 后端的元素比较少，原理用上</span></div><div class="line">    push_back(back());</div><div class="line">    iterator back1 = finish;</div><div class="line">    --back1;</div><div class="line">    iterator back2 = back1;</div><div class="line">    --back2;</div><div class="line">    pos = start + index;</div><div class="line">    copy_backward(pos, back2, back1);</div><div class="line">  &#125;</div><div class="line">  *pos = x_copy;</div><div class="line">  <span class="keyword">return</span> pos;</div><div class="line">&#125;</div><div class="line"><span class="comment">//指定位置插入n个</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>, <span class="title">size_t</span> <span class="title">BufSize</span>&gt;</span></div><div class="line"><span class="class"><span class="title">void</span> <span class="title">deque</span>&lt;T, Alloc, BufSize&gt;:</span>:insert(iterator pos,</div><div class="line">                                      size_type n, <span class="keyword">const</span> value_type&amp; x)</div><div class="line">&#123;</div><div class="line">  <span class="keyword">if</span> (pos.cur == start.cur) &#123;   <span class="comment">// 如果插入点再最前端</span></div><div class="line">    iterator new_start = reserve_elements_at_front(n); <span class="comment">// 调整新的start位置</span></div><div class="line">    uninitialized_fill(new_start, start, x);    <span class="comment">//直接在前端构造n个元素</span></div><div class="line">    start = new_start;  <span class="comment">// 调整新的start</span></div><div class="line">  &#125;</div><div class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (pos.cur == finish.cur) &#123;</div><div class="line">    <span class="comment">// 与reserve_elements_at_front相同</span></div><div class="line">    <span class="comment">// 考虑篇幅，这里不列出源代码</span></div><div class="line">    iterator new_finish = reserve_elements_at_back(n); </div><div class="line">    uninitialized_fill(finish, new_finish, x);</div><div class="line">    finish = new_finish;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">else</span></div><div class="line">    insert_aux(pos, n, x);</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 插入区间前方备用空间能否容纳n个元素</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="function">iterator <span class="title">reserve_elements_at_front</span><span class="params">(size_type n)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">  size_type vacancies = start.cur - start.first;</div><div class="line">  <span class="keyword">if</span> (n &gt; vacancies)   <span class="comment">// 如果容纳不了，就需要重新配置map</span></div><div class="line">    new_elements_at_front(n - vacancies);</div><div class="line">  <span class="keyword">return</span> start - difference_type(n);</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 只有在前方备用空间容纳不了待插入的n个元素的情况下调用</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>, <span class="title">size_t</span> <span class="title">BufSize</span>&gt;</span></div><div class="line"><span class="class"><span class="title">void</span> <span class="title">deque</span>&lt;T, Alloc, BufSize&gt;:</span>:new_elements_at_front(size_type new_elements)</div><div class="line">&#123;</div><div class="line">  size_type new_nodes = (new_elements + buffer_size() - <span class="number">1</span>) / buffer_size();</div><div class="line">  reserve_map_at_front(new_nodes);  <span class="comment">// 调整map</span></div><div class="line">  size_type i;</div><div class="line">  __STL_TRY &#123;</div><div class="line">    <span class="keyword">for</span> (i = <span class="number">1</span>; i &lt;= new_nodes; ++i)</div><div class="line">      *(start.node - i) = allocate_node(); <span class="comment">// 为每一个map指针配置空间</span></div><div class="line">  &#125;</div><div class="line">  <span class="keyword">catch</span> (...) &#123;</div><div class="line">    <span class="keyword">for</span> (size_type j = <span class="number">1</span>; j &lt; i; ++j)</div><div class="line">      deallocate_node(*(start.node - j));</div><div class="line">    <span class="keyword">throw</span>;</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 调整map的前端，以在前端能连接更多缓冲区</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">reserve_map_at_front</span> <span class="params">(size_type nodes_to_add = <span class="number">1</span>)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">  <span class="keyword">if</span> (nodes_to_add &gt; start.node - <span class="built_in">map</span>)</div><div class="line">    reallocate_map(nodes_to_add, <span class="literal">true</span>);  <span class="comment">// 此函数上面有说明</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"><span class="comment"> * 好吧，这里才是最重要的insert_aux函数，实现在中间某个位置插入n个元素</span></div><div class="line"><span class="comment"> */</span></div><div class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>, <span class="title">class</span> <span class="title">Alloc</span>, <span class="title">size_t</span> <span class="title">BufSize</span>&gt;</span></div><div class="line"><span class="class"><span class="title">void</span> <span class="title">deque</span>&lt;T, Alloc, BufSize&gt;:</span>:insert_aux(iterator pos,</div><div class="line">    size_type n, <span class="keyword">const</span> value_type&amp; x)</div><div class="line">&#123;</div><div class="line">  <span class="keyword">const</span> difference_type elems_before = pos - start;  <span class="comment">// 计算该位置前面的元素个数</span></div><div class="line">  size_type length = size();</div><div class="line">  value_type x_copy = x;</div><div class="line">  <span class="keyword">if</span> (elems_before &lt; length / <span class="number">2</span>) &#123;  <span class="comment">// 如果位置前面的元素比较少</span></div><div class="line">    iterator new_start = reserve_elements_at_front(n); <span class="comment">// 同上</span></div><div class="line">    iterator old_start = start;</div><div class="line">    pos = start + elems_before;</div><div class="line">    __STL_TRY &#123;</div><div class="line">      <span class="keyword">if</span> (elems_before &gt;= difference_type(n)) &#123; </div><div class="line">        iterator start_n = start + difference_type(n);</div><div class="line">        uninitialized_copy(start, start_n, new_start);</div><div class="line">        start = new_start;</div><div class="line">        copy(start_n, pos, old_start);</div><div class="line">        fill(pos - difference_type(n), pos, x_copy);</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">else</span> &#123;</div><div class="line">        __uninitialized_copy_fill(start, pos, new_start, start, x_copy);</div><div class="line">        start = new_start;</div><div class="line">        fill(old_start, pos, x_copy);</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">    __STL_UNWIND(destroy_nodes_at_front(new_start));</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">else</span> &#123;   <span class="comment">// 该位置后面的元素比较少</span></div><div class="line">    iterator new_finish = reserve_elements_at_back(n);</div><div class="line">    iterator old_finish = finish;</div><div class="line">    <span class="keyword">const</span> difference_type elems_after = difference_type(length) - elems_before;</div><div class="line">    pos = finish - elems_after;</div><div class="line">    __STL_TRY &#123;</div><div class="line">      <span class="keyword">if</span> (elems_after &gt; difference_type(n)) &#123;</div><div class="line">        iterator finish_n = finish - difference_type(n);</div><div class="line">        uninitialized_copy(finish_n, finish, finish);</div><div class="line">        finish = new_finish;</div><div class="line">        copy_backward(pos, finish_n, old_finish);</div><div class="line">        fill(pos, pos + difference_type(n), x_copy);</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">else</span> &#123;</div><div class="line">        __uninitialized_fill_copy(finish, pos + difference_type(n),</div><div class="line">        x_copy,</div><div class="line">        pos, finish);</div><div class="line">        finish = new_finish;</div><div class="line">        fill(pos, old_finish, x_copy);</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">    __STL_UNWIND(destroy_nodes_at_back(new_finish));</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>deque为了实现整体连续的假象，导致其实现起来比较繁琐，尽量少使用它。另外，如果需要对deque进行排序的话，最好是先复制到vector中，然后再进行排序，最后在把元素拷贝回来，这样效率会提高一点。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/STL学习/" rel="tag"># STL学习</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/12/STL源码剖析笔记六/" rel="next" title="STL源码剖析笔记<六> 序列式容器-list">
+                <i class="fa fa-chevron-left"></i> STL源码剖析笔记<六> 序列式容器-list
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Lan" />
+          <p class="site-author-name" itemprop="name">Lan</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Deque"><span class="nav-number">1.</span> <span class="nav-text">Deque</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#deque的中控器"><span class="nav-number">2.</span> <span class="nav-text">deque的中控器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#deque的迭代器"><span class="nav-number">3.</span> <span class="nav-text">deque的迭代器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#迭代器实现"><span class="nav-number">4.</span> <span class="nav-text">迭代器实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#deque-的实现代码"><span class="nav-number">5.</span> <span class="nav-text">deque 的实现代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#deque的操作函数"><span class="nav-number">6.</span> <span class="nav-text">deque的操作函数</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://lanxiuwen.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://yoursite.com/2018/03/12/STL源码剖析学习笔记七Deque/';
+          this.page.identifier = '2018/03/12/STL源码剖析学习笔记七Deque/';
+          this.page.title = 'STL源码剖析学习笔记七 Deque';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://lanxiuwen.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+
+  
+
+  
+
+</body>
+</html>
