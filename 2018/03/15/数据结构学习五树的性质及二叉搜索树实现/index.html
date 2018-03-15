@@ -104,7 +104,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/images/BSTree1.png">
 <meta property="og:image" content="http://yoursite.com/images/BSTree2.png">
-<meta property="og:updated_time" content="2018-03-15T14:26:21.583Z">
+<meta property="og:updated_time" content="2018-03-15T14:28:17.890Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="数据结构学习&lt;五&gt; 树的性质及二叉搜索树实现">
 <meta name="twitter:description" content="树树是一种常见的抽象数据结构，一棵树的性质就是任意两个节点只有唯一的一条路径 二叉树我们一般都分析的是二叉树，对于一个节点要不是内部节点要不是外部节点，外部节点又叫叶子，内部节点有左子树或者右子树或者都有。 ##二叉树的性质  一棵有N个内部节点的二叉树有N+1个外部节点 一棵有N个内部节点的二叉树有2N个链接：N-1个链接到内部节点，N+1个链接到外部节点 有N个内部节点的二叉树的高度至少是\(">
@@ -395,6 +395,7 @@
 <li>有N个内部节点的二叉树的高度至少是\(lgN\),至多是\(N-1\)</li>
 <li>深度为\(k\)的二叉树至多有\(2^k-1\)个节点</li>
 </ul>
+<a id="more"></a>
 <h1 id="二叉搜索树"><a href="#二叉搜索树" class="headerlink" title="二叉搜索树"></a>二叉搜索树</h1><p><a href="https://baike.baidu.com/item/%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91/7077855?fr=aladdin" target="_blank" rel="external">二叉搜索树</a></p>
 <p>对于二叉搜索树的任意一个节点，比其小的一定在其左子树，比其大的一定在其右子树。<br>这样的性质决定了二叉搜索树的查找性能很好</p>
 <h2 id="二叉搜索树的点结构"><a href="#二叉搜索树的点结构" class="headerlink" title="二叉搜索树的点结构"></a>二叉搜索树的点结构</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">BSNode</span></span></div><div class="line"><span class="class">&#123;</span></div><div class="line">	<span class="keyword">template</span>&lt;<span class="keyword">typename</span> C&gt; <span class="keyword">friend</span> <span class="class"><span class="keyword">class</span> <span class="title">BSTree</span>;</span></div><div class="line"><span class="keyword">public</span>:</div><div class="line">	BSNode(T t)</div><div class="line">		:value(t), lchild(<span class="literal">nullptr</span>), rchild(<span class="literal">nullptr</span>)&#123;&#125;</div><div class="line">	BSNode() = <span class="keyword">default</span>;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">	T value;</div><div class="line">	BSNode&lt;T&gt;* lchild;</div><div class="line">	BSNode&lt;T&gt;* rchild;</div><div class="line">	BSNode&lt;T&gt;* parent;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
