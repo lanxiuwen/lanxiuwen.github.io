@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="算法," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="排序算法天下排序算法千千万，归根结底思想是不变的，让我们从头开始看看排序算法及实现 选择排序选择排序的思想 选出数组中最小的元素，将其与第一个元素交换。然后找出次小的元素与第二个元素交换，一直进行下去，直到数组排完。选择排序是一种原址排序 时间复杂度： 平均情况  \(O(N^2)\)，最坏情况\(O(N^2)\)，最好情况\(O(N^2)\) 空间复杂度：\(O(1)\) 稳定性：不稳定 实现：">
+<meta name="keywords" content="算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="常用排序算法及实现">
+<meta property="og:url" content="http://yoursite.com/2018/03/22/常用排序算法分析及实现/index.html">
+<meta property="og:site_name" content="蓝新闻">
+<meta property="og:description" content="排序算法天下排序算法千千万，归根结底思想是不变的，让我们从头开始看看排序算法及实现 选择排序选择排序的思想 选出数组中最小的元素，将其与第一个元素交换。然后找出次小的元素与第二个元素交换，一直进行下去，直到数组排完。选择排序是一种原址排序 时间复杂度： 平均情况  \(O(N^2)\)，最坏情况\(O(N^2)\)，最好情况\(O(N^2)\) 空间复杂度：\(O(1)\) 稳定性：不稳定 实现：">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-03-22T07:24:15.043Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="常用排序算法及实现">
+<meta name="twitter:description" content="排序算法天下排序算法千千万，归根结底思想是不变的，让我们从头开始看看排序算法及实现 选择排序选择排序的思想 选出数组中最小的元素，将其与第一个元素交换。然后找出次小的元素与第二个元素交换，一直进行下去，直到数组排完。选择排序是一种原址排序 时间复杂度： 平均情况  \(O(N^2)\)，最坏情况\(O(N^2)\)，最好情况\(O(N^2)\) 空间复杂度：\(O(1)\) 稳定性：不稳定 实现：">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/22/常用排序算法分析及实现/"/>
+
+
+
+
+
+  <title>常用排序算法及实现 | 蓝新闻</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">蓝新闻</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/22/常用排序算法分析及实现/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Lan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蓝新闻">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">常用排序算法及实现</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-22T15:21:37+08:00">
+                2018-03-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/算法/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/03/22/常用排序算法分析及实现/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/03/22/常用排序算法分析及实现/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="排序算法"><a href="#排序算法" class="headerlink" title="排序算法"></a>排序算法</h1><p>天下排序算法千千万，归根结底思想是不变的，让我们从头开始看看排序算法及实现</p>
+<h1 id="选择排序"><a href="#选择排序" class="headerlink" title="选择排序"></a>选择排序</h1><p><strong>选择排序的思想</strong></p>
+<p>选出数组中最小的元素，将其与第一个元素交换。然后找出次小的元素与第二个元素交换，一直进行下去，直到数组排完。选择排序是一种原址排序</p>
+<p><strong>时间复杂度</strong>： 平均情况  \(O(N^2)\)，最坏情况\(O(N^2)\)，最好情况\(O(N^2)\)</p>
+<p><strong>空间复杂度：</strong>\(O(1)\)</p>
+<p><strong>稳定性：</strong>不稳定</p>
+<p><strong>实现：</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//选择排序</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sort1</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; vec)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; vec.size(); i++)</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">int</span> min = vec[i];</div><div class="line">		<span class="keyword">int</span> indexMin = i;</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; vec.size(); j++)</div><div class="line">		&#123;</div><div class="line">			<span class="keyword">if</span> (vec[j] &lt; min)</div><div class="line">			&#123;</div><div class="line">				min = vec[j];</div><div class="line">				indexMin = j;</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">if</span> (indexMin != i)</div><div class="line">			swap(vec[i], vec[indexMin]);</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<a id="more"></a>
+<h1 id="插入排序"><a href="#插入排序" class="headerlink" title="插入排序"></a>插入排序</h1><p><strong>插入排序的思想</strong></p>
+<p>类似于扑克牌排序，依次将牌插入到适合的位置,插入排序的运行时间和输入数据的原始排列顺序密切相关，如果文件较大，并且关键词已经几乎排好序，插入排序比选择排序要快的多。</p>
+<p><strong>时间复杂度</strong>： 平均情况  \(O(N^2)\)，最坏情况\(O(N^2)\)，最好情况\(O(N)\)</p>
+<p><strong>空间复杂度：</strong>\(O(1)\)</p>
+<p><strong>稳定性：</strong>稳定</p>
+<p><strong>实现：</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//插入排序</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sort2</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; vec)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">	<span class="keyword">int</span> i = vec.size()<span class="number">-1</span>;</div><div class="line">	<span class="keyword">int</span> indexMin=i;</div><div class="line">	<span class="comment">//选出最小的值放在第一位</span></div><div class="line">	<span class="keyword">for</span> (; i &gt; <span class="number">0</span>; i--)</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">if</span> (vec[i] &lt; vec[indexMin])</div><div class="line">			indexMin = i;</div><div class="line">	&#125;</div><div class="line">	swap(vec[<span class="number">0</span>], vec[indexMin]);</div><div class="line">	<span class="comment">//从第三个数开始，与之前的进行倒序比较，遇到比其大的值，便整体后移一位，直到遇到比其小或者等于的值，然后插入这个位置。</span></div><div class="line">	<span class="keyword">for</span> (i = <span class="number">1</span>; i &lt; vec.size()<span class="number">-1</span>; i++)</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">int</span> j = i+<span class="number">1</span>;</div><div class="line">		<span class="keyword">int</span> v = vec[j];</div><div class="line">		<span class="keyword">while</span>(vec[j<span class="number">-1</span>] &gt; v)</div><div class="line">		&#123;</div><div class="line">			vec[j] = vec[j - <span class="number">1</span>];</div><div class="line">			j--;</div><div class="line">		&#125;</div><div class="line">		vec[j] = v;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h1 id="冒泡排序"><a href="#冒泡排序" class="headerlink" title="冒泡排序"></a>冒泡排序</h1><p><strong>冒泡排序的思想</strong></p>
+<p>冒泡排序是许多人学的第一种排序算法，遍历文件，如果两个元素的大小顺序不对，就交换，重复这样的操作使文件排好序，其优势是实现简单，但执行的时间较慢。</p>
+<p><strong>时间复杂度</strong>： 平均情况  \(O(N^2)\)，最坏情况\(O(N^2)\)，最好情况\(O(N)\)</p>
+<p><strong>空间复杂度：</strong>\(O(1)\)</p>
+<p><strong>稳定性：</strong>稳定</p>
+<p><strong>实现：</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//冒泡排序</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sort3</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; vec)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; vec.size(); i++)</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; vec.size()<span class="number">-1</span>; j++)</div><div class="line">		&#123;</div><div class="line">			<span class="keyword">if</span> (vec[j] &gt; vec[j + <span class="number">1</span>])</div><div class="line">				swap(vec[j], vec[j + <span class="number">1</span>]);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>再提一个冒泡排序的优化，双向冒泡，是为了解决冒泡我那天中的乌龟问题，即假设我们需要将序列A按照升序序列排序。序列中的较小的数字又大量存在于序列的尾部，这样会让小数字在向前移动得很缓慢。双向冒泡可以消除这个问题。双向冒泡便是左右交错的进行冒泡排序。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//双向冒泡(抖动）排序</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sort5</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; vec)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; vec.size(); i++)</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">if</span> (i % <span class="number">2</span> == <span class="number">0</span>)</div><div class="line">		&#123;</div><div class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; vec.size()<span class="number">-1</span>; j++)</div><div class="line">			&#123;</div><div class="line">				<span class="keyword">if</span> (vec[j] &gt; vec[j + <span class="number">1</span>])</div><div class="line">					swap(vec[j], vec[j + <span class="number">1</span>]);</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">else</span></div><div class="line">		&#123;</div><div class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> j = vec.size() - <span class="number">1</span>; j &gt; <span class="number">0</span>; j--)</div><div class="line">			&#123;</div><div class="line">				<span class="keyword">if</span> (vec[j] &lt; vec[j - <span class="number">1</span>])</div><div class="line">					swap(vec[j], vec[j - <span class="number">1</span>]);</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h1 id="简单基数排序"><a href="#简单基数排序" class="headerlink" title="简单基数排序"></a>简单基数排序</h1><p><strong>简单基数排序的思想</strong></p>
+<p>将元素放到一个以其键值为下标的数组位置，然后在依次输出就行了。</p>
+<p><strong>时间复杂度</strong>： 平均情况  \(O(dN)\)，最坏情况\(O(dN)\)，最好情况\(O(dN)\)</p>
+<p><strong>空间复杂度：</strong>\(O(d)\)</p>
+<p><strong>稳定性：</strong>稳定</p>
+<p><strong>实现：</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sort6</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp;vec)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">	<span class="keyword">int</span> max=vec[<span class="number">0</span>];</div><div class="line">	<span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; vec.size(); i++)</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">if</span> (vec[i] &gt; max)</div><div class="line">			max = vec[i];</div><div class="line">	&#125;</div><div class="line">	<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; cnt(max+<span class="number">1</span>,<span class="number">0</span>);</div><div class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; <span class="keyword">size_t</span>(i) &lt; vec.size(); i++)</div><div class="line">		cnt[vec[i]]++;</div><div class="line">	<span class="keyword">size_t</span> j = <span class="number">0</span>;</div><div class="line">	<span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; cnt.size(); i++)</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">while</span> (cnt[i] &gt; <span class="number">0</span>)</div><div class="line">		&#123;</div><div class="line">			vec[j++] = i;</div><div class="line">			cnt[i]--;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h1 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h1><p><strong>快速排序的思想</strong></p>
+<p>最为经典的排序手段，分治法的典型，要排序，则选个参考点，参考点的左边都比参考点小，参考点的右边都比参考点大。如此递归下去<br>快排的优化可以在对于参考点的选取上，三点取一或者随机数选点都可以。</p>
+<p><strong>时间复杂度</strong>： 平均情况  \(O(Nlog_2N)\)，最坏情况\(O(N^2)\)，最好情况\(O(Nlog_2N)\)</p>
+<p><strong>空间复杂度：</strong>\(O(1)\)</p>
+<p><strong>稳定性：</strong>不稳定</p>
+<p><strong>实现：</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">partition</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; vec, <span class="keyword">int</span> Begin, <span class="keyword">int</span> End)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line"></div><div class="line">	<span class="keyword">int</span> x = vec[End<span class="number">-1</span>];</div><div class="line">	<span class="keyword">int</span> i = Begin;</div><div class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> j = Begin; j &lt; End<span class="number">-1</span>; j++)</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">if</span> (vec[j] &lt; x)</div><div class="line">		&#123;</div><div class="line">			swap(vec[j], vec[i]);</div><div class="line">			i++;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	swap(vec[End<span class="number">-1</span>], vec[i]);</div><div class="line">	<span class="keyword">return</span> i;</div><div class="line">&#125;</div><div class="line"><span class="comment">//快速排序</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; vec,<span class="keyword">int</span> left,<span class="keyword">int</span> right)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">	<span class="keyword">if</span> (left &lt; right)</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">int</span> q = partition(vec, left, right);</div><div class="line">		quick_sort(vec, left, q);</div><div class="line">		quick_sort(vec, q+<span class="number">1</span>, right);</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h1 id="希尔排序"><a href="#希尔排序" class="headerlink" title="希尔排序"></a>希尔排序</h1><p><strong>希尔排序的思想</strong></p>
+<p>在直接插入排序算法中，每次插入一个数，使有序序列只增加1个节点，并且对插入下一个数没有提供任何帮助。如果比较相隔较远距离（称为 增量）的数，使得数移动时能跨过多个元素，则进行一次比较就可能消除多个元素交换。D.L.shell于1959年在以他名字命名的排序算法中实现了这一思想。算法先将要排序的一组数按某个增量d分成若干组，每组中记录的下标相差d.对每组中全部元素进行排序，然后再用一个较小的增量对它进行，在每组中再进行排序。当增量减到1时，整个要排序的数被分成一组，排序完成。</p>
+<p><strong>时间复杂度</strong>： 平均情况  \(O(N^{1.3})\)</p>
+<p><strong>空间复杂度：</strong>\(O(1)\)</p>
+<p><strong>稳定性：</strong>不稳定</p>
+<p><strong>实现：</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//希尔排序，步长取1 4 7 10...3k+1</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">sort4</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; vec)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">	<span class="keyword">int</span> i, h;</div><div class="line">	<span class="keyword">for</span> (h = <span class="number">1</span>; h &lt; (vec.size() - <span class="number">1</span>) / <span class="number">9</span>; h = <span class="number">3</span> * h + <span class="number">1</span>);</div><div class="line">	<span class="keyword">for</span> (; h &gt;<span class="number">0</span> ; h /= <span class="number">3</span>)</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">for</span> (i = h; i &lt; vec.size(); i++)</div><div class="line">		&#123;</div><div class="line">			<span class="keyword">int</span> j = i; <span class="keyword">int</span> v = vec[j];</div><div class="line">			<span class="keyword">while</span> (j &gt;= h&amp;&amp;v &lt; vec[j - h])</div><div class="line">			&#123;</div><div class="line">				vec[j] = vec[j - h];</div><div class="line">				j -= h;</div><div class="line">			&#125;</div><div class="line">			vec[j] = v;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>希尔排序的性能改进主要在于步长的选择，常见的希尔步长如下：</p>
+<ul>
+<li>1 2 4 8 16 32 64 …</li>
+<li>1 4 13 40 121 364…\(O(N^{1.5})\)</li>
+<li>1 2 4 10 23 51 113 249 …</li>
+<li>1 8 23 77 281 1073 4193…\(O(N^{1.333})\)</li>
+<li>1 2 3 4 6 9 8 12 18 27…\(O(N(log_2N)^2)\)</li>
+</ul>
+<p>当然对于步长的研究水太深了，常用的</p>
+<h1 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h1><p><strong>归并排序的思想</strong></p>
+<p>同为经典的排序手段，分治法的典型，要排序，先排好左边，再排好右边，再合并左右两边</p>
+<p><strong>时间复杂度</strong>： 平均情况  \(O(Nlog_2N)\)，最坏情况\(O(N^2)\)，最好情况\(O(Nlog_2N)\)</p>
+<p><strong>空间复杂度：</strong>\(O(N)\)</p>
+<p><strong>稳定性：</strong>稳定</p>
+<p><strong>实现：</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">merge</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; vec,<span class="keyword">int</span> first,<span class="keyword">int</span> mid,<span class="keyword">int</span> last,<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; temp)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">	temp.resize(last - first + <span class="number">1</span>);</div><div class="line">	<span class="keyword">int</span> i = first, j = mid;</div><div class="line">	<span class="keyword">int</span> k = <span class="number">0</span>;</div><div class="line">	<span class="keyword">while</span> (i &lt; mid &amp;&amp; j &lt; last)</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">if</span> (vec[i] &lt; vec[j])</div><div class="line">		&#123;</div><div class="line">			temp[k++]=vec[i++];</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">else</span></div><div class="line">		&#123;</div><div class="line">			temp[k++] = vec[j++];</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">while</span> (i &lt; mid)</div><div class="line">		temp[k++] = vec[i++];</div><div class="line">	<span class="keyword">while</span> (j&lt;last)</div><div class="line">	&#123;</div><div class="line">		temp[k++] = vec[j++];</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> m = <span class="number">0</span>; m &lt; k; m++)</div><div class="line">	&#123;</div><div class="line">		vec[first + m] = temp[m];</div><div class="line">	&#125;</div><div class="line"></div><div class="line">&#125;</div><div class="line"><span class="comment">//归并排序</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">merge_sort</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; vec,<span class="keyword">int</span> first,<span class="keyword">int</span> last,<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; temp)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">	<span class="keyword">if</span> (first &lt; last<span class="number">-1</span>)</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">int</span> mid = (first + last)&gt;&gt;<span class="number">1</span>;</div><div class="line">		merge_sort(vec, first, mid, temp);</div><div class="line">		merge_sort(vec, mid, last, temp);</div><div class="line">		merge(vec, first, mid, last, temp);</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h1 id="堆排序"><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h1><p><strong>堆排序的思想</strong></p>
+<p>堆排序是一种抽象的树的排序结构，以数据来抽象一个完全二叉树，大根堆要求每个节点的值都不大于其父节点的值，所以对一个数组进行堆排序的过程，便是对全体元素建堆，然后将第一个元素移动到最后，接着对N-1个元素进行建堆维护</p>
+<p><a href="https://baike.baidu.com/item/%E5%A0%86%E6%8E%92%E5%BA%8F/2840151?fr=aladdin" target="_blank" rel="external">堆排序</a></p>
+<p><strong>时间复杂度</strong>： 平均情况  \(O(Nlog_2N)\)，最坏情况\(O(Nlog_2N)\)，最好情况\(O(Nlog_2N)\)</p>
+<p><strong>空间复杂度：</strong>\(O(1)\)</p>
+<p><strong>稳定性：</strong>不稳定</p>
+<p><strong>实现：</strong><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//堆排序</span></div><div class="line"><span class="comment">//对某个节点下沉调整</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">precDown</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; vec, <span class="keyword">int</span> i, <span class="keyword">int</span> N)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">	<span class="keyword">int</span> child;</div><div class="line">	<span class="keyword">if</span> (<span class="number">2</span> * i + <span class="number">2</span> &lt; N)</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">for</span> (; <span class="number">2</span> * i + <span class="number">2</span> &lt; N; i = child)</div><div class="line">		&#123;</div><div class="line">			<span class="comment">//child为较大的那个子节点</span></div><div class="line">			<span class="keyword">if</span> (vec[<span class="number">2</span> * i + <span class="number">1</span>] &gt; vec[<span class="number">2</span> * i + <span class="number">2</span>])</div><div class="line">				child = <span class="number">2</span> * i + <span class="number">1</span>;</div><div class="line">			<span class="keyword">else</span></div><div class="line">				child = <span class="number">2</span> * i + <span class="number">2</span>;</div><div class="line">			<span class="keyword">if</span> (vec[child] &gt; vec[i])</div><div class="line">				swap(vec[i], vec[child]);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">else</span> <span class="keyword">if</span>(<span class="number">2</span>*i+<span class="number">1</span>&lt;N)</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">for</span> (; <span class="number">2</span> * i + <span class="number">1</span> &lt; N; i = child)</div><div class="line">		&#123;</div><div class="line">			child = <span class="number">2</span> * i + <span class="number">1</span>;</div><div class="line">			<span class="keyword">if</span> (vec[child] &gt; vec[i])</div><div class="line">				swap(vec[i], vec[child]);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">heap_sort</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; vec)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">	<span class="comment">//建堆</span></div><div class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = vec.size() / <span class="number">2</span>; i &gt;= <span class="number">0</span>; i--)</div><div class="line">	&#123;</div><div class="line">		precDown(vec, i, vec.size());</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = vec.size() - <span class="number">1</span>; i &gt; <span class="number">0</span>; i--)</div><div class="line">	&#123;</div><div class="line">		swap(vec[<span class="number">0</span>], vec[i]);</div><div class="line">		precDown(vec, <span class="number">0</span>, i);</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h1 id="测试数据"><a href="#测试数据" class="headerlink" title="测试数据"></a>测试数据</h1><p>以上给出的排序算法都可以使用以下程序进行测试<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;vector&gt;</span></span></div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">	<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec = &#123; <span class="number">8</span>,<span class="number">9</span>,<span class="number">4</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">7</span>,<span class="number">5</span>,<span class="number">2</span>,<span class="number">1</span>,<span class="number">5</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">45</span>,<span class="number">221</span>,<span class="number">548</span>,<span class="number">45</span>,<span class="number">213</span>,<span class="number">45</span>,<span class="number">878</span>,<span class="number">5</span>,<span class="number">21</span>,<span class="number">54</span>,<span class="number">58</span>,<span class="number">54</span>,<span class="number">523</span>,<span class="number">564</span>,<span class="number">5</span> &#125;;</div><div class="line">	<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec1 = &#123; <span class="number">8</span>,<span class="number">9</span>,<span class="number">6</span>,<span class="number">5</span>,<span class="number">4</span> &#125;;</div><div class="line">	<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; temp(<span class="number">10</span>);</div><div class="line">	quick_sort(vec,<span class="number">0</span>,vec.size()<span class="number">-1</span>);</div><div class="line">	<span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/算法/" rel="tag"># 算法</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/15/数据结构学习五树的性质及二叉搜索树实现/" rel="next" title="数据结构学习<五> 树的性质及二叉搜索树实现">
+                <i class="fa fa-chevron-left"></i> 数据结构学习<五> 树的性质及二叉搜索树实现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Lan" />
+          <p class="site-author-name" itemprop="name">Lan</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#排序算法"><span class="nav-number">1.</span> <span class="nav-text">排序算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#选择排序"><span class="nav-number">2.</span> <span class="nav-text">选择排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#插入排序"><span class="nav-number">3.</span> <span class="nav-text">插入排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#冒泡排序"><span class="nav-number">4.</span> <span class="nav-text">冒泡排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#简单基数排序"><span class="nav-number">5.</span> <span class="nav-text">简单基数排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#快速排序"><span class="nav-number">6.</span> <span class="nav-text">快速排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#希尔排序"><span class="nav-number">7.</span> <span class="nav-text">希尔排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#归并排序"><span class="nav-number">8.</span> <span class="nav-text">归并排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#堆排序"><span class="nav-number">9.</span> <span class="nav-text">堆排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#测试数据"><span class="nav-number">10.</span> <span class="nav-text">测试数据</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lan</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://lanxiuwen.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://yoursite.com/2018/03/22/常用排序算法分析及实现/';
+          this.page.identifier = '2018/03/22/常用排序算法分析及实现/';
+          this.page.title = '常用排序算法及实现';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://lanxiuwen.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+
+  
+
+  
+
+</body>
+</html>
